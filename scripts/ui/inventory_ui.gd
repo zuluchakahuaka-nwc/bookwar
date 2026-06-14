@@ -1,6 +1,8 @@
 extends Control
 class_name InventoryUI
 
+const LETTER_CARD_SCENE: PackedScene = preload("res://scenes/ui/letter_card.tscn")
+
 var _is_open: bool = false
 
 @onready var _letter_grid: GridContainer = $Panel/MarginContainer/VBoxContainer/LetterGrid
@@ -40,13 +42,8 @@ func _refresh() -> void:
 	_clear_grid()
 	var letters: Dictionary = InventoryManager.get_all_letters()
 	for letter_char: String in letters:
-		var level: int = letters[letter_char]
-		var data: Dictionary = AlphabetData.get_letter(letter_char)
-		var card: Button = Button.new()
-		card.text = letter_char + " Lv" + str(level)
-		if not data.is_empty():
-			var power: int = data["base_power"] * level
-			card.tooltip_text = str(power) + " | " + data["role"]
+		var card: LetterCardUI = LETTER_CARD_SCENE.instantiate() as LetterCardUI
+		card.setup(letter_char)
 		_letter_grid.add_child(card)
 	_clear_punctuation()
 	var punctuation: Dictionary = InventoryManager.get_all_punctuation()

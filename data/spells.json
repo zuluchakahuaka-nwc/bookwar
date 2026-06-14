@@ -1,0 +1,94 @@
+{
+  "spells": [
+    {
+      "word": "БАМ",
+      "letters": ["Б","А","М"],
+      "type": "attack",
+      "multiplier": 2.0,
+      "effect": "double_damage",
+      "description": "Усиленная атака — двойной урон.",
+      "unlock_cost": 51
+    },
+    {
+      "word": "БУМ",
+      "letters": ["Б","У","М"],
+      "type": "attack_pierce",
+      "multiplier": 1.8,
+      "effect": "ignore_shield",
+      "description": "Взрыв — игнорирует щит врага.",
+      "unlock_cost": 57
+    },
+    {
+      "word": "ЩИТ",
+      "letters": ["Щ","И","Т"],
+      "type": "defense",
+      "multiplier": 2.5,
+      "effect": "double_shield",
+      "description": "Двойной щит — мощная защита.",
+      "unlock_cost": 171
+    },
+    {
+      "word": "БОГ",
+      "letters": ["Б","О","Г"],
+      "type": "heal",
+      "multiplier": 1.0,
+      "effect": "heal_40",
+      "description": "Божественность — лечение +40 HP.",
+      "unlock_cost": 63
+    },
+    {
+      "word": "ДЫМ",
+      "letters": ["Д","Ы","М"],
+      "type": "dodge",
+      "multiplier": 1.0,
+      "effect": "dodge_next",
+      "description": "Дымовая завеса — уклон от следующей атаки.",
+      "unlock_cost": 48
+    },
+    {
+      "word": "ЖАР",
+      "letters": ["Ж","А","Р"],
+      "type": "dot",
+      "multiplier": 1.5,
+      "effect": "burn_3_turns",
+      "description": "Огненный жар — поджигает врага, урон 3 хода.",
+      "unlock_cost": 39
+    },
+    {
+      "word": "ЛУК",
+      "letters": ["Л","У","К"],
+      "type": "ranged",
+      "multiplier": 1.6,
+      "effect": "no_counter",
+      "description": "Дальний выстрел — враг не отвечает.",
+      "unlock_cost": 45
+    },
+    {
+      "word": "РОГ",
+      "letters": ["Р","О","Г"],
+      "type": "buff",
+      "multiplier": 2.0,
+      "effect": "buff_next_turn",
+      "description": "Призыв — усиление ×2 на следующий ход.",
+      "unlock_cost": 57
+    },
+    {
+      "word": "ХРЕН",
+      "letters": ["Х","Р","Е","Н"],
+      "type": "mass_attack",
+      "multiplier": 2.2,
+      "effect": "triple_strike",
+      "description": "Мощь — тройной удар по врагу.",
+      "unlock_cost": 168
+    },
+    {
+      "word": "ФИГ",
+      "letters": ["Ф","И","Г"],
+      "type": "counter",
+      "multiplier": 1.0,
+      "effect": "reflect_next",
+      "description": "Контр-удар — отражает следующую атаку.",
+      "unlock_cost": 42
+    }
+  ]
+}

@@ -1,10 +1,5 @@
 extends Node
 
-const VOWEL_MULTIPLIER: float = 1.0
-const CONSONANT_MULTIPLIER: float = 1.0
-const SIGN_MULTIPLIER: float = 1.5
-const EXPECTED_LETTER_COUNT: int = 33
-
 var _letters: Dictionary = {}
 var _is_loaded: bool = false
 
@@ -84,10 +79,10 @@ func calculate_damage(letter_char: String, level: int) -> float:
 	var base_power: int = letter.get("base_power", 0)
 	match letter.get("type", ""):
 		"vowel":
-			return float(base_power) * float(level) * VOWEL_MULTIPLIER
+			return float(base_power) * float(level) * BookwarConst.VOWEL_MULTIPLIER
 		"sign":
 			if letter.get("role", "") == "attack_buff":
-				return float(base_power) * float(level) * SIGN_MULTIPLIER
+				return float(base_power) * float(level) * BookwarConst.SIGN_MULTIPLIER
 			return 0.0
 	return 0.0
 
@@ -98,10 +93,10 @@ func calculate_shield(letter_char: String, level: int) -> float:
 	var base_power: int = letter.get("base_power", 0)
 	match letter.get("type", ""):
 		"consonant":
-			return float(base_power) * float(level) * CONSONANT_MULTIPLIER
+			return float(base_power) * float(level) * BookwarConst.CONSONANT_MULTIPLIER
 		"sign":
 			if letter.get("role", "") == "defense_buff":
-				return float(base_power) * float(level) * SIGN_MULTIPLIER
+				return float(base_power) * float(level) * BookwarConst.SIGN_MULTIPLIER
 			return 0.0
 	return 0.0
 

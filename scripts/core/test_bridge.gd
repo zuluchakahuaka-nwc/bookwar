@@ -18,6 +18,8 @@ const INITIAL_BRIDGE_JS: String = """
 		window.gameAlphabet = null;
 		window.gameMonsterState = null;
 		window.gameCombatLog = null;
+		window.gameCombatLogAll = [];
+		window.gameMonsterStates = [];
 		return true;
 	})()
 """
@@ -28,14 +30,36 @@ func _ready() -> void:
 
 func _setup_js_bridge() -> void:
 	JavaScriptBridge.eval(INITIAL_BRIDGE_JS)
-	# Expose combat card selection as a JS callback so Puppeteer can drive it
+	# Expose combat card selection + test drivers as JS callbacks so Puppeteer can drive them
 	JavaScriptBridge.eval("""
 		(function() {
 			window.gameSelectCard = function(letter) {
-				// The actual GDScript callback is registered via set_select_card_callback
-				// and read by the world/battle scene each frame (see _process poll).
 				if (!window._godotSelectCardQueue) window._godotSelectCardQueue = [];
 				window._godotSelectCardQueue.push(letter);
+				return true;
+			};
+			window.gameStartTestCombat = function(name, hp, letters) {
+				if (!window._godotTestCombatQueue) window._godotTestCombatQueue = [];
+				window._godotTestCombatQueue.push({name: name, hp: hp, letters: letters});
+				return true;
+			};
+			window.gameTestAddLetter = function(letter) {
+				if (!window._godotTestLetterQueue) window._godotTestLetterQueue = [];
+				window._godotTestLetterQueue.push(letter);
+				return true;
+			};
+			window.gameResetCombatLog = function() {
+				window.gameCombatLogAll = [];
+				window.gameCombatLog = null;
+				return true;
+			};
+			window.gameTestStartDialogue = function() {
+				window._godotTestDialogue = true;
+				return true;
+			};
+			window.gameTestAddDots = function(count) {
+				if (!window._godotTestDotsQueue) window._godotTestDotsQueue = 0;
+				window._godotTestDotsQueue += count;
 				return true;
 			};
 			return true;
@@ -95,14 +119,9 @@ func drain_select_card_queue() -> Array:
 	"""Returns the list of letters queued by Puppeteer via window.gameSelectCard and clears it."""
 	if not _is_web():
 		return []
-	var queued: Variant = JavaScriptBridge.eval("(window._godotSelectCardQueue || []).slice()")
-	if queued == null:
-		return []
+	var json_str: Variant = JavaScriptBridge.eval("JSON.stringify(window._godotSelectCardQueue || [])")
 	JavaScriptBridge.eval("window._godotSelectCardQueue = [];")
-	var result: Array = []
-	for item: Variant in queued:
-		result.append(str(item))
-	return result
+	return _parse_string_array(json_str)
 
 func has_select_card_callback() -> bool:
 	return _select_card_callback.is_valid()
@@ -125,6 +144,80 @@ func push_combat_log(entry: Dictionary) -> void:
 	if not _is_web():
 		return
 	JavaScriptBridge.eval("window.gameCombatLog = " + JSON.stringify(entry) + ";")
+	JavaScriptBridge.eval("window.gameCombatLogAll = window.gameCombatLogAll || []; window.gameCombatLogAll.push(" + JSON.stringify(entry) + ");")
+
+func drain_test_combat_queue() -> Array:
+	"""Returns test-combat requests queued by Puppeteer via window.gameStartTestCombat."""
+	if not _is_web():
+		return []
+	var json_str: Variant = JavaScriptBridge.eval("JSON.stringify(window._godotTestCombatQueue || [])")
+	JavaScriptBridge.eval("window._godotTestCombatQueue = [];")
+	var parsed: Array = _parse_json_array(json_str)
+	var result: Array = []
+	for item: Variant in parsed:
+		var d: Dictionary = item
+		result.append({
+			"name": String(d.get("name", "TestFoe")),
+			"hp": int(d.get("hp", BookwarConst.ENEMY_DEFAULT_HP)),
+			"letters": _to_string_array(d.get("letters", []))
+		})
+	return result
+
+func drain_test_letter_queue() -> Array:
+	"""Returns letters queued by Puppeteer via window.gameTestAddLetter."""
+	if not _is_web():
+		return []
+	var json_str: Variant = JavaScriptBridge.eval("JSON.stringify(window._godotTestLetterQueue || [])")
+	JavaScriptBridge.eval("window._godotTestLetterQueue = [];")
+	return _parse_string_array(json_str)
+
+func drain_test_dots() -> int:
+	"""Returns dots queued by Puppeteer via window.gameTestAddDots (cumulative)."""
+	if not _is_web():
+		return 0
+	var queued: Variant = JavaScriptBridge.eval("window._godotTestDotsQueue || 0")
+	JavaScriptBridge.eval("window._godotTestDotsQueue = 0;")
+	if queued == null:
+		return 0
+	return int(queued)
+
+func consume_test_dialogue() -> bool:
+	"""Returns true if Puppeteer requested a forced dialogue via window.gameTestStartDialogue."""
+	if not _is_web():
+		return false
+	var flag: Variant = JavaScriptBridge.eval("(window._godotTestDialogue === true) ? 1 : 0")
+	JavaScriptBridge.eval("window._godotTestDialogue = false;")
+	return int(flag) == 1
 
 func _escape_js(s: String) -> String:
 	return s.replace("\\", "\\\\").replace("'", "\\'").replace("\n", "\\n").replace("\r", "")
+
+# --- JSON helpers for draining JS queues (eval cannot return JS arrays/objects directly) ---
+
+func _parse_json_array(json_str: Variant) -> Array:
+	if json_str == null:
+		return []
+	var s: String = str(json_str)
+	if s == "" or s == "null":
+		return []
+	var json: JSON = JSON.new()
+	if json.parse(s) != OK:
+		return []
+	var data: Variant = json.get_data()
+	if data is Array:
+		return data
+	return []
+
+func _parse_string_array(json_str: Variant) -> Array:
+	var parsed: Array = _parse_json_array(json_str)
+	var result: Array = []
+	for item: Variant in parsed:
+		result.append(str(item))
+	return result
+
+func _to_string_array(value: Variant) -> Array:
+	var result: Array = []
+	if value is Array:
+		for item: Variant in value:
+			result.append(str(item))
+	return result

@@ -37,11 +37,13 @@ func _create_tileset() -> void:
 
 	for i: int in range(tile_paths.size()):
 		var source := TileSetAtlasSource.new()
-		var img: Image = Image.load_from_file(tile_paths[i])
-		if img == null:
-			img = Image.create(TILE_SIZE, TILE_SIZE, false, Image.FORMAT_RGBA8)
-			img.fill(Color.MAGENTA)
-		var tex: ImageTexture = ImageTexture.create_from_image(img)
+		# load() works in exported builds (.pck); Image.load_from_file does NOT for res://
+		var tex: Texture2D = load(tile_paths[i])
+		if tex == null:
+			# Procedural fallback so we never get a magenta void
+			var img: Image = Image.create(TILE_SIZE, TILE_SIZE, false, Image.FORMAT_RGBA8)
+			img.fill(Color(0.35, 0.6, 0.25) if i == GRASS else Color(0.5, 0.45, 0.35))
+			tex = ImageTexture.create_from_image(img)
 		source.texture = tex
 		source.texture_region_size = Vector2i(TILE_SIZE, TILE_SIZE)
 		source.create_tile(Vector2i(0, 0))

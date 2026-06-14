@@ -144,6 +144,112 @@ async function screenshot(label) {
   return await godot.takeScreenshot(label);
 }
 
+async function getAlphabet() {
+  return await godot.evaluateInPage(() => {
+    return window.gameAlphabet || [];
+  });
+}
+
+async function startTestCombat(name, hp, letters) {
+  await godot.evaluateInPage((n, h, l) => {
+    if (typeof window.gameStartTestCombat === 'function') {
+      window.gameStartTestCombat(n, h, l);
+    }
+  }, name, hp, letters);
+  await godot.waitFrames(10);
+}
+
+async function testAddLetter(letter) {
+  await godot.evaluateInPage((l) => {
+    if (typeof window.gameTestAddLetter === 'function') {
+      window.gameTestAddLetter(l);
+    }
+  }, letter);
+  await godot.waitFrames(5);
+}
+
+async function testAddDots(count) {
+  await godot.evaluateInPage((c) => {
+    if (typeof window.gameTestAddDots === 'function') {
+      window.gameTestAddDots(c);
+    }
+  }, count);
+  await godot.waitFrames(5);
+}
+
+async function testStartDialogue() {
+  await godot.evaluateInPage(() => {
+    if (typeof window.gameTestStartDialogue === 'function') {
+      window.gameTestStartDialogue();
+    }
+  });
+  await godot.waitFrames(15);
+}
+
+async function resetCombatLog() {
+  await godot.evaluateInPage(() => {
+    if (typeof window.gameResetCombatLog === 'function') {
+      window.gameResetCombatLog();
+    }
+  });
+}
+
+async function confirmBattleTurnExplicit() {
+  await godot.evaluateInPage(() => {
+    if (typeof window.gameConfirmTurn === 'function') {
+      window.gameConfirmTurn();
+    }
+  });
+  await godot.waitFrames(40);
+}
+
+async function fleeBattle() {
+  await godot.evaluateInPage(() => {
+    if (typeof window.gameFleeBattle === 'function') {
+      window.gameFleeBattle();
+    }
+  });
+  await godot.waitFrames(20);
+}
+
+async function getCombatLogAll() {
+  return await godot.evaluateInPage(() => {
+    return window.gameCombatLogAll || [];
+  });
+}
+
+async function getCombatState() {
+  return await godot.evaluateInPage(() => {
+    return window.gameCombatState || null;
+  });
+}
+
+async function getCombatTurnOrder() {
+  return await godot.evaluateInPage(() => {
+    return window.gameCombatTurnOrder || null;
+  });
+}
+
+async function getMonsterStates() {
+  return await godot.evaluateInPage(() => {
+    return window.gameMonsterStates || [];
+  });
+}
+
+async function waitForCombat(timeout = 15000) {
+  return await godot.waitForCondition(async () => {
+    const c = await getCombatState();
+    return c && c.is_active === true;
+  }, timeout);
+}
+
+async function waitForWorld(timeout = 15000) {
+  return await godot.waitForCondition(async () => {
+    const inCombat = await isInCombat();
+    return inCombat === false;
+  }, timeout);
+}
+
 module.exports = {
   movePlayer,
   movePlayerTo,
@@ -167,5 +273,19 @@ module.exports = {
   confirmBattleTurn,
   collectNearbyDots,
   snapshot,
-  screenshot
+  screenshot,
+  getAlphabet,
+  startTestCombat,
+  testAddLetter,
+  testAddDots,
+  testStartDialogue,
+  resetCombatLog,
+  confirmBattleTurnExplicit,
+  fleeBattle,
+  getCombatLogAll,
+  getCombatState,
+  getCombatTurnOrder,
+  getMonsterStates,
+  waitForCombat,
+  waitForWorld
 };

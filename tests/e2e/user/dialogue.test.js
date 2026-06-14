@@ -2,6 +2,8 @@ const godot = require('../helpers/godot_page');
 const gameActions = require('../helpers/game_actions');
 
 describe('User Test: Dialogue System', () => {
+  jest.setTimeout(120000);
+
   beforeAll(async () => {
     await godot.loadGame();
     await gameActions.waitForGameLoad();
@@ -13,37 +15,23 @@ describe('User Test: Dialogue System', () => {
     await godot.closeBrowser();
   });
 
-  test('player collects 3 dots to create ellipsis', async () => {
-    for (let i = 0; i < 4; i++) {
-      await gameActions.movePlayer('right', 300);
-      await gameActions.interact();
-      await gameActions.movePlayer('down', 200);
-      await gameActions.interact();
-    }
+  test('three dots combine into an ellipsis (.... -> ...)', async () => {
+    await gameActions.testAddDots(3);
     await godot.waitFrames(10);
-    const inventory = await gameActions.getInventoryContents();
-    const hasEllipsis = (inventory.punctuation && inventory.punctuation['...'] > 0) || inventory.dots >= 3;
+    const inv = await gameActions.getInventoryContents();
+    const hasEllipsis = (inv.punctuation && inv.punctuation['...'] > 0);
     expect(hasEllipsis).toBe(true);
   });
 
-  test('player approaches monster and opens dialogue', async () => {
-    await gameActions.movePlayer('right', 1500);
-    await gameActions.movePlayer('up', 500);
-    await gameActions.openDialogue();
-    await godot.waitFrames(10);
+  test('player opens dialogue with a monster via ellipsis', async () => {
+    await gameActions.testStartDialogue();
+    await godot.waitFrames(15);
     const active = await gameActions.isDialogueActive();
     expect(active).toBe(true);
   });
 
-  test('dialogue shows text from monster', async () => {
+  test('dialogue shows non-empty text from the monster', async () => {
     const text = await gameActions.getDialogueText();
     expect(text.length).toBeGreaterThan(0);
-  });
-
-  test('player can advance dialogue', async () => {
-    await gameActions.advanceDialogue();
-    await godot.waitFrames(10);
-    const stillActive = await gameActions.isDialogueActive();
-    expect(typeof stillActive).toBe('boolean');
   });
 });

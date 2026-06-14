@@ -1,8 +1,6 @@
 extends CharacterBody2D
 class_name MonsterBase
 
-const COMBAT_COOLDOWN_SEC: float = 2.0
-
 @export var monster_id: String = ""
 @export var monster_name: String = ""
 @export var hp: int = 30
@@ -145,9 +143,12 @@ func _on_detection_body_entered(body: Node2D) -> void:
 			# ! monster: enter chase immediately
 			_set_state("chase")
 		else:
-			# ? monster: enter suspicion, escalate if player stays close
-			_set_state("suspicion")
-			_suspicion_decay = 2.5
+			# ? monster: if the player can speak, auto-start dialogue (no need to press T)
+			if can_dialogue() and InventoryManager.has_ellipsis() and not GameState.is_in_combat and not GameState.is_in_dialogue:
+				start_dialogue()
+			else:
+				_set_state("suspicion")
+				_suspicion_decay = 2.5
 
 func _on_detection_body_exited(body: Node2D) -> void:
 	if body is Player and _state == "chase":
@@ -169,7 +170,7 @@ func start_dialogue() -> void:
 		var first_line: Dictionary = _dialogue_data[0]
 		var text: String = first_line.get("text", "")
 		if text != "":
-			_set_dialogue_text(text)
+			GameState.set_dialogue_text(text)
 
 func advance_dialogue() -> void:
 	# Simplified: monster dialogue ends after first interaction
@@ -180,16 +181,14 @@ func end_dialogue() -> void:
 	_set_state(behavior)
 
 func _set_dialogue_text(text: String) -> void:
-	if OS.has_feature("web"):
-		var escaped: String = text.replace("\\", "\\\\").replace("'", "\\'").replace("\n", "\\n")
-		JavaScriptBridge.eval("window.gameDialogueText = '" + escaped + "'; window.gameDialogueActive = true;")
+	GameState.set_dialogue_text(text)
 
 func _try_attack() -> void:
 	if _player_ref == null or not is_instance_valid(_player_ref):
 		return
 	# Throttle combat requests — don't fire 60/sec
 	var now: float = Time.get_ticks_msec() / 1000.0
-	if now - _last_combat_time < COMBAT_COOLDOWN_SEC:
+	if now - _last_combat_time < BookwarConst.COMBAT_COOLDOWN_SEC:
 		return
 	if GameState.is_in_combat:
 		return

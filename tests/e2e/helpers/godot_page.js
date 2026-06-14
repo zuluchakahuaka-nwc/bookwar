@@ -62,7 +62,11 @@ async function loadGame() {
   await page.waitForSelector(CANVAS_SELECTOR, { timeout: 15000 });
   const canvas = await page.$(CANVAS_SELECTOR);
   if (canvas) {
-    await canvas.click();
+    // Click the TOP-LEFT corner for focus — never the center (buttons live there).
+    const box = await canvas.boundingBox();
+    if (box) {
+      await page.mouse.click(box.x + 5, box.y + 5);
+    }
   }
   await waitFrames(60);
   return page;

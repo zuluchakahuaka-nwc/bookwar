@@ -1,8 +1,8 @@
 extends Control
 class_name MainMenu
 
-@onready var _new_game_button: Button = $VBoxContainer/NewGameButton
-@onready var _quit_button: Button = $VBoxContainer/QuitButton
+@onready var _new_game_button: Button = $CenterCol/NewGameButton
+@onready var _quit_button: Button = $CenterCol/QuitButton
 
 func _ready() -> void:
 	_new_game_button.pressed.connect(_on_new_game)

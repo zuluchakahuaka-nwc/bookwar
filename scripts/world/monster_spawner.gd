@@ -4,7 +4,7 @@ class_name MonsterSpawner
 var _spawn_points: Array[Dictionary] = []
 
 func setup_light_valley() -> void:
-	var player_pos: Vector2 = Vector2(1216, 1536)
+	var player_pos: Vector2 = BookwarConst.PLAYER_START
 	_spawn_points = [
 		{"scene": preload("res://scenes/characters/monsters/question_monster.tscn"), "pos": Vector2(player_pos.x + 600, player_pos.y)},
 		{"scene": preload("res://scenes/characters/monsters/question_monster.tscn"), "pos": Vector2(player_pos.x + 800, player_pos.y - 100)},
