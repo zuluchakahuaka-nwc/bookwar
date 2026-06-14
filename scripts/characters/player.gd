@@ -2,20 +2,17 @@ extends CharacterBody2D
 class_name Player
 
 const MOVE_SPEED: float = 200.0
-const INTERACT_RANGE: float = 60.0
+const INTERACT_RANGE: float = 200.0
 
 var _nearest_interactable: Interactable = null
 var _interactables_in_range: Array[Interactable] = []
 
 signal player_interacted
 
-@onready var _sprite: ColorRect = $Sprite
 @onready var _interaction_area: Area2D = $InteractionArea
-@onready var _interaction_timer: Timer = $InteractionTimer
 
 func _ready() -> void:
 	_interaction_area.body_entered.connect(_on_area_entered)
-	_interaction_area.body_exited.connect(_on_area_exited)
 	_interaction_area.area_entered.connect(_on_interactable_entered)
 	_interaction_area.area_exited.connect(_on_interactable_exited)
 	if OS.has_feature("web"):
@@ -31,7 +28,6 @@ func _physics_process(_delta: float) -> void:
 
 	velocity = direction * MOVE_SPEED
 	move_and_slide()
-	_update_bridge_position()
 	_poll_js_bridge()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -55,13 +51,11 @@ func _try_dialogue() -> void:
 				return
 
 func _on_area_entered(body: Node2D) -> void:
+	# Player entering monster's general area. Monsters have their own DetectionArea for vision,
+	# but we also call on_player_detected for back-compat (covers scenes where DetectionArea is missing).
 	if body is MonsterBase:
 		var monster: MonsterBase = body as MonsterBase
-		if monster.is_aggressive():
-			monster.on_player_detected(self)
-
-func _on_area_exited(body: Node2D) -> void:
-	pass
+		monster.on_player_detected(self)
 
 func _on_interactable_entered(area: Area2D) -> void:
 	if area is Interactable:
@@ -83,15 +77,10 @@ func _update_nearest_interactable() -> void:
 			closest = interactable
 	_nearest_interactable = closest
 
-func _update_bridge_position() -> void:
-	if not OS.has_feature("web"):
-		return
-	var pos: Vector2 = global_position
-	JavaScriptBridge.eval("window.gamePlayerPos = {x: " + str(pos.x) + ", y: " + str(pos.y) + "};")
-
 func _poll_js_bridge() -> void:
 	if not OS.has_feature("web"):
 		return
 	if JavaScriptBridge.eval("typeof window._godotDialogue !== 'undefined' && window._godotDialogue"):
 		JavaScriptBridge.eval("window._godotDialogue = false;")
 		_try_dialogue()
+
