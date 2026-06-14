@@ -89,6 +89,16 @@ func _process(_delta: float) -> void:
 func _drain_battle_queue() -> void:
 	var json_str: Variant = JavaScriptBridge.eval("JSON.stringify(window._godotBattleQueue || [])")
 	JavaScriptBridge.eval("window._godotBattleQueue = [];")
+	# Also drain spell-cast queue (Puppeteer can cast spells during battle)
+	var spell_json: Variant = JavaScriptBridge.eval("JSON.stringify(window._godotSpellCastQueue || [])")
+	JavaScriptBridge.eval("window._godotSpellCastQueue = [];")
+	if spell_json != null:
+		var sj: String = str(spell_json)
+		if sj != "" and sj != "null":
+			var sjson: JSON = JSON.new()
+			if sjson.parse(sj) == OK:
+				for w: Variant in (sjson.get_data() as Array):
+					cast_spell(str(w))
 	if json_str == null:
 		return
 	var s: String = str(json_str)
@@ -250,6 +260,35 @@ func _build_hand_buttons() -> void:
 				btn.modulate = Color(0.9, 0.6, 1.0)
 		btn.pressed.connect(_on_hand_button_pressed.bind(letter_char))
 		_card_container.add_child(btn)
+	# Spell buttons (only unlocked + castable spells)
+	for spell: Dictionary in SpellData.get_available_spells():
+		var word: String = String(spell.get("word", ""))
+		var power: int = int(SpellData.calculate_power(word))
+		var sbtn: Button = Button.new()
+		sbtn.text = "✦" + word + "\n" + str(power)
+		sbtn.custom_minimum_size = Vector2(90, 80)
+		sbtn.modulate = Color(1.0, 0.85, 0.4)
+		sbtn.add_theme_font_size_override("font_size", 16)
+		sbtn.pressed.connect(_on_spell_button_pressed.bind(word))
+		_card_container.add_child(sbtn)
+
+func _on_spell_button_pressed(word: String) -> void:
+	cast_spell(word)
+
+func cast_spell(word: String) -> void:
+	if _combat_resolved:
+		return
+	if not SpellData.is_unlocked(word) or not SpellData.can_cast(word):
+		battle_message.emit("Заклинание " + word + " недоступно!")
+		return
+	var power: float = SpellData.calculate_power(word)
+	var effect: String = SpellData.get_effect(word)
+	var spell_type: String = SpellData.get_spell_type(word)
+	var speed: int = SpellData.get_slowest_speed(word)
+	# Play as a single powerful card via combat_system
+	if _combat_system.play_spell(word, power, effect, spell_type, speed):
+		battle_message.emit("✦ Заклинание " + word + "! Сила " + str(int(power)))
+		_emit_state()
 
 func _sort_by_speed_desc(a: String, b: String) -> bool:
 	return AlphabetData.get_speed(a) > AlphabetData.get_speed(b)

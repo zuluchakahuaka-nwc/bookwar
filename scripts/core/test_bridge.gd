@@ -57,6 +57,16 @@ func _setup_js_bridge() -> void:
 				window._godotTestDialogue = true;
 				return true;
 			};
+			window.gameUnlockSpell = function(word) {
+				if (!window._godotSpellUnlockQueue) window._godotSpellUnlockQueue = [];
+				window._godotSpellUnlockQueue.push(word);
+				return true;
+			};
+			window.gameCastSpell = function(word) {
+				if (!window._godotSpellCastQueue) window._godotSpellCastQueue = [];
+				window._godotSpellCastQueue.push(word);
+				return true;
+			};
 			window.gameTestAddDots = function(count) {
 				if (!window._godotTestDotsQueue) window._godotTestDotsQueue = 0;
 				window._godotTestDotsQueue += count;
@@ -146,6 +156,26 @@ func push_combat_log(entry: Dictionary) -> void:
 	JavaScriptBridge.eval("window.gameCombatLog = " + JSON.stringify(entry) + ";")
 	JavaScriptBridge.eval("window.gameCombatLogAll = window.gameCombatLogAll || []; window.gameCombatLogAll.push(" + JSON.stringify(entry) + ");")
 
+func push_spell_snapshot() -> void:
+	if not _is_web():
+		return
+	var spells: Array = SpellData.get_all_spells().values()
+	var snapshot: Array = []
+	for s: Dictionary in spells:
+		var word: String = String(s.get("word", ""))
+		snapshot.append({
+			"word": word,
+			"letters": s.get("letters", []),
+			"multiplier": s.get("multiplier", 1.0),
+			"effect": s.get("effect", ""),
+			"type": s.get("type", ""),
+			"unlock_cost": s.get("unlock_cost", 0),
+			"unlocked": SpellData.is_unlocked(word),
+			"can_cast": SpellData.can_cast(word),
+			"power": SpellData.calculate_power(word)
+		})
+	JavaScriptBridge.eval("window.gameSpells = " + JSON.stringify(snapshot) + ";")
+
 func drain_test_combat_queue() -> Array:
 	"""Returns test-combat requests queued by Puppeteer via window.gameStartTestCombat."""
 	if not _is_web():
@@ -188,6 +218,20 @@ func consume_test_dialogue() -> bool:
 	var flag: Variant = JavaScriptBridge.eval("(window._godotTestDialogue === true) ? 1 : 0")
 	JavaScriptBridge.eval("window._godotTestDialogue = false;")
 	return int(flag) == 1
+
+func drain_spell_unlock_queue() -> Array:
+	if not _is_web():
+		return []
+	var json_str: Variant = JavaScriptBridge.eval("JSON.stringify(window._godotSpellUnlockQueue || [])")
+	JavaScriptBridge.eval("window._godotSpellUnlockQueue = [];")
+	return _parse_string_array(json_str)
+
+func drain_spell_cast_queue() -> Array:
+	if not _is_web():
+		return []
+	var json_str: Variant = JavaScriptBridge.eval("JSON.stringify(window._godotSpellCastQueue || [])")
+	JavaScriptBridge.eval("window._godotSpellCastQueue = [];")
+	return _parse_string_array(json_str)
 
 func _escape_js(s: String) -> String:
 	return s.replace("\\", "\\\\").replace("'", "\\'").replace("\n", "\\n").replace("\r", "")

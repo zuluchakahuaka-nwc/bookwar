@@ -236,6 +236,24 @@ async function getMonsterStates() {
   });
 }
 
+async function getSpells() {
+  return await godot.evaluateInPage(() => window.gameSpells || []);
+}
+
+async function unlockSpell(word) {
+  await godot.evaluateInPage((w) => {
+    if (typeof window.gameUnlockSpell === 'function') window.gameUnlockSpell(w);
+  }, word);
+  await godot.waitFrames(10);
+}
+
+async function castBattleSpell(word) {
+  await godot.evaluateInPage((w) => {
+    if (typeof window.gameCastSpell === 'function') window.gameCastSpell(w);
+  }, word);
+  await godot.waitFrames(5);
+}
+
 async function waitForCombat(timeout = 15000) {
   return await godot.waitForCondition(async () => {
     const c = await getCombatState();
@@ -286,6 +304,9 @@ module.exports = {
   getCombatState,
   getCombatTurnOrder,
   getMonsterStates,
+  getSpells,
+  unlockSpell,
+  castBattleSpell,
   waitForCombat,
   waitForWorld
 };
