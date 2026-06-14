@@ -1,9 +1,6 @@
 extends CharacterBody2D
 class_name Player
 
-const MOVE_SPEED: float = 200.0
-const INTERACT_RANGE: float = 200.0
-
 var _nearest_interactable: Interactable = null
 var _interactables_in_range: Array[Interactable] = []
 
@@ -26,7 +23,7 @@ func _physics_process(_delta: float) -> void:
 	if direction != Vector2.ZERO:
 		direction = direction.normalized()
 
-	velocity = direction * MOVE_SPEED
+	velocity = direction * BookwarConst.MOVE_SPEED
 	move_and_slide()
 	_poll_js_bridge()
 
@@ -69,7 +66,7 @@ func _on_interactable_exited(area: Area2D) -> void:
 
 func _update_nearest_interactable() -> void:
 	var closest: Interactable = null
-	var closest_dist: float = INTERACT_RANGE
+	var closest_dist: float = BookwarConst.INTERACT_RANGE
 	for interactable: Interactable in _interactables_in_range:
 		var dist: float = global_position.distance_to(interactable.global_position)
 		if dist < closest_dist:

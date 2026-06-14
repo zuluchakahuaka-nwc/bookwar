@@ -1,7 +1,5 @@
 extends Node
 
-const ELLIPSIS_COST: int = 3
-
 var _letter_levels: Dictionary = {}
 var _punctuation: Dictionary = {}
 var _dots: int = 0
@@ -43,12 +41,10 @@ func has_ellipsis() -> bool:
 	return _punctuation.get("...", 0) > 0
 
 func _check_ellipsis() -> void:
-	while _dots >= ELLIPSIS_COST:
-		_dots -= ELLIPSIS_COST
+	while _dots >= BookwarConst.ELLIPSIS_COST:
+		_dots -= BookwarConst.ELLIPSIS_COST
 		_punctuation["..."] = _punctuation.get("...", 0) + 1
 		ellipsis_created.emit(_punctuation["..."])
-	if _dots != _dots:  # safety no-op for clarity
-		pass
 	dots_changed.emit(_dots)
 
 func use_ellipsis() -> bool:

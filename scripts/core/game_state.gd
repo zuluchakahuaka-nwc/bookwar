@@ -1,14 +1,12 @@
 extends Node
 
-const PLAYER_MAX_HP_DEFAULT: int = 100
-const DEFAULT_REGION: String = "light_valley"
-
-var current_region: String = DEFAULT_REGION
-var player_hp: int = PLAYER_MAX_HP_DEFAULT
-var player_max_hp: int = PLAYER_MAX_HP_DEFAULT
+var current_region: String = BookwarConst.DEFAULT_REGION
+var player_hp: int = BookwarConst.PLAYER_MAX_HP
+var player_max_hp: int = BookwarConst.PLAYER_MAX_HP
 var story_flags: Dictionary = {}
 var is_in_combat: bool = false
 var is_in_dialogue: bool = false
+var dialogue_text: String = ""
 
 # Combat transition state — set by request_combat, consumed by battle scene
 var pending_combat_monster_id: String = ""
@@ -22,6 +20,7 @@ signal combat_started
 signal combat_ended(player_won: bool)
 signal dialogue_started
 signal dialogue_ended
+signal dialogue_text_set(text: String)
 signal combat_requested(monster_id: String, monster_name: String, enemy_hp: int, enemy_letters: Array)
 
 func set_region(region_id: String) -> void:
@@ -85,15 +84,23 @@ func start_dialogue() -> void:
 
 func end_dialogue() -> void:
 	is_in_dialogue = false
+	dialogue_text = ""
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("window.gameDialogueActive = false;")
 	dialogue_ended.emit()
+
+func set_dialogue_text(text: String) -> void:
+	dialogue_text = text
+	if OS.has_feature("web"):
+		var escaped: String = text.replace("\\", "\\\\").replace("'", "\\'").replace("\n", "\\n")
+		JavaScriptBridge.eval("window.gameDialogueText = '" + escaped + "';")
+	dialogue_text_set.emit(text)
 
 func is_player_alive() -> bool:
 	return player_hp > 0
 
 func reset() -> void:
-	current_region = DEFAULT_REGION
+	current_region = BookwarConst.DEFAULT_REGION
 	player_hp = player_max_hp
 	story_flags.clear()
 	is_in_combat = false

@@ -11,6 +11,7 @@ config/features=PackedStringArray("4.2", "Forward Plus")
 
 [autoload]
 
+BookwarConst="*res://scripts/core/constants.gd"
 GameState="*res://scripts/core/game_state.gd"
 InventoryManager="*res://scripts/core/inventory.gd"
 AlphabetData="*res://scripts/core/alphabet_data.gd"
