@@ -13,15 +13,11 @@ const PATH: int = 4
 const FENCE: int = 5
 
 @onready var tile_map: TileMapLayer = $"../TileMapLayer"
-@onready var items_node: Node2D = $"../Items"
-@onready var monster_spawner: MonsterSpawner = $"../MonsterSpawner"
 
 func _ready() -> void:
 	_create_tileset()
 	_generate_map()
-	_spawn_dots()
-	if monster_spawner:
-		monster_spawner.setup_light_valley()
+	# Note: dot/letter/monster spawning is owned by world_map.gd to avoid double-spawn.
 
 func _create_tileset() -> void:
 	var tile_set := TileSet.new()
@@ -110,22 +106,3 @@ func _generate_map() -> void:
 	]
 	for pos: Vector2i in fence_positions:
 		tile_map.set_cell(pos, FENCE, Vector2i(0, 0))
-
-func _spawn_dots() -> void:
-	if not items_node:
-		return
-	var dot_scene: PackedScene = load("res://scenes/world/dot_item.tscn")
-	if not dot_scene:
-		return
-	var dot_positions: Array[Vector2] = [
-		Vector2(5, 5), Vector2(10, 8), Vector2(15, 3), Vector2(20, 10),
-		Vector2(25, 6), Vector2(30, 12), Vector2(35, 4), Vector2(40, 9),
-		Vector2(45, 7), Vector2(50, 11), Vector2(8, 18), Vector2(12, 22),
-		Vector2(18, 16), Vector2(22, 25), Vector2(28, 15), Vector2(33, 28),
-		Vector2(38, 22), Vector2(42, 30), Vector2(48, 18), Vector2(52, 25),
-		Vector2(55, 14), Vector2(60, 20), Vector2(65, 8), Vector2(70, 15),
-	]
-	for pos: Vector2 in dot_positions:
-		var dot: Node2D = dot_scene.instantiate()
-		dot.global_position = pos * TILE_SIZE
-		items_node.add_child(dot)

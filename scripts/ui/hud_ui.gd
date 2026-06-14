@@ -26,7 +26,7 @@ func _on_dots_changed(count: int) -> void:
 	if _dots_label:
 		_dots_label.text = text
 
-func _on_ellipsis_created() -> void:
+func _on_ellipsis_created(_count: int) -> void:
 	if _ellipsis_label:
 		_ellipsis_label.text = "...: " + str(InventoryManager.get_punctuation_count("..."))
 		_ellipsis_label.visible = true
