@@ -67,6 +67,12 @@ func _process(_delta: float) -> void:
 	for combat: Dictionary in _test_bridge.drain_test_combat_queue():
 		var letters: Array = combat.get("letters", [])
 		GameState.request_combat("test", String(combat.get("name", "TestFoe")), int(combat.get("hp", BookwarConst.ENEMY_DEFAULT_HP)), letters)
+	# Spell test drivers
+	for word: String in _test_bridge.drain_spell_unlock_queue():
+		SpellData.unlock(word)
+	for word: String in _test_bridge.drain_spell_cast_queue():
+		pass  # cast happens in battle scene; world just clears the queue
+	_test_bridge.push_spell_snapshot()
 	# Throttled monster-state snapshot (every ~0.4s) for monster-AI tests + Vision debug
 	_monster_push_timer += _delta
 	if _monster_push_timer >= 0.4:

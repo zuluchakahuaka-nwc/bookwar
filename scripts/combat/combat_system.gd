@@ -93,6 +93,55 @@ func play_enemy_card(letter_char: String, level: int) -> void:
 	card_played.emit(card)
 	_log({"event": "card_played", "side": "enemy", "letter": letter_char, "level": level})
 
+func play_spell(word: String, power: float, effect: String, spell_type: String, speed: int) -> bool:
+	# A spell acts as one combined card with computed power (AGENTS.md S16.3-S16.4)
+	if not _is_active:
+		return false
+	var card: Dictionary = {
+		"char": word,
+		"type": "spell",
+		"role": spell_type,
+		"speed": speed,
+		"base_power": int(power),
+		"level": 1,
+		"is_player": true,
+		"effect": effect,
+		"spell_power": power
+	}
+	_player_cards.append(card)
+	card_played.emit(card)
+	_log({"event": "spell_played", "word": word, "power": power, "effect": effect, "type": spell_type})
+	return true
+
+func _resolve_spell(card: Dictionary) -> void:
+	var word: String = card.get("char", "")
+	var power: float = float(card.get("spell_power", 0.0))
+	var effect: String = card.get("effect", "")
+	var spell_type: String = card.get("role", "")
+	# Most spells deal damage to enemy (attack/pierce/mass/ranged); defense/heal are special
+	match effect:
+		"heal_40":
+			var hp_gain: int = 40
+			_player_hp = min(_player_max_hp, _player_hp + hp_gain)
+			GameState.heal(hp_gain)
+			damage_dealt.emit("player_heal", hp_gain, word)
+			_log({"event": "spell_heal", "word": word, "amount": hp_gain})
+		"double_shield":
+			_player_shield += power
+			shield_applied.emit("player", power, word)
+			_log({"event": "spell_shield", "word": word, "amount": power})
+		_:
+			# Default: damage to enemy (ignore_shield pierces)
+			var target: String = "enemy"
+			if effect == "ignore_shield":
+				var bypass: float = _enemy_shield
+				_enemy_shield = 0.0
+				_apply_damage(target, power, word, 1.0)
+				_enemy_shield += bypass  # restore for future (already consumed by _apply_damage)
+			else:
+				_apply_damage(target, power, word, 1.0)
+			_log({"event": "spell_damage", "word": word, "damage": power, "effect": effect})
+
 func _build_card(letter_char: String, letter: Dictionary, level: int, is_player: bool) -> Dictionary:
 	return {
 		"char": letter_char,
@@ -147,6 +196,8 @@ func _resolve_card(card: Dictionary) -> void:
 			_resolve_consonant(card, is_player, level, letter_char)
 		"sign":
 			_resolve_sign(card, is_player, level, letter_char)
+		"spell":
+			_resolve_spell(card)
 		_:
 			_log({"event": "unknown_card_type", "type": card_type})
 
