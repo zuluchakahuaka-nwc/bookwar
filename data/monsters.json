@@ -1,0 +1,44 @@
+{
+  "monsters": [
+    {
+      "id": "question",
+      "name": "Сомнение",
+      "symbol": "?",
+      "hp": 30,
+      "behavior": "patrol",
+      "detection_radius": 100.0,
+      "attack_radius": 50.0,
+      "speed": 50.0,
+      "letters": [],
+      "punctuation": ["?"],
+      "drop_table": [
+        {"item": "dot", "chance": 0.8, "count": 1},
+        {"item": "dot", "chance": 0.3, "count": 1}
+      ],
+      "dialogue_options": [
+        {"text": "Ты не знаешь, кто я. Уходи.", "result": "flee"},
+        {"text": "Что ты охраняешь?", "result": "info"}
+      ]
+    },
+    {
+      "id": "exclamation",
+      "name": "Тревога",
+      "symbol": "!",
+      "hp": 50,
+      "behavior": "aggressive",
+      "detection_radius": 150.0,
+      "attack_radius": 60.0,
+      "speed": 80.0,
+      "letters": [],
+      "punctuation": ["!"],
+      "drop_table": [
+        {"item": "dot", "chance": 1.0, "count": 2},
+        {"item": "dot", "chance": 0.5, "count": 1}
+      ],
+      "dialogue_options": [
+        {"text": "Подожди! Я не враг!", "result": "slow"},
+        {"text": "Уйди с дороги!", "result": "enrage"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+[gd_scene load_steps=2 format=3 uid="uid://dot_item"]
+
+[ext_resource type="Script" path="res://scripts/world/interactable.gd" id="1"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_interact"]
+radius = 20.0
+
+[node name="DotItem" type="Area2D" groups=["items"]]
+collision_layer = 16
+collision_mask = 1
+script = ExtResource("1")
+interaction_name = "."
+item_type = "dot"
+item_id = "."
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_interact")
+
+[node name="Label" type="Label" parent="."]
+offset_left = -8
+offset_top = -8
+offset_right = 8
+offset_bottom = 8
+text = "."
+horizontal_alignment = 1
+vertical_alignment = 1
