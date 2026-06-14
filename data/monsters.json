@@ -39,6 +39,42 @@
         {"text": "Подожди! Я не враг!", "result": "slow"},
         {"text": "Уйди с дороги!", "result": "enrage"}
       ]
+    },
+    {
+      "id": "shadow_lurker",
+      "name": "Тенелюд",
+      "symbol": "☠",
+      "hp": 70,
+      "behavior": "aggressive",
+      "detection_radius": 180.0,
+      "attack_radius": 70.0,
+      "speed": 70.0,
+      "letters": ["У", "К"],
+      "punctuation": [],
+      "drop_table": [
+        {"item": "letter", "chance": 0.8, "count": 1},
+        {"item": "dot", "chance": 0.5, "count": 2}
+      ],
+      "dialogue_options": [
+        {"text": "Тень не говорит. Тень поглощает.", "result": "enrage"}
+      ]
+    },
+    {
+      "id": "dark_wolf",
+      "name": "Тёмный Волк",
+      "symbol": "W",
+      "hp": 90,
+      "behavior": "aggressive",
+      "detection_radius": 200.0,
+      "attack_radius": 80.0,
+      "speed": 100.0,
+      "letters": ["А", "Р"],
+      "punctuation": [],
+      "drop_table": [
+        {"item": "letter", "chance": 1.0, "count": 1},
+        {"item": "letter", "chance": 0.5, "count": 1}
+      ],
+      "dialogue_options": []
     }
   ]
 }
