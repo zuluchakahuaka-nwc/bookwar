@@ -658,36 +658,63 @@ func _private_helper() -> void:
 
 ### 12.5 Vision MCP Server — глаза AI-агента
 
-Для визуального анализа игры используется **Z.AI Vision MCP Server** (`@z_ai/mcp-server`):
+Vision-анализ доступен **ДВУМЯ способами** (использовать оба, fallback друг на друга):
 
-**Настройка** (в `opencode.json`):
-```json
-{
-  "mcp": {
-    "zai-mcp-server": {
-      "type": "local",
-      "command": ["npx", "-y", "@z_ai/mcp-server"],
-      "enabled": true,
-      "environment": {
-        "Z_AI_API_KEY": "<ключ>",
-        "Z_AI_MODE": "ZAI"
-      }
-    }
-  }
-}
+#### Способ 1 — встроенные инструменты opencode (in-process)
+
+В `opencode.json` подключён `zai-mcp-server` с `Z_AI_API_KEY`. Доступно напрямую как вызовы функций:
+- `zai-mcp-server_analyze_image` — общий анализ изображения
+- `zai-mcp-server_extract_text_from_screenshot` — OCR (распознавание текста)
+- `zai-mcp-server_diagnose_error_screenshot` — диагностика ошибок
+- `zai-mcp-server_ui_diff_check` — сравнение скриншотов (до/после)
+- `zai-mcp-server_understand_technical_diagram` — анализ диаграмм
+- `zai-mcp-server_analyze_data_visualization` — анализ графиков
+- `zai-mcp-server_ui_to_artifact` — UI → код/спецификация
+- `zai-mcp-server_analyze_video` — анализ видео (MP4/MOV/M4V, ≤8MB)
+
+Параметры: `image_source` (локальный путь или URL) + `prompt`.
+
+#### Способ 2 — внешний `mcp-cli.exe` (fallback, работает из любого проекта)
+
+- Бинарник: `~\.bun\bin\mcp-cli.exe` (Bun, mcp-cli v0.3.0)
+- Конфиг: `~\.mcp_servers.json` (сервер `zai-vision`, модель GLM-4.6V)
+- Работает из любой директории
+
+**Перед каждым вызовом обновить PATH:**
+```powershell
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","User") + ";" + [System.Environment]::GetEnvironmentVariable("Path","Machine")
 ```
 
-**Инструменты Vision MCP:**
-- `diagnose_error_screenshot` — анализ скриншота ошибки → предложение фикса
-- `ui_to_artifact` — превращение UI скриншота в код/описание
-- `extract_text_from_screenshot` — OCR текста с экрана
-- `ui_diff_check` — сравнение двух скриншотов (до/после изменения)
-- `image_analysis` — общий анализ изображения
+**Команды:**
+```powershell
+# Анализ изображения
+mcp-cli call zai-vision analyze_image '{"image_source":"C:/path/file.png","prompt":"Опиши что видишь"}'
 
-**Как использовать:**
+# OCR — распознавание текста
+mcp-cli call zai-vision extract_text_from_screenshot '{"image_source":"C:/path/file.png","prompt":"Извлеки текст"}'
+
+# Сравнение двух скриншотов
+mcp-cli call zai-vision ui_diff_check '{"expected_image_source":"ref.png","actual_image_source":"cur.png","prompt":"Сравни"}'
+
+# Диагностика ошибки
+mcp-cli call zai-vision diagnose_error_screenshot '{"image_source":"err.png","prompt":"Что за ошибка"}'
+
+# Список серверов и инструментов
+mcp-cli -d
+```
+
+**Правила:**
+- JSON-аргументы в одинарных кавычках: `'{"key":"value"}'`
+- Пути с `/` (forward slash), не `\`
+- Каждый вызов ≈ 10–15 секунд
+- Сначала пробовать встроенные инструменты, потом mcp-cli как fallback
+
+**Обёртка с таймаутом:** `scripts/dev/vision.ps1 -Tool <name> -Json '<json>' -TimeoutSec 90` — убивает mcp-cli при зависании (см. §12.8).
+
+**Как использовать в рабочем цикле:**
 1. Сделать скриншот: `gameActions.snapshot('bug_report')` или `godot.takeScreenshot()`
 2. Скриншоты сохраняются в `tests/e2e/screenshots/`
-3. Передать скриншот Vision MCP: указать путь к файлу
+3. Передать скриншот Vision MCP (способ 1 или 2)
 4. MCP проанализирует и вернёт описание/диагноз
 5. Агент чинит на основе визуального анализа
 
@@ -715,6 +742,40 @@ func _private_helper() -> void:
 10. Создать стартовую карту Светлой Долины
 
 **Дальше — по этапам из раздела 9, все 3 потока A/B/C параллельно.**
+
+### 12.8 Правило таймаутов и авто-восстановления
+
+**ЛЮБАЯ** команда (build / serve / test / vision / godot), которая может зависнуть, **ОБЯЗАНА** запускаться с таймаутом. Если процесс не уложился — убивать и сообщать где зависло, чтобы агент мог восстановиться в автоматическом режиме.
+
+**Dev-скрипты** (в `scripts/dev/`):
+
+| Скрипт | Назначение | Таймаут по умолчанию |
+|--------|------------|----------------------|
+| `build.ps1` | HTML5 export через Godot headless. Kill если зависнет | 300с |
+| `serve.ps1` | http-server на :3000 с авто-рестартом при падении (≤20 рестартов) | watchdog 5с poll |
+| `test.ps1` | jest e2e с per-test timeout, авто-rerun flake, общий timeout | 1500с overall, 120с/тест |
+| `vision.ps1` | Обёртка над `mcp-cli call zai-vision ...` | 90с |
+| `verify.ps1` | Сборка→сервер→smoke→vision главной страницы | 300с |
+
+**Примеры:**
+```powershell
+# Сборка с таймаутом
+& scripts/dev/build.ps1 -TimeoutSec 300
+
+# Тесты с авто-flake-rerun
+& scripts/dev/test.ps1 -Suite "user/" -OverallTimeoutSec 1500
+
+# Vision анализ скриншота
+& scripts/dev/vision.ps1 -Tool analyze_image -Json '{"image_source":"C:/path/s.png","prompt":"Опиши"}' -TimeoutSec 90
+```
+
+**Принципы авто-восстановления:**
+1. Каждый шаг логирует начало/конец/длительность
+2. При timeout — kill + exit code 124 + продолжить следующий шаг
+3. При краше сервера — авто-рестарт (≤20 раз), потом fail
+4. При flake теста — один rerun, потом accept fail
+5. Никаких `Start-Process ... -Wait` без `WaitForExit($ms)` — только параметризованные таймауты
+6. Все логи в `$env:TEMP\bookwar_*.log` — агент может их прочитать
 
 ---
 
