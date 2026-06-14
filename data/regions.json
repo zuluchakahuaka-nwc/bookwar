@@ -1,0 +1,34 @@
+{
+  "regions": [
+    {
+      "id": "light_valley",
+      "name": "Светлая Долина",
+      "position": {"x": 0, "y": 0},
+      "difficulty": 0,
+      "biome": "meadow",
+      "light_level": 1.0,
+      "monster_ids": ["question", "exclamation"],
+      "description": "Залитые солнцем луга, уютная деревня. Стартовая локация."
+    },
+    {
+      "id": "outskirts_grove",
+      "name": "Окраинный Перелесок",
+      "position": {"x": 1, "y": 0},
+      "difficulty": 1,
+      "biome": "light_forest",
+      "light_level": 0.8,
+      "monster_ids": ["question"],
+      "description": "Первые тени, редкие деревья."
+    },
+    {
+      "id": "misty_grove",
+      "name": "Туманная Роща",
+      "position": {"x": 1, "y": -1},
+      "difficulty": 2,
+      "biome": "misty_forest",
+      "light_level": 0.6,
+      "monster_ids": [],
+      "description": "Низкий туман, скрипящие деревья."
+    }
+  ]
+}

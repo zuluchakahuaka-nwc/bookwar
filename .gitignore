@@ -1,0 +1,24 @@
+# Godot
+.godot/
+*.import
+
+# Build artifacts (regenerated)
+builds/
+
+# Node
+node_modules/
+
+# Test screenshots (regenerated)
+tests/e2e/screenshots/
+tests/screenshots/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
