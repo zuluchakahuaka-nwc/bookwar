@@ -655,17 +655,23 @@ func _private_helper() -> void:
 
 **GATE 2 — После каждого изменения (цикл фикс-верификация):**
 
+> **ПРИНЦИП «СДЕЛАЛ → ПРОВЕРИЛ → ПРОДОЛЖИЛ»**: каждое изменение проходит полный цикл
+> верификации ДО перехода к следующей задаче. Не堆ить изменения — одно за другим,
+> каждое подтверждено. Тест провалился = чини ЭТО, потом двигайся дальше.
+
 ```
-foreach изменение:
-  A. build          → & scripts/dev/build.ps1 -TimeoutSec 300  (exit≠0 = стоп, чини)
-  B. kill old procs → Get-NetTCPConnection :3000 | Stop-Process  (ВСЕГДА перед новым сервером!)
-  C. serve          → Start-Job http-server :3000  (таймаут подъёма 30с)
-  D. screenshot     → Puppeteer: godot.takeScreenshot('метка') для КАЖДОГО экрана
-  E. Vision analyze → mcp-cli call zai-vision analyze_image '{image_source,prompt}'
-                      прочитай ответ → если баг → чини → goto A
-  F. e2e test       → npx jest <затронутые suite> --testTimeout 90000
-                      все тесты зелёные? нет → чини → goto A
-  G. cleanup        → Stop-Job + Remove-Job + kill :3000  (не оставляй висящие процессы!)
+foreach изменение (по одной задаче за раз):
+  1. СДЕЛАЛ — написал код/сцену/ассет
+  2. ПРОВЕРИЛ:
+     a. build          → & scripts/dev/build.ps1 -TimeoutSec 300  (exit≠0 = стоп)
+     b. kill old procs → Get-NetTCPConnection :3000 | Stop-Process
+     c. serve          → Start-Job http-server :3000  (таймаут подъёма 30с)
+     d. e2e test       → npx jest <затронутый suite> --testTimeout 90000
+     e. screenshot     → Puppeteer: godot.takeScreenshot('метка')
+     f. Vision analyze → mcp-cli call zai-vision analyze_image → прочитай ответ
+  3. ОК? → коммит + следующая задача
+     НЕ ОК? → чини → goto 1 (не двигайся дальше пока это не работает)
+  4. cleanup          → Stop-Job + kill :3000 (ВСЕГДА)
 ```
 
 **GATE 3 — Перед словами «готово» (полная верификация):**
