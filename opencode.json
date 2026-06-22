@@ -13,8 +13,14 @@
     }
   },
   "permission": {
-    "bash": { "npm *": "allow", "npx *": "allow", "node *": "allow", "*": "ask" },
+    "bash": { "*": "allow" },
     "edit": "allow",
-    "read": "allow"
+    "read": "allow",
+    "task": "allow",
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+    "todowrite": "allow",
+    "webfetch": "allow"
   }
 }

@@ -41,6 +41,8 @@ func _ready() -> void:
 	var legacy_sprite: Node = get_node_or_null("Sprite")
 	if legacy_sprite:
 		legacy_sprite.reparent(_visual_root)
+	# Smaller hero so he can duck into thickets/bushes (32px tiles) to hide.
+	_visual_root.scale = Vector2(0.70, 0.70)
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("""
 			window.gameTriggerDialogue = function() { window._godotDialogue = true; };

@@ -24,6 +24,8 @@ var _skip_btn: Button = null
 func _ready() -> void:
 	_build_ui()
 	_show_panel(0)
+	# Legend overlay → switch to the legend melody while the story plays.
+	Music.play_legend()
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("window.gameIntroActive = true; window.gameIntroIndex = 0;")
 		JavaScriptBridge.eval("window.gameAdvanceIntro = function() { window._godotIntroAdvance = true; };")
@@ -117,6 +119,8 @@ func _finish() -> void:
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("window.gameIntroActive = false;")
 	GameState.set_story_flag("intro_seen", true)
+	# Back to the level playlist (no-op if the game hadn't started it yet, e.g. first launch).
+	Music.resume_level()
 	get_tree().change_scene_to_file(WORLD_SCENE_PATH)
 
 func _unhandled_input(event: InputEvent) -> void:

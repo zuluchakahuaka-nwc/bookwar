@@ -47,6 +47,7 @@ func _build_touch_controls() -> void:
 	_make_action_btn(vw * 0.86, vh * 0.74, "I", "open_inventory", "Сумка")
 	_make_action_btn(vw * 0.78, vh * 0.62, "T", "open_dialogue", "Речь")
 	_make_manual_btn(vw * 0.86, vh * 0.62)
+	_make_legend_btn(vw * 0.86, vh * 0.50)
 	# Persistent controls hint (top-center)
 	var hint: Label = Label.new()
 	hint.text = "WASD / кнопки — движение   |   E — взять   |   I — инвентарь   |   T — речь"
@@ -149,6 +150,25 @@ func _make_manual_btn(x: float, y: float) -> void:
 				_manual.hide_manual()
 			else:
 				_manual.show_manual())
+
+func _make_legend_btn(x: float, y: float) -> void:
+	# "Легенда" — re-plays the intro story + legend melody from inside the game.
+	var w: float = DPAD_BTN_SIZE * 1.5
+	var h: float = DPAD_BTN_SIZE
+	var btn: Button = Button.new()
+	btn.text = "Легенда"
+	btn.focus_mode = Control.FOCUS_NONE
+	btn.modulate = Color(1.0, 0.92, 0.6, 0.95)
+	btn.add_theme_font_size_override("font_size", 14)
+	add_child(btn)
+	btn.offset_left = x
+	btn.offset_top = y
+	btn.offset_right = x + w
+	btn.offset_bottom = y + h
+	btn.size = Vector2(w, h)
+	btn.position = Vector2(x, y)
+	btn.pressed.connect(func() -> void:
+		get_tree().change_scene_to_file("res://scenes/ui/intro.tscn"))
 
 func _focus_canvas() -> void:
 	# HTML5: ensure the game canvas has keyboard focus so WASD works immediately

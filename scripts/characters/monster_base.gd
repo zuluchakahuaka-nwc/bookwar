@@ -130,6 +130,9 @@ func _setup_visual() -> void:
 	_visual_root = Node2D.new()
 	_visual_root.name = "VisualRoot"
 	add_child(_visual_root)
+	# Лесная тварь рисуется мельче — чтобы герой мог укрываться в зарослях рядом с ней.
+	if monster_id == "forest_creature":
+		_visual_root.scale = Vector2(0.75, 0.75)
 	_label_ref = get_node_or_null("Label")
 	if _label_ref:
 		_label_ref.add_theme_font_size_override("font_size", BookwarConst.MONSTER_LABEL_SIZE)
