@@ -20,6 +20,14 @@ describe('User Test: Game Startup', () => {
     const clicked = await godot.clickButton('Новая игра');
     expect(clicked).toBe(true);
     await godot.waitFrames(30);
+    // Character select screen appears — confirm default hero
+    await godot.waitForCondition(async () => {
+      return await godot.evaluateInPage(() => !!(window.gameCharSelectLoaded));
+    }, 10000);
+    await godot.evaluateInPage(() => {
+      if (typeof window.gameConfirmHero === 'function') window.gameConfirmHero();
+    });
+    await godot.waitFrames(40);
   });
 
   test('game transitions to world map', async () => {

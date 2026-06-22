@@ -4,6 +4,7 @@ class_name Interactable
 @export var interaction_name: String = ""
 @export var item_type: String = ""
 @export var item_id: String = ""
+@export var collected_key: String = ""  # stable key for persistence across battle reloads
 
 signal interacted(interactable: Interactable)
 
@@ -23,6 +24,8 @@ func interact() -> void:
 	if _is_collected:
 		return
 	_is_collected = true
+	if collected_key != "":
+		GameState.mark_item_collected(collected_key)
 	match item_type:
 		"dot":
 			InventoryManager.add_dots(1)

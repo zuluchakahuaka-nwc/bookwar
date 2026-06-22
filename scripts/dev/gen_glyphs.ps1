@@ -1,25 +1,83 @@
-Add-Type -AssemblyName System.Web
-$letters = @('A','B','V','G','D','E','YO','ZH','Z','I','Y','K','L','M','N','O','P','R','S','T','U','F','H','C','CH','SH','SCH','HZ','YI','MZ','E2','YU','YA')
-$cyrillic = @('А','Б','В','Г','Д','Е','Ё','Ж','З','И','Й','К','Л','М','Н','О','П','Р','С','Т','У','Ф','Х','Ц','Ч','Ш','Щ','Ъ','Ы','Ь','Э','Ю','Я')
-$outDir = "D:\Projects\BOOKWAR\assets\sprites\letters"
-if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir -Force | Out-Null }
-$ok = 0; $fail = 0
-for ($i = 0; $i -lt $cyrillic.Count; $i++) {
-    $cyr = $cyrillic[$i]
-    $out = Join-Path $outDir "glyph_$cyr.png"
-    if ((Test-Path $out) -and ((Get-Item $out).Length -gt 1000)) { $ok++; continue }
-    $prompt = [System.Web.HttpUtility]::UrlEncode("ornate golden Slavic calligraphy Cyrillic letter $cyr on dark parchment, medieval card game glyph, glowing intricate border, fantasy")
-    $url = "https://image.pollinations.ai/prompt/$($prompt)?width=128&height=128&nologo=true&seed=$($i+1)"
-    $done = $false
-    for ($attempt = 0; ($attempt -lt 4) -and (-not $done); $attempt++) {
-        try {
-            Invoke-WebRequest -Uri $url -OutFile $out -TimeoutSec 50 -UseBasicParsing
-            if ((Get-Item $out).Length -gt 1000) { $done = $true }
-        } catch {}
-        if (-not $done) { Start-Sleep -Seconds 8 }
+# Batch-generate letter glyphs via Pollinations, convert JPEG→PNG, prepare for Godot import.
+[CmdletBinding()]
+param(
+    [int]$PauseSec = 6,
+    [string]$OutDir = "D:\Projects\BOOKWAR\assets\sprites\letters",
+    [string]$LettersJson = "D:\Projects\BOOKWAR\data\letters.json",
+    [int]$StartPos = 1,
+    [int]$EndPos = 33
+)
+$ErrorActionPreference = "Stop"
+Add-Type -AssemblyName System.Drawing
+
+if (-not (Test-Path $OutDir)) { New-Item -ItemType Directory -Path $OutDir -Force | Out-Null }
+
+# Read letter chars from letters.json
+$letters = (Get-Content $LettersJson -Raw -Encoding UTF8 | ConvertFrom-Json).letters
+$charByPos = @{}
+foreach ($l in $letters) { $charByPos[[int]$l.position] = $l.char }
+
+$results = @()
+for ($pos = $StartPos; $pos -le $EndPos; $pos++) {
+    $ch = $charByPos[$pos]
+    if (-not $ch) { Write-Warning "no char for pos $pos, skip"; continue }
+    $outFile = Join-Path $OutDir ("glyph_{0}.png" -f $pos)
+
+    # Skip if already a valid PNG (first bytes 89 50 4E 47) to avoid re-downloading
+    if (Test-Path $outFile) {
+        $b = [System.IO.File]::ReadAllBytes($outFile)
+        if ($b.Length -gt 8 -and $b[0] -eq 0x89 -and $b[1] -eq 0x50 -and $b[2] -eq 0x4E -and $b[3] -eq 0x47) {
+            Write-Host "[glyph $pos ($ch)] already valid PNG, skip" -ForegroundColor DarkGray
+            $results += [pscustomobject]@{pos=$pos; char=$ch; status="skip_ok"}
+            continue
+        }
     }
-    if ($done) { $ok++; Write-Host "$cyr " -NoNewline }
-    else { $fail++; Write-Host "${cyr}:X " -NoNewline }
-    Start-Sleep -Seconds 4
+
+    $prompt = "ornate golden Slavic calligraphy letter $ch (Cyrillic), glowing on dark parchment, medieval manuscript card game glyph, intricate border, candle light, centered"
+    $enc = [uri]::EscapeDataString($prompt)
+    $seed = $pos
+    $url = "https://image.pollinations.ai/prompt/$($enc)?width=128&height=128&nologo=true&seed=$seed"
+    $tmpJpg = Join-Path $env:TEMP ("glyph_{0}.jpg" -f $pos)
+
+    $ok = $false
+    for ($attempt = 1; $attempt -le 2 -and -not $ok; $attempt++) {
+        try {
+            Invoke-WebRequest -Uri $url -OutFile $tmpJpg -TimeoutSec 60 -UseBasicParsing
+            $img = [System.Drawing.Image]::FromFile($tmpJpg)
+            if ($img.Width -gt 0) {
+                $img.Save($outFile, [System.Drawing.Imaging.ImageFormat]::Png)
+                $img.Dispose()
+                $ok = $true
+            }
+        } catch {
+            Write-Warning "[glyph $pos ($ch)] attempt $attempt failed: $_"
+            Start-Sleep -Seconds 3
+        }
+    }
+    Remove-Item $tmpJpg -Force -ErrorAction SilentlyContinue
+
+    if ($ok) {
+        Write-Host "[glyph $pos ($ch)] OK" -ForegroundColor Green
+        $results += [pscustomobject]@{pos=$pos; char=$ch; status="ok"}
+    } else {
+        Write-Host "[glyph $pos ($ch)] FAILED" -ForegroundColor Red
+        $results += [pscustomobject]@{pos=$pos; char=$ch; status="fail"}
+    }
+    Start-Sleep -Seconds $PauseSec
 }
-Write-Host "`nDone: ok=$ok fail=$fail"
+
+# Clean stale .import files so Godot reimports fresh valid textures
+Get-ChildItem $OutDir -Filter "glyph_*.png.import" | ForEach-Object {
+    $imp = Get-Content $_.FullName -Raw
+    if ($imp -match "valid=false") {
+        Remove-Item $_.FullName -Force
+        Write-Host "[import] removed stale (valid=false): $($_.Name)" -ForegroundColor Yellow
+    }
+}
+
+$okCount = ($results | Where-Object status -eq "ok").Count
+$skipCount = ($results | Where-Object status -eq "skip_ok").Count
+$failCount = ($results | Where-Object status -eq "fail").Count
+Write-Host ""
+Write-Host "=== GLYPH GENERATION SUMMARY ===" -ForegroundColor Cyan
+Write-Host "Generated: $okCount | Skipped(valid): $skipCount | Failed: $failCount" -ForegroundColor Cyan

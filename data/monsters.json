@@ -9,15 +9,16 @@
       "detection_radius": 100.0,
       "attack_radius": 50.0,
       "speed": 50.0,
-      "letters": [],
+      "letters": ["Б", "В"],
       "punctuation": ["?"],
       "drop_table": [
         {"item": "dot", "chance": 0.8, "count": 1},
         {"item": "dot", "chance": 0.3, "count": 1}
       ],
       "dialogue_options": [
-        {"text": "Ты не знаешь, кто я. Уходи.", "result": "flee"},
-        {"text": "Что ты охраняешь?", "result": "info"}
+        {"text": "Ты не знаешь кто я. Но я знаю где спрятаны буквы. Принеси мне 3 точки — и я скажу.", "result": "info"},
+        {"text": "Я охраняю тропу на север. Там леса гуще и твари злее. Будь осторожен.", "result": "info"},
+        {"text": "Зачем тебе буквы? Они запретны. Впрочем... я чувствую в тебе силу. Возьми это.", "result": "give"}
       ]
     },
     {
@@ -29,52 +30,148 @@
       "detection_radius": 150.0,
       "attack_radius": 60.0,
       "speed": 80.0,
-      "letters": [],
-      "punctuation": ["!"],
-      "drop_table": [
-        {"item": "dot", "chance": 1.0, "count": 2},
-        {"item": "dot", "chance": 0.5, "count": 1}
-      ],
-      "dialogue_options": [
-        {"text": "Подожди! Я не враг!", "result": "slow"},
-        {"text": "Уйди с дороги!", "result": "enrage"}
-      ]
-    },
-    {
-      "id": "shadow_lurker",
-      "name": "Тенелюд",
-      "symbol": "☠",
-      "hp": 70,
-      "behavior": "aggressive",
-      "detection_radius": 180.0,
-      "attack_radius": 70.0,
-      "speed": 70.0,
-      "letters": ["У", "К"],
+      "letters": ["А", "Г"],
       "punctuation": [],
       "drop_table": [
         {"item": "letter", "chance": 0.8, "count": 1},
         {"item": "dot", "chance": 0.5, "count": 2}
       ],
       "dialogue_options": [
-        {"text": "Тень не говорит. Тень поглощает.", "result": "enrage"}
+        {"text": "Стой! Я видел тебя! Ты вор букв!", "result": "slow"},
+        {"text": "Хм... может ты не враг? Ладно. Я подумаю.", "result": "slow"}
+      ]
+    },
+    {
+      "id": "shadow_lurker",
+      "name": "Тенелюд",
+      "symbol": "!",
+      "hp": 70,
+      "behavior": "aggressive",
+      "detection_radius": 180.0,
+      "attack_radius": 70.0,
+      "speed": 70.0,
+      "letters": ["В", "Г"],
+      "punctuation": [],
+      "drop_table": [
+        {"item": "letter", "chance": 0.8, "count": 1},
+        {"item": "dot", "chance": 0.5, "count": 2}
+      ],
+      "dialogue_options": [
+        {"text": "Тень не говорит. Но ты... другой. Иди.", "result": "slow"}
       ]
     },
     {
       "id": "dark_wolf",
       "name": "Тёмный Волк",
-      "symbol": "W",
+      "symbol": "!",
       "hp": 90,
       "behavior": "aggressive",
       "detection_radius": 200.0,
       "attack_radius": 80.0,
       "speed": 100.0,
-      "letters": ["А", "Р"],
+      "letters": ["А", "Б"],
       "punctuation": [],
       "drop_table": [
         {"item": "letter", "chance": 1.0, "count": 1},
         {"item": "letter", "chance": 0.5, "count": 1}
       ],
-      "dialogue_options": []
+      "dialogue_options": [
+        {"text": "Гррр... Ты пахнешь не врагом. Уходи пока я не передумал.", "result": "slow"}
+      ]
+    },
+    {
+      "id": "two_tongue",
+      "name": "Двуязыкий",
+      "symbol": "!",
+      "hp": 120,
+      "behavior": "aggressive",
+      "detection_radius": 250.0,
+      "attack_radius": 80.0,
+      "speed": 90.0,
+      "letters": ["А", "Е", "Б", "В", "Г"],
+      "punctuation": [],
+      "drop_table": [
+        {"item": "letter", "chance": 1.0, "count": 1},
+        {"item": "letter", "chance": 1.0, "count": 1},
+        {"item": "letter", "chance": 0.5, "count": 1}
+      ],
+      "dialogue_options": [
+        {"text": "Я — Двуязыкий, язык колдуна в этом лесу. Две гласные на устах, три согласные на щите. Ты не пройдёшь.", "result": "slow"},
+        {"text": "Колдун слышит тебя через мои уста. Каждое твоё слово — ему на ухо. Бойся.", "result": "slow"}
+      ]
+    },
+    {
+      "id": "forest_creature",
+      "name": "Лесная Тварь",
+      "symbol": "!",
+      "hp": 80,
+      "behavior": "aggressive",
+      "detection_radius": 175.0,
+      "attack_radius": 72.0,
+      "speed": 78.0,
+      "letters": ["А", "В", "К"],
+      "punctuation": [],
+      "drawn": true,
+      "drop_table": [
+        {"item": "letter", "chance": 0.9, "count": 1},
+        {"item": "letter", "chance": 0.4, "count": 1}
+      ],
+      "dialogue_options": [
+        {"text": "Гххрр... Лес слышит тебя. Каждый шаг — нашему хозяину на ухо.", "result": "slow"},
+        {"text": "Ты принёс буквы? Глупец. Здесь они обращаются в пепел.", "result": "slow"},
+        {"text": "Я был как ты... пока не услышал голос деревьев. Теперь я — страж чащи.", "result": "slow"},
+        {"text": "Хозяин запретил слова. Только рык. Только когти. Уходи, пока можешь.", "result": "slow"}
+      ]
+    },
+    {
+      "id": "znak",
+      "name": "Знак",
+      "symbol": "!",
+      "hp": 150,
+      "behavior": "aggressive",
+      "detection_radius": 260.0,
+      "attack_radius": 85.0,
+      "speed": 95.0,
+      "letters": ["А", "Б", "В", "Е", "К", "М"],
+      "punctuation": [],
+      "drawn": true,
+      "is_sorcerer_minion": true,
+      "draw_type": "znak",
+      "drop_table": [
+        {"item": "letter", "chance": 1.0, "count": 1},
+        {"item": "letter", "chance": 1.0, "count": 1},
+        {"item": "letter", "chance": 0.7, "count": 1}
+      ],
+      "dialogue_options": [
+        {"text": "Я — Знак, десница Хранителя Запрета. Знаки — моя сила. Ты не пройдёшь через дубы.", "result": "slow"},
+        {"text": "Колдун дал мне имя. Имя — это власть. А у тебя имени нет.", "result": "slow"},
+        {"text": "Каждый знак препинания — мой слуга. Запятая замедлит тебя. Точка остановит.", "result": "slow"}
+      ]
+    },
+    {
+      "id": "zvuk",
+      "name": "Звук",
+      "symbol": "!",
+      "hp": 140,
+      "behavior": "aggressive",
+      "detection_radius": 280.0,
+      "attack_radius": 82.0,
+      "speed": 105.0,
+      "letters": ["О", "А", "Р", "Д", "Т", "Н"],
+      "punctuation": [],
+      "drawn": true,
+      "is_sorcerer_minion": true,
+      "draw_type": "zvuk",
+      "drop_table": [
+        {"item": "letter", "chance": 1.0, "count": 1},
+        {"item": "letter", "chance": 1.0, "count": 1},
+        {"item": "letter", "chance": 0.7, "count": 1}
+      ],
+      "dialogue_options": [
+        {"text": "Я — Звук, шуйца Хранителя Запрета. Звуки — моё оружие. Слова рассыпаются предо мной.", "result": "slow"},
+        {"text": "Колдун украл речь. То, что ты слышишь — лишь эхо. А я — гром.", "result": "slow"},
+        {"text": "Гласные кричат, согласные стонут. Всё это — моя симфония ужаса.", "result": "slow"}
+      ]
     }
   ]
 }

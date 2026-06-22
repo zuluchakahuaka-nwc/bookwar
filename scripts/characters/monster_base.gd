@@ -1,8 +1,22 @@
 extends CharacterBody2D
 class_name MonsterBase
 
+const ALLEGIANCE_HOSTILE: int = 0
+const ALLEGIANCE_RECRUITED: int = 1
+const ALLEGIANCE_NEUTRAL: int = 2
+
+# Wobble (waddle) — applies to _visual_root only, so collision/detection/label
+# position math stays stable while the body staggers like the hero.
+const WOBBLE_AMP: float = 0.11      # max tilt in radians (~6.3°)
+const WOBBLE_FREQ: float = 9.0      # step cadence (rad/s)
+const WOBBLE_BOB: float = 1.5       # tiny vertical bob in px
+# Alert (встрепенулся): when the monster noticed the hero (chase/suspicion/search)
+# it wobbles IN PLACE at 2x amp+freq — a danger tell for the player. See §19.
+const WOBBLE_ALERT_MULT: float = 2.0
+
 @export var monster_id: String = ""
 @export var monster_name: String = ""
+@export var spawn_id: String = ""
 @export var hp: int = 30
 @export var max_hp: int = 30
 @export var move_speed: float = 50.0
@@ -16,26 +30,246 @@ var _patrol_points: Array[Vector2] = []
 var _current_patrol_index: int = 0
 var _player_ref: Player = null
 var _dialogue_data: Array = []
+var _dialogue_index: int = 0
 var _drop_table: Array = []
 var _letters: Array = []
 var _last_combat_time: float = -100.0
 var _suspicion_decay: float = 0.0
+var _search_timer: float = 0.0
+var _allegiance: int = ALLEGIANCE_HOSTILE
+var _approached: bool = false
+var _follow_target: Node2D = null
+var _follow_offset: Vector2 = Vector2.ZERO
+var _label_ref: Label = null
+var _drawn: bool = false
+var _draw_type: String = ""
+var _visual_root: Node2D = null
+var _walk_phase: float = 0.0
 
 signal monster_died(monster: MonsterBase)
-signal state_changed(new_state: String)
+signal monster_state_changed(monster: MonsterBase)
+signal monster_recruited(monster: MonsterBase)
 signal detected_player(player: Node2D)
 
 func _ready() -> void:
 	_load_monster_data()
 	_state = behavior
 	_setup_patrol()
-	# Wire DetectionArea if present in scene (currently missing in tscn — fallback to player area)
+	_set_initial_allegiance()
+	_setup_visual()
 	var detection: Area2D = get_node_or_null("DetectionArea")
 	if detection:
-		# Resize the collision shape at runtime so we respect exported detection_radius
 		_ensure_detection_shape(detection)
 		detection.body_entered.connect(_on_detection_body_entered)
 		detection.body_exited.connect(_on_detection_body_exited)
+	GameState.dialogue_ended.connect(_on_global_dialogue_ended)
+	GameState.dialogue_advance.connect(_on_dialogue_advance)
+	call_deferred("_apply_saved_state")
+
+func _state_key() -> String:
+	# Stable across battle reloads: prefer the spawn_id (assigned at spawn, position-independent)
+	if spawn_id != "":
+		return spawn_id
+	return monster_id + "@" + str(int(round(global_position.x))) + "," + str(int(round(global_position.y)))
+
+func _save_state() -> void:
+	GameState.save_monster_override(_state_key(), _allegiance, _state != "dead")
+
+func _apply_saved_state() -> void:
+	var override: Dictionary = GameState.get_monster_override(_state_key())
+	if override.is_empty():
+		return
+	var saved_allegiance: int = int(override.get("allegiance", -1))
+	var saved_alive: bool = bool(override.get("alive", true))
+	if not saved_alive:
+		_die_silent()
+		return
+	if saved_allegiance == ALLEGIANCE_RECRUITED:
+		_allegiance = ALLEGIANCE_RECRUITED
+		_follow_target = _find_player()
+		_follow_offset = Vector2(randf_range(-60.0, 60.0), randf_range(60.0, 120.0))
+		collision_mask = 32
+		_set_state("follow")
+		_update_color()
+	elif saved_allegiance == ALLEGIANCE_NEUTRAL:
+		_allegiance = ALLEGIANCE_NEUTRAL
+		_set_state("patrol")
+		_update_color()
+
+func _find_player() -> Node2D:
+	var parent: Node = get_parent()
+	if parent == null:
+		return null
+	for child: Node in parent.get_children():
+		if child is Player:
+			return child
+	return null
+
+func _die_silent() -> void:
+	# Apply "already dead" state without emitting loot/die signals (restored from save)
+	_set_state("dead")
+	visible = false
+	set_physics_process(false)
+	collision_layer = 0
+	collision_mask = 0
+	var detection: Area2D = get_node_or_null("DetectionArea")
+	if detection:
+		detection.set_monitoring(false)
+		detection.set_deferred("monitorable", false)
+
+func _set_initial_allegiance() -> void:
+	if is_aggressive_flag:
+		_allegiance = ALLEGIANCE_HOSTILE
+	else:
+		_allegiance = ALLEGIANCE_NEUTRAL
+
+func _setup_visual() -> void:
+	# Visual pivot: holds the label + every drawn body part. Wobbling it tilts the
+	# whole creature without swinging offset labels in a wide arc (the pivot sits
+	# at the body's own origin, so reparenting is geometrically a no-op).
+	_visual_root = Node2D.new()
+	_visual_root.name = "VisualRoot"
+	add_child(_visual_root)
+	_label_ref = get_node_or_null("Label")
+	if _label_ref:
+		_label_ref.add_theme_font_size_override("font_size", BookwarConst.MONSTER_LABEL_SIZE)
+		_label_ref.add_theme_constant_override("outline_size", 8)
+		_label_ref.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+		_label_ref.add_theme_color_override("font_color", Color(1, 1, 1, 1))
+		_label_ref.position = Vector2(-BookwarConst.MONSTER_LABEL_SIZE * 0.35, -BookwarConst.MONSTER_LABEL_SIZE * 0.8)
+		_label_ref.reparent(_visual_root)
+	scale = Vector2(BookwarConst.MONSTER_SCALE, BookwarConst.MONSTER_SCALE)
+	if _draw_type == "znak":
+		_build_evil_humanoid("znak")
+		if _label_ref:
+			_label_ref.text = "Знак"
+			_label_ref.add_theme_font_size_override("font_size", 26)
+			_label_ref.add_theme_color_override("font_color", Color(1.0, 0.82, 0.25))
+			_label_ref.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+			_label_ref.add_theme_constant_override("outline_size", 8)
+			_label_ref.position = Vector2(-35.0, -95.0)
+			_label_ref.z_index = 50
+			_label_ref.visible = true
+	elif _draw_type == "zvuk":
+		_build_evil_humanoid("zvuk")
+		if _label_ref:
+			_label_ref.text = "Звук"
+			_label_ref.add_theme_font_size_override("font_size", 26)
+			_label_ref.add_theme_color_override("font_color", Color(0.35, 0.85, 1.0))
+			_label_ref.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+			_label_ref.add_theme_constant_override("outline_size", 8)
+			_label_ref.position = Vector2(-35.0, -95.0)
+			_label_ref.z_index = 50
+			_label_ref.visible = true
+	elif _drawn or monster_id == "forest_creature":
+		_build_creature_body()
+	_update_color()
+
+func _build_evil_humanoid(kind: String) -> void:
+	# Hero-like but evil humanoid — sorcerer's lieutenant. Draws via Polygon2D (no external sprites).
+	var body_color: Color = Color(0.18, 0.14, 0.28)
+	var robe_color: Color = Color(0.12, 0.08, 0.20)
+	var trim_color: Color = Color(0.80, 0.25, 0.20)
+	if kind == "zvuk":
+		body_color = Color(0.14, 0.18, 0.26)
+		robe_color = Color(0.08, 0.10, 0.18)
+		trim_color = Color(0.25, 0.60, 0.85)
+	# Robe (lower body — flowing cloak)
+	var robe: Polygon2D = Polygon2D.new()
+	robe.polygon = PackedVector2Array([Vector2(-18, 25), Vector2(18, 25), Vector2(14, -5), Vector2(-14, -5)])
+	robe.color = robe_color
+	_visual_root.add_child(robe)
+	# Torso
+	var torso: Polygon2D = Polygon2D.new()
+	torso.polygon = PackedVector2Array([Vector2(-14, -5), Vector2(14, -5), Vector2(11, -28), Vector2(-11, -28)])
+	torso.color = body_color
+	_visual_root.add_child(torso)
+	# Trim (evil sigil stripe across chest)
+	var stripe: Polygon2D = Polygon2D.new()
+	stripe.polygon = PackedVector2Array([Vector2(-12, -14), Vector2(12, -14), Vector2(12, -10), Vector2(-12, -10)])
+	stripe.color = trim_color
+	_visual_root.add_child(stripe)
+	# Head
+	var head: Polygon2D = Polygon2D.new()
+	head.polygon = PackedVector2Array([Vector2(-10, -28), Vector2(10, -28), Vector2(9, -48), Vector2(-9, -48)])
+	head.color = Color(body_color.r * 1.15, body_color.g * 1.15, body_color.b * 1.15)
+	_visual_root.add_child(head)
+	# Hood (pointed — sorcerer aesthetic)
+	var hood: Polygon2D = Polygon2D.new()
+	hood.polygon = PackedVector2Array([Vector2(-11, -40), Vector2(0, -58), Vector2(11, -40)])
+	hood.color = robe_color
+	_visual_root.add_child(hood)
+	# Glowing eyes (color differs per kind)
+	var eye_color: Color = Color(1.0, 0.85, 0.2) if kind == "znak" else Color(0.3, 0.9, 1.0)
+	for eye_offset: Vector2 in [Vector2(-4, -40), Vector2(4, -40)]:
+		var eye: Polygon2D = Polygon2D.new()
+		eye.polygon = PackedVector2Array([
+			eye_offset + Vector2(-2.0, -1.0), eye_offset + Vector2(2.0, -1.0),
+			eye_offset + Vector2(2.0, 1.0), eye_offset + Vector2(-2.0, 1.0)])
+		eye.color = eye_color
+		_visual_root.add_child(eye)
+	# Arms (raised — menacing pose)
+	for arm_x: float in [-14.0, 14.0]:
+		var arm: Polygon2D = Polygon2D.new()
+		var dir: float = -1.0 if arm_x < 0.0 else 1.0
+		arm.polygon = PackedVector2Array([
+			Vector2(arm_x, -8), Vector2(arm_x + dir * 5, -8),
+			Vector2(arm_x + dir * 8, -20), Vector2(arm_x + dir * 3, -22)])
+		arm.color = body_color
+		_visual_root.add_child(arm)
+	# Feet hint
+	for foot_x: float in [-9.0, 9.0]:
+		var foot: Polygon2D = Polygon2D.new()
+		foot.polygon = PackedVector2Array([Vector2(foot_x - 5, 25), Vector2(foot_x + 5, 25), Vector2(foot_x + 5, 31), Vector2(foot_x - 5, 31)])
+		foot.color = Color(0.05, 0.04, 0.08)
+		_visual_root.add_child(foot)
+
+func _build_creature_body() -> void:
+	# A drawn beast (real enemy, not just a "!"): hunched dark body + glowing red eyes.
+	# Body (torso)
+	var body: Polygon2D = Polygon2D.new()
+	body.polygon = PackedVector2Array([Vector2(-20, 22), Vector2(20, 22), Vector2(16, -10), Vector2(-16, -10)])
+	body.color = Color(0.16, 0.27, 0.15)
+	_visual_root.add_child(body)
+	# Shoulders/hump
+	var hump: Polygon2D = Polygon2D.new()
+	hump.polygon = PackedVector2Array([Vector2(-18, -8), Vector2(18, -8), Vector2(8, -22), Vector2(-8, -22)])
+	hump.color = Color(0.12, 0.22, 0.12)
+	_visual_root.add_child(hump)
+	# Head
+	var head: Polygon2D = Polygon2D.new()
+	head.polygon = PackedVector2Array([Vector2(-11, -18), Vector2(11, -18), Vector2(9, -38), Vector2(-9, -38)])
+	head.color = Color(0.20, 0.30, 0.17)
+	_visual_root.add_child(head)
+	# Snout
+	var snout: Polygon2D = Polygon2D.new()
+	snout.polygon = PackedVector2Array([Vector2(-5, -30), Vector2(5, -30), Vector2(4, -40), Vector2(-4, -40)])
+	snout.color = Color(0.14, 0.22, 0.14)
+	_visual_root.add_child(snout)
+	# Glowing red eyes
+	for eye_offset: Vector2 in [Vector2(-5, -30), Vector2(5, -30)]:
+		var eye: Polygon2D = Polygon2D.new()
+		eye.polygon = PackedVector2Array([eye_offset + Vector2(-2.5, -1.5), eye_offset + Vector2(2.5, -1.5), eye_offset + Vector2(2.5, 1.5), eye_offset + Vector2(-2.5, 1.5)])
+		eye.color = Color(1.0, 0.18, 0.12)
+		_visual_root.add_child(eye)
+	# Claws (legs hint)
+	for foot_x: float in [-13.0, 13.0]:
+		var foot: Polygon2D = Polygon2D.new()
+		foot.polygon = PackedVector2Array([Vector2(foot_x - 4, 22), Vector2(foot_x + 4, 22), Vector2(foot_x + 4, 30), Vector2(foot_x - 4, 30)])
+		foot.color = Color(0.10, 0.18, 0.10)
+		_visual_root.add_child(foot)
+	# Hide the "!" symbol — the creature IS the enemy now
+	if _label_ref:
+		_label_ref.visible = false
+
+func _update_color() -> void:
+	match _allegiance:
+		ALLEGIANCE_HOSTILE:
+			modulate = Color(1.0, 0.3, 0.3)
+		ALLEGIANCE_RECRUITED:
+			modulate = Color(0.3, 1.0, 0.4)
+		ALLEGIANCE_NEUTRAL:
+			modulate = Color(0.7, 0.7, 0.7)
 
 func _ensure_detection_shape(detection: Area2D) -> void:
 	var shape_node: CollisionShape2D = detection.get_node_or_null("DetectionCollision")
@@ -74,11 +308,29 @@ func _load_monster_data() -> void:
 			behavior = monster_dict.get("behavior", behavior)
 			is_aggressive_flag = behavior == "aggressive"
 			_dialogue_data = monster_dict.get("dialogue_options", [])
+			_drawn = bool(monster_dict.get("drawn", false)) or monster_id == "forest_creature"
+			_draw_type = str(monster_dict.get("draw_type", ""))
+			# On level 2 (forest), use darker forest-themed lines for "?" and "!"
+			if GameState.current_map_id == BookwarConst.MAP_TWO_LETTER_FOREST and (mid == "question" or mid == "exclamation"):
+				_dialogue_data = _forest_dialogues(mid)
 			_drop_table = monster_dict.get("drop_table", [])
 			_letters = []
 			for l: Variant in monster_dict.get("letters", []):
 				_letters.append(str(l))
 			break
+
+func _forest_dialogues(mid: String) -> Array:
+	if mid == "question":
+		return [
+			{"text": "Ты забрёл далеко, искатель букв. Здесь деревья помнят имена, которые ты забыл.", "result": "info"},
+			{"text": "Я видел, как колдун резал слова на коре. Большие буквы — у корней старого дуба, к востоку.", "result": "info"},
+			{"text": "Не доверяй теням. Они носят чужие лица и говорят чужими голосами.", "result": "info"}
+		]
+	return [
+		{"text": "Стой! Этот лес — территория Хозяина. Разворачивайся и иди обратно.", "result": "slow"},
+		{"text": "Хм. В тебе есть искра. Быть может, ты не добыча, а охотник. Пока живи.", "result": "slow"},
+		{"text": "Когти острее любых гласных. Но слово... слово ранит глубже. Беги.", "result": "slow"}
+	]
 
 func _setup_patrol() -> void:
 	var center: Vector2 = global_position
@@ -99,101 +351,263 @@ func _physics_process(delta: float) -> void:
 			_process_suspicion(delta)
 		"chase":
 			_process_chase(delta)
+		"search":
+			_process_search(delta)
+		"follow":
+			_process_follow(delta)
 		"dialogue", "dead":
 			pass
+	# Waddle tied to actual movement — every monster staggers like the hero.
+	# Alerted monsters (noticed the hero) wobble 2x harder, even standing in place.
+	var alerted: bool = _state == "chase" or _state == "suspicion" or _state == "search"
+	_update_wobble(delta, velocity.length() > 5.0, alerted)
+
+func _update_wobble(delta: float, moving: bool, alert: bool) -> void:
+	if _visual_root == null:
+		return
+	var mult: float = WOBBLE_ALERT_MULT if alert else 1.0
+	if moving or alert:
+		_walk_phase += delta * WOBBLE_FREQ * mult
+		_visual_root.rotation = sin(_walk_phase) * WOBBLE_AMP * mult
+		_visual_root.position.y = -abs(sin(_walk_phase)) * WOBBLE_BOB * mult
+	else:
+		_walk_phase = 0.0
+		_visual_root.rotation = lerp(_visual_root.rotation, 0.0, clampf(delta * 10.0, 0.0, 1.0))
+		_visual_root.position.y = lerp(_visual_root.position.y, 0.0, clampf(delta * 10.0, 0.0, 1.0))
 
 func _process_patrol(_delta: float) -> void:
 	if _patrol_points.size() == 0:
 		return
 	var target: Vector2 = _patrol_points[_current_patrol_index]
 	var direction: Vector2 = (target - global_position).normalized()
-	velocity = direction * move_speed
+	velocity = velocity.lerp(direction * move_speed, _delta * 5.0)
 	move_and_slide()
 	if global_position.distance_to(target) < 5.0:
 		_current_patrol_index = (_current_patrol_index + 1) % _patrol_points.size()
 
 func _process_suspicion(delta: float) -> void:
-	# ? monster: pause and look around, decay back to patrol if player escapes
 	velocity = Vector2.ZERO
 	_suspicion_decay -= delta
 	if _suspicion_decay <= 0.0:
-		_set_state("patrol")
+		_set_state(behavior)
 
 func _process_chase(_delta: float) -> void:
 	if _player_ref == null or not is_instance_valid(_player_ref):
 		_set_state(behavior)
 		return
+	if GameState.is_in_dialogue:
+		return
+	# Player hidden in dark tiles/water → lose track, enter search
+	if GameState.player_hidden:
+		_set_state("search")
+		_search_timer = BookwarConst.SEARCH_DURATION
+		return
 	var direction: Vector2 = (_player_ref.global_position - global_position).normalized()
-	velocity = direction * move_speed * 1.5
+	velocity = velocity.lerp(direction * move_speed * 1.5, _delta * 6.0)
 	move_and_slide()
 	if global_position.distance_to(_player_ref.global_position) <= attack_radius:
 		_try_attack()
+
+func _process_search(delta: float) -> void:
+	velocity = Vector2.ZERO
+	_search_timer -= delta
+	# If player revealed and in detection range → resume chase
+	if not GameState.player_hidden and _player_ref != null and is_instance_valid(_player_ref):
+		if global_position.distance_to(_player_ref.global_position) <= detection_radius:
+			_set_state("chase")
+			return
+	if _search_timer <= 0.0:
+		_player_ref = null
+		_set_state(behavior)
+
+func _process_follow(_delta: float) -> void:
+	# Resolve the player dynamically (needed for recruited monsters restored after a battle reload)
+	if _follow_target == null or not is_instance_valid(_follow_target):
+		_follow_target = _find_player()
+		if _follow_target == null:
+			return
+	# Recruited allies PROACTIVELY attack nearby hostile "!" monsters.
+	# This routes through GameState.request_combat → world_map._auto_combat_recruit,
+	# which resolves the fight INLINE (army vs enemy) WITHOUT dragging the player
+	# into the manual battle scene.
+	var enemy: MonsterBase = _find_nearest_hostile(400.0)
+	if enemy != null:
+		var enemy_dist: float = global_position.distance_to(enemy.global_position)
+		var now: float = Time.get_ticks_msec() / 1000.0
+		if enemy_dist <= 70.0 and now - _last_combat_time >= 4.0 and not GameState.is_in_dialogue and not GameState.is_in_combat and GameState.combat_cooldown <= 0.0:
+			_last_combat_time = now
+			GameState.request_combat(enemy.monster_id, enemy.monster_name, enemy.hp, enemy._letters)
+			velocity = Vector2.ZERO
+			return
+		# Move toward the enemy to engage
+		var edir: Vector2 = (enemy.global_position - global_position).normalized()
+		velocity = edir * move_speed * BookwarConst.FOLLOW_SPEED_MULT * 1.25
+		move_and_slide()
+		return
+	# No enemy nearby: follow the hero
+	var target_pos: Vector2 = _follow_target.global_position + _follow_offset
+	var dist: float = global_position.distance_to(target_pos)
+	if dist > 10.0:
+		var direction: Vector2 = (target_pos - global_position).normalized()
+		velocity = direction * move_speed * BookwarConst.FOLLOW_SPEED_MULT
+		move_and_slide()
+	else:
+		velocity = Vector2.ZERO
+
+func _find_nearest_hostile(range_px: float) -> MonsterBase:
+	var parent: Node = get_parent()
+	if parent == null:
+		return null
+	var best: MonsterBase = null
+	var best_dist: float = range_px
+	for child: Node in parent.get_children():
+		if child is MonsterBase:
+			var m: MonsterBase = child as MonsterBase
+			if m._allegiance == ALLEGIANCE_HOSTILE and m.is_active():
+				var d: float = global_position.distance_to(m.global_position)
+				if d < best_dist:
+					best_dist = d
+					best = m
+	return best
 
 func _set_state(new_state: String) -> void:
 	if _state == new_state:
 		return
 	_state = new_state
-	state_changed.emit(_state)
+	monster_state_changed.emit(self)
 
 func _on_detection_body_entered(body: Node2D) -> void:
 	if body is Player:
+		_approached = true
 		_player_ref = body
 		detected_player.emit(body)
-		if is_aggressive_flag:
-			# ! monster: enter chase immediately
-			_set_state("chase")
-		else:
-			# ? monster: if the player can speak, auto-start dialogue (no need to press T)
-			if can_dialogue() and InventoryManager.has_ellipsis() and not GameState.is_in_combat and not GameState.is_in_dialogue:
-				start_dialogue()
-			else:
-				_set_state("suspicion")
-				_suspicion_decay = 2.5
+		if GameState.is_in_dialogue:
+			return
+	if _allegiance == ALLEGIANCE_RECRUITED:
+		return
+	if _allegiance == ALLEGIANCE_NEUTRAL:
+		_set_state("patrol")
+		if can_dialogue() and InventoryManager.has_ellipsis():
+			start_dialogue()
+		return
+	if is_aggressive_flag:
+		_set_state("chase")
+	else:
+		_set_state("suspicion")
+		_suspicion_decay = 2.5
 
 func _on_detection_body_exited(body: Node2D) -> void:
-	if body is Player and _state == "chase":
-		# Lost track — return to patrol
-		_set_state(behavior)
-		_player_ref = null
+	if body is Player:
+		if _state == "dialogue":
+			GameState.end_dialogue()
+		elif _state == "chase":
+			_set_state("search")
+			_search_timer = BookwarConst.SEARCH_DURATION
 
-# Public entry point called by player.gd when the player's interaction area overlaps
 func on_player_detected(player: Player) -> void:
 	_on_detection_body_entered(player)
 
 func can_dialogue() -> bool:
+	if _allegiance == ALLEGIANCE_RECRUITED:
+		return false
 	return _dialogue_data.size() > 0
 
 func start_dialogue() -> void:
-	if _dialogue_data.size() > 0 and InventoryManager.use_ellipsis():
-		_set_state("dialogue")
-		GameState.start_dialogue()
-		var first_line: Dictionary = _dialogue_data[0]
-		var text: String = first_line.get("text", "")
-		if text != "":
-			GameState.set_dialogue_text(text)
+	if _allegiance == ALLEGIANCE_RECRUITED:
+		return
+	if _dialogue_data.size() == 0:
+		return
+	if GameState.is_in_dialogue:
+		return
+	# Need at least 3 буквицы to speak (the 3 are consumed on recruit completion in _try_recruit)
+	if not InventoryManager.has_ellipsis():
+		return
+	_dialogue_index = 0
+	_set_state("dialogue")
+	GameState.start_dialogue()
+	_show_dialogue_line(_dialogue_index)
 
-func advance_dialogue() -> void:
-	# Simplified: monster dialogue ends after first interaction
-	end_dialogue()
-
-func end_dialogue() -> void:
-	GameState.end_dialogue()
-	_set_state(behavior)
-
-func _set_dialogue_text(text: String) -> void:
+func _show_dialogue_line(index: int) -> void:
+	if index >= _dialogue_data.size():
+		GameState.end_dialogue()
+		return
+	var line: Dictionary = _dialogue_data[index]
+	var text: String = line.get("text", "")
+	if text == "":
+		text = "..."
 	GameState.set_dialogue_text(text)
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.gameDialogueActive = true;")
+
+func _on_dialogue_advance() -> void:
+	if _state != "dialogue":
+		return
+	_dialogue_index += 1
+	# The recruitment/speech cost (3 буквицы) was paid ONCE at start_dialogue.
+	# Advancing through the remaining lines is free — no extra буквицы per line.
+	if _dialogue_index < _dialogue_data.size():
+		_show_dialogue_line(_dialogue_index)
+	else:
+		GameState.end_dialogue()
+
+func _on_global_dialogue_ended() -> void:
+	if _state == "dialogue":
+		_try_recruit()
+
+func _try_recruit() -> void:
+	if _allegiance == ALLEGIANCE_RECRUITED:
+		return
+	# The recruitment costs exactly 3 буквицы (one speech), charged here on completion.
+	InventoryManager.use_ellipsis()
+	_approached = true
+	var hint: String = _get_letter_direction_hint()
+	var forced: int = GameState.recruit_force_result
+	GameState.recruit_force_result = -1
+	var roll: float
+	if forced == 1:
+		roll = 0.0
+	elif forced == 0:
+		roll = 1.0
+	else:
+		roll = randf()
+	var msg: String = ""
+	if roll < BookwarConst.RECRUIT_CHANCE:
+		_allegiance = ALLEGIANCE_RECRUITED
+		_follow_target = _player_ref
+		_follow_offset = Vector2(randf_range(-60.0, 60.0), randf_range(60.0, 120.0))
+		collision_mask = 32
+		_set_state("follow")
+		msg = monster_name + ": Возможно ты и не враг... Я с тобой!"
+		GameState.add_recruit(monster_name, _letters, hp)
+		monster_recruited.emit(self)
+	else:
+		_allegiance = ALLEGIANCE_NEUTRAL
+		_set_state("patrol")
+		msg = monster_name + ": Ладно, иди. Я не хочу драться."
+	if hint != "":
+		msg += "\n" + hint
+	_update_color()
+	_save_state()
+	monster_state_changed.emit(self)
+	GameState.recruit_message.emit(msg)
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.gameRecruitMsg = " + JSON.stringify(msg) + ";")
 
 func _try_attack() -> void:
 	if _player_ref == null or not is_instance_valid(_player_ref):
 		return
-	# Throttle combat requests — don't fire 60/sec
+	if GameState.is_in_dialogue:
+		return
+	if GameState.combat_cooldown > 0.0:
+		return
+	if _allegiance != ALLEGIANCE_HOSTILE:
+		return
 	var now: float = Time.get_ticks_msec() / 1000.0
 	if now - _last_combat_time < BookwarConst.COMBAT_COOLDOWN_SEC:
 		return
 	if GameState.is_in_combat:
 		return
 	_last_combat_time = now
-	# Hand off to world_map via GameState.request_combat
 	var enemy_letters_copy: Array = _letters.duplicate()
 	GameState.request_combat(monster_id, monster_name, hp, enemy_letters_copy)
 
@@ -206,9 +620,17 @@ func take_damage(amount: int) -> void:
 
 func _die() -> void:
 	_set_state("dead")
+	_save_state()
 	_drop_loot()
 	monster_died.emit(self)
-	queue_free()
+	visible = false
+	set_physics_process(false)
+	collision_layer = 0
+	collision_mask = 0
+	var detection: Area2D = get_node_or_null("DetectionArea")
+	if detection:
+		detection.set_monitoring(false)
+		detection.set_deferred("monitorable", false)
 
 func _drop_loot() -> void:
 	for drop: Dictionary in _drop_table:
@@ -223,8 +645,90 @@ func _drop_loot() -> void:
 						if _letters.size() > 0:
 							InventoryManager.add_letter(_letters[randi() % _letters.size()])
 
+func get_allegiance() -> int:
+	return _allegiance
+
+func is_approached() -> bool:
+	return _approached
+
+func is_active() -> bool:
+	return _state != "dead"
+
+func force_neutralize() -> void:
+	# Test/demo helper: turn a hostile monster neutral (counts as "resolved" for victory)
+	if _state == "dead":
+		return
+	if _allegiance != ALLEGIANCE_NEUTRAL:
+		_allegiance = ALLEGIANCE_NEUTRAL
+		_set_state("patrol")
+		_update_color()
+		_save_state()
+
 func get_state() -> String:
 	return _state
+
+func _get_letter_direction_hint() -> String:
+	var parent: Node = get_parent()
+	if parent == null:
+		return ""
+	var items_node: Node = parent.get_node_or_null("Items")
+	if items_node == null:
+		return ""
+	var my_pos: Vector2 = global_position
+	var best_letter: String = ""
+	var best_dist: float = 999999.0
+	var best_letter_pos: Vector2 = Vector2.ZERO
+	for child: Node in items_node.get_children():
+		if child is Area2D:
+			var area: Area2D = child as Area2D
+			if str(area.get("item_type")) != "letter":
+				continue
+			var letter_char: String = str(area.get("item_id"))
+			if letter_char == "":
+				continue
+			var dist: float = my_pos.distance_to(area.global_position)
+			if dist < best_dist:
+				best_dist = dist
+				best_letter = letter_char
+				best_letter_pos = area.global_position
+	if best_letter == "":
+		return ""
+	var diff: Vector2 = best_letter_pos - my_pos
+	var angle: float = rad_to_deg(atan2(diff.y, diff.x))
+	var dir_text: String = ""
+	var landmark: String = ""
+	if angle >= -45.0 and angle < 45.0:
+		dir_text = "на восток"
+		if abs(diff.x) > 500.0:
+			landmark = "у самого края долины"
+		else:
+			landmark = "правее отсюда"
+	elif angle >= 45.0 and angle < 135.0:
+		dir_text = "на юг"
+		if abs(diff.y) > 300.0:
+			landmark = "у воды, внизу"
+		else:
+			landmark = "ниже по склону"
+	elif angle >= -135.0 and angle < -45.0:
+		dir_text = "на север"
+		if abs(diff.y) > 400.0:
+			landmark = "к опушке леса, наверху"
+		else:
+			landmark = "чуть выше, у деревьев"
+	else:
+		dir_text = "на запад"
+		if abs(diff.x) > 500.0:
+			landmark = "в дальней чаще"
+		else:
+			landmark = "левее, за холмом"
+	var dist_text: String = ""
+	if best_dist < 200.0:
+		dist_text = "совсем рядом"
+	elif best_dist < 500.0:
+		dist_text = "неподалёку"
+	else:
+		dist_text = "далеко, но я знаю место"
+	return "Слушай! Букву " + best_letter + " ищи " + dir_text + " — " + landmark + ". " + dist_text + "."
 
 func get_snapshot() -> Dictionary:
 	return {
@@ -235,6 +739,9 @@ func get_snapshot() -> Dictionary:
 		"max_hp": max_hp,
 		"behavior": behavior,
 		"is_aggressive": is_aggressive_flag,
+		"allegiance": _allegiance,
+		"approached": _approached,
+		"drawn": _drawn,
 		"letters": _letters.duplicate(),
 		"position": {"x": global_position.x, "y": global_position.y}
 	}

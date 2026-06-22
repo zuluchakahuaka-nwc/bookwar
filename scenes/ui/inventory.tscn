@@ -47,7 +47,7 @@ horizontal_alignment = 1
 
 [node name="DotsInfo" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Точки: 0"
+text = "Буквицы: 0"
 
 [node name="LetterGrid" type="GridContainer" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2

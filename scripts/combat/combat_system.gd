@@ -25,6 +25,9 @@ var _current_index: int = 0
 var _is_active: bool = false
 var _turn_count: int = 0
 var _combat_log: Array = []
+# Each letter/spell may be played at most once PER BATTLE (rationing → strategy)
+var _player_played_this_battle: Dictionary = {}
+var _player_spells_this_battle: Dictionary = {}
 
 signal combat_started(enemy_name: String, enemy_hp: int)
 signal card_played(card: Dictionary)
@@ -34,6 +37,7 @@ signal damage_dealt(target: String, amount: float, letter_char: String)
 signal shield_applied(target: String, amount: float, letter_char: String)
 signal buff_applied(target: String, buff_type: String, multiplier: float, letter_char: String)
 signal combat_ended(player_won: bool, loot: Array)
+signal turn_round_ended(turn: int)
 
 func _ready() -> void:
 	# Sync HP from GameState on init
@@ -60,6 +64,8 @@ func start_combat(enemy_name: String, enemy_hp: int, enemy_letters: Array) -> vo
 	_current_index = 0
 	_turn_count = 0
 	_combat_log.clear()
+	_player_played_this_battle.clear()
+	_player_spells_this_battle.clear()
 	GameState.start_combat()
 	combat_started.emit(enemy_name, enemy_hp)
 	_log({"event": "combat_start", "enemy_name": enemy_name, "enemy_hp": enemy_hp})
@@ -68,6 +74,9 @@ func start_combat(enemy_name: String, enemy_hp: int, enemy_letters: Array) -> vo
 
 func play_card(letter_char: String) -> bool:
 	if not _is_active:
+		return false
+	if _player_played_this_battle.has(letter_char):
+		_log({"event": "play_card_fail", "reason": "already_played_this_battle", "letter": letter_char})
 		return false
 	var level: int = InventoryManager.get_letter_level(letter_char)
 	if level <= 0:
@@ -78,9 +87,16 @@ func play_card(letter_char: String) -> bool:
 		return false
 	var card: Dictionary = _build_card(letter_char, letter, level, true)
 	_player_cards.append(card)
+	_player_played_this_battle[letter_char] = true
 	card_played.emit(card)
 	_log({"event": "card_played", "side": "player", "letter": letter_char, "level": level})
 	return true
+
+func is_letter_played(letter_char: String) -> bool:
+	return _player_played_this_battle.has(letter_char)
+
+func is_spell_cast(word: String) -> bool:
+	return _player_spells_this_battle.has(word)
 
 func play_enemy_card(letter_char: String, level: int) -> void:
 	if not _is_active:
@@ -97,6 +113,9 @@ func play_spell(word: String, power: float, effect: String, spell_type: String, 
 	# A spell acts as one combined card with computed power (AGENTS.md S16.3-S16.4)
 	if not _is_active:
 		return false
+	if _player_spells_this_battle.has(word):
+		_log({"event": "play_spell_fail", "reason": "already_cast_this_battle", "word": word})
+		return false
 	var card: Dictionary = {
 		"char": word,
 		"type": "spell",
@@ -109,6 +128,7 @@ func play_spell(word: String, power: float, effect: String, spell_type: String, 
 		"spell_power": power
 	}
 	_player_cards.append(card)
+	_player_spells_this_battle[word] = true
 	card_played.emit(card)
 	_log({"event": "spell_played", "word": word, "power": power, "effect": effect, "type": spell_type})
 	return true
@@ -313,11 +333,13 @@ func _apply_damage(target: String, damage: float, letter_char: String, buff_mult
 	_log(action)
 
 func _end_turn_round() -> void:
-	# Clear played cards for next round; buffs persist into next round (consumed on first use)
+	# Clear played cards for next round; buffs persist into next round (consumed on first use).
+	# NOTE: _player_played_this_battle is NOT cleared here — each letter once PER BATTLE.
 	_player_cards.clear()
 	_enemy_cards.clear()
 	_turn_order.clear()
 	_current_index = 0
+	turn_round_ended.emit(_turn_count)
 	_log({"event": "turn_round_end", "turn": _turn_count})
 
 func _end_combat(player_won: bool) -> void:
@@ -404,7 +426,8 @@ func get_state_snapshot() -> Dictionary:
 		"player_cards": _player_cards.size(),
 		"enemy_cards": _enemy_cards.size(),
 		"turn_order_size": _turn_order.size(),
-		"current_index": _current_index
+		"current_index": _current_index,
+		"played_letters": _player_played_this_battle.keys()
 	}
 
 func _log(entry: Dictionary) -> void:
