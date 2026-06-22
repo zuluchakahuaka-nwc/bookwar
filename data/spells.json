@@ -69,7 +69,7 @@
       "type": "buff",
       "multiplier": 2.0,
       "effect": "buff_next_turn",
-      "description": "Призыв — усиление ×2 на следующий ход.",
+      "description": "Призыв — усиление x2 на следующий ход.",
       "unlock_cost": 57
     },
     {

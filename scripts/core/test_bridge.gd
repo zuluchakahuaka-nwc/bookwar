@@ -72,7 +72,23 @@ func _setup_js_bridge() -> void:
 				window._godotTestDotsQueue += count;
 				return true;
 			};
+		window.gameTestGotoMap = function(mapId) {
+			window._godotTestMapSwitch = mapId;
 			return true;
+		};
+		window.gameForceRecruit = function(success) {
+			window._godotRecruitForce = success ? 1 : 0;
+			return true;
+		};
+		window.gameClearRegion = function() {
+			window._godotClearRegion = true;
+			return true;
+		};
+		window.gameTestTeleport = function(x, y) {
+			window._godotTestTeleport = JSON.stringify({x: x, y: y});
+			return true;
+		};
+		return true;
 		})()
 	""")
 
@@ -218,6 +234,46 @@ func consume_test_dialogue() -> bool:
 	var flag: Variant = JavaScriptBridge.eval("(window._godotTestDialogue === true) ? 1 : 0")
 	JavaScriptBridge.eval("window._godotTestDialogue = false;")
 	return int(flag) == 1
+
+func consume_test_map_switch() -> String:
+	"""Returns map_id if Puppeteer requested a map switch, or empty string."""
+	if not _is_web():
+		return ""
+	var mid: Variant = JavaScriptBridge.eval("window._godotTestMapSwitch || ''")
+	JavaScriptBridge.eval("window._godotTestMapSwitch = '';")
+	if mid == null:
+		return ""
+	return str(mid)
+
+func consume_recruit_force() -> int:
+	"""Returns -1 (random), 0 (force fail), or 1 (force success) if Puppeteer set it."""
+	if not _is_web():
+		return -1
+	var v: Variant = JavaScriptBridge.eval("(typeof window._godotRecruitForce !== 'undefined' && window._godotRecruitForce !== null) ? window._godotRecruitForce : -1")
+	JavaScriptBridge.eval("window._godotRecruitForce = null;")
+	if v == null:
+		return -1
+	return int(v)
+
+func consume_clear_region() -> bool:
+	if not _is_web():
+		return false
+	var v: Variant = JavaScriptBridge.eval("(window._godotClearRegion === true) ? 1 : 0")
+	JavaScriptBridge.eval("window._godotClearRegion = false;")
+	return int(v) == 1
+
+func consume_test_teleport() -> Vector2:
+	if not _is_web():
+		return Vector2.ZERO
+	var json_str: Variant = JavaScriptBridge.eval("window._godotTestTeleport || ''")
+	JavaScriptBridge.eval("window._godotTestTeleport = '';")
+	if json_str == null or str(json_str) == "":
+		return Vector2.ZERO
+	var json: JSON = JSON.new()
+	if json.parse(str(json_str)) != OK:
+		return Vector2.ZERO
+	var d: Dictionary = json.get_data()
+	return Vector2(float(d.get("x", 0)), float(d.get("y", 0)))
 
 func drain_spell_unlock_queue() -> Array:
 	if not _is_web():

@@ -105,3 +105,9 @@ func get_speed(letter_char: String) -> int:
 	if letter.is_empty():
 		return 0
 	return letter.get("speed", 0)
+
+func get_base_power(letter_char: String) -> int:
+	var letter: Dictionary = get_letter(letter_char)
+	if letter.is_empty():
+		return 0
+	return letter.get("base_power", 0)

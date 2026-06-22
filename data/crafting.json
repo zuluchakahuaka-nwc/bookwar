@@ -1,0 +1,14 @@
+{
+  "recipes": [
+    {"from": "Б", "modifier": "Ь", "to": "П", "chance": 0.70, "description": "Б + Ь -> П"},
+    {"from": "П", "modifier": "Ь", "to": "Б", "chance": 0.70, "description": "П + Ь -> Б"},
+    {"from": "Ф", "modifier": "Ь", "to": "В", "chance": 0.70, "description": "Ф + Ь -> В"},
+    {"from": "В", "modifier": "Ь", "to": "Ф", "chance": 0.70, "description": "В + Ь -> Ф"},
+    {"from": "М", "modifier": "Ь", "to": "Н", "chance": 0.70, "description": "М + Ь -> Н"},
+    {"from": "Н", "modifier": "Ь", "to": "М", "chance": 0.70, "description": "Н + Ь -> М"},
+    {"from": "Щ", "modifier": "'", "to": "Ш", "chance": 0.70, "description": "Щ + ' -> Ш"},
+    {"from": "Ш", "modifier": "'", "to": "Щ", "chance": 0.70, "description": "Ш + ' -> Щ"},
+    {"from": "С", "modifier": "Ь", "to": "З", "chance": 0.60, "description": "С + Ь -> З"},
+    {"from": "Д", "modifier": "Ь", "to": "Т", "chance": 0.60, "description": "Д + Ь -> Т"}
+  ]
+}

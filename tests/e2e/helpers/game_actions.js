@@ -80,6 +80,32 @@ async function isMenuVisible() {
 async function startNewGame() {
   await godot.clickButton('Новая игра');
   await godot.waitFrames(30);
+  // Character select screen — confirm default hero (index 0)
+  await godot.waitForCondition(async () => {
+    return await godot.evaluateInPage(() => !!(window.gameCharSelectLoaded));
+  }, 10000);
+  await godot.evaluateInPage(() => {
+    if (typeof window.gameConfirmHero === 'function') window.gameConfirmHero();
+  });
+  await godot.waitFrames(40);
+}
+
+async function selectHeroByIndex(i) {
+  await godot.evaluateInPage((idx) => {
+    if (typeof window.gameSelectHeroByIndex === 'function') window.gameSelectHeroByIndex(idx);
+  }, i);
+  await godot.waitFrames(10);
+}
+
+async function confirmHero() {
+  await godot.evaluateInPage(() => {
+    if (typeof window.gameConfirmHero === 'function') window.gameConfirmHero();
+  });
+  await godot.waitFrames(40);
+}
+
+async function getHeroCount() {
+  return await godot.evaluateInPage(() => window.gameHeroCount || 0);
 }
 
 async function waitForGameLoad() {
@@ -97,7 +123,9 @@ async function getDialogueText() {
 }
 
 async function advanceDialogue() {
-  await godot.pressKey('Space', 100);
+  await godot.evaluateInPage(() => {
+    if (typeof window.gameAdvanceDialogue === 'function') window.gameAdvanceDialogue();
+  });
   await godot.waitFrames(10);
 }
 
@@ -224,6 +252,12 @@ async function getCombatState() {
   });
 }
 
+async function getBattleMessages() {
+  return await godot.evaluateInPage(() => {
+    return window.gameBattleMessages || [];
+  });
+}
+
 async function getCombatTurnOrder() {
   return await godot.evaluateInPage(() => {
     return window.gameCombatTurnOrder || null;
@@ -268,6 +302,19 @@ async function waitForWorld(timeout = 15000) {
   }, timeout);
 }
 
+async function getCombatTimer() {
+  return await godot.evaluateInPage(() => {
+    return window.gameTurnTimer || 0;
+  });
+}
+
+async function waitForCombatEnd(timeout = 30000) {
+  return await godot.waitForCondition(async () => {
+    const c = await getCombatState();
+    return !c || c.is_active === false;
+  }, timeout);
+}
+
 module.exports = {
   movePlayer,
   movePlayerTo,
@@ -282,6 +329,9 @@ module.exports = {
   getDotsFromHUD,
   isMenuVisible,
   startNewGame,
+  selectHeroByIndex,
+  confirmHero,
+  getHeroCount,
   waitForGameLoad,
   getDialogueText,
   advanceDialogue,
@@ -302,11 +352,14 @@ module.exports = {
   fleeBattle,
   getCombatLogAll,
   getCombatState,
+  getBattleMessages,
   getCombatTurnOrder,
   getMonsterStates,
   getSpells,
   unlockSpell,
   castBattleSpell,
   waitForCombat,
-  waitForWorld
+  waitForWorld,
+  getCombatTimer,
+  waitForCombatEnd
 };

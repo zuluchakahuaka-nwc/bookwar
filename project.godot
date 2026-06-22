@@ -17,6 +17,7 @@ InventoryManager="*res://scripts/core/inventory.gd"
 AlphabetData="*res://scripts/core/alphabet_data.gd"
 PunctuationData="*res://scripts/core/punctuation_data.gd"
 SpellData="*res://scripts/core/spell_data.gd"
+Music="*res://scripts/core/music.gd"
 
 [display]
 
@@ -63,6 +64,16 @@ open_dialogue={
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":84,"physical_keycode":0,"key_label":0,"unicode":116,"echo":false,"script":null)
 ]
 }
+pause={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":32,"physical_keycode":0,"key_label":0,"unicode":32,"echo":false,"script":null)
+]
+}
+open_manual={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":72,"physical_keycode":0,"key_label":0,"unicode":104,"echo":false,"script":null)
+]
+}
 
 [layer_names]
 
@@ -71,3 +82,7 @@ open_dialogue={
 2d_physics/layer_3="Monster"
 2d_physics/layer_4="Interactable"
 2d_physics/layer_5="NPC"
+
+[gui]
+
+theme/custom="res://assets/themes/default_theme.tres"

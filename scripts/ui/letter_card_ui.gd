@@ -20,8 +20,11 @@ var _applied: bool = false
 @onready var _gold_frame: ColorRect = $GoldFrame
 @onready var _type_bar: ColorRect = $TypeBar
 @onready var _char_label: Label = $CharLabel
+@onready var _glyph_rect: TextureRect = get_node_or_null("GlyphRect")
 @onready var _corner_tl: Label = $CornerTL
 @onready var _corner_br: Label = $CornerBR
+
+const GLYPH_PATH_FMT: String = "res://assets/sprites/letters/glyph_%d.png"
 
 func _ready() -> void:
 	_apply()
@@ -48,6 +51,7 @@ func _apply() -> void:
 	# Glyph + playing-card corners (level top-left, power bottom-right)
 	if _char_label:
 		_char_label.text = letter_char
+	_try_load_glyph(letter_char, int(data.get("position", 0)))
 	if _corner_tl:
 		_corner_tl.text = str(level)
 	if _corner_br:
@@ -83,3 +87,26 @@ func _apply() -> void:
 			_glow.color = Color(accent.r, accent.g, accent.b, clampf(0.10 + 0.06 * float(level), 0.10, 0.40))
 		else:
 			_glow.color = Color(0, 0, 0, 0)
+
+func _try_load_glyph(letter_char: String, position: int) -> void:
+	if _glyph_rect == null:
+		return
+	if position <= 0:
+		_glyph_rect.visible = false
+		return
+	var path: String = GLYPH_PATH_FMT % position
+	if not ResourceLoader.exists(path):
+		# No glyph asset → keep the text label visible, hide glyph rect
+		_glyph_rect.visible = false
+		if _char_label:
+			_char_label.visible = true
+		return
+	var tex: Texture2D = load(path) as Texture2D
+	if tex == null:
+		_glyph_rect.visible = false
+		return
+	_glyph_rect.texture = tex
+	_glyph_rect.visible = true
+	# Glyph replaces the plain letter; dim the label so it doesn't clutter
+	if _char_label:
+		_char_label.visible = false
