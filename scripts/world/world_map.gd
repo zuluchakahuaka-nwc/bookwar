@@ -111,6 +111,9 @@ func _process(_delta: float) -> void:
 		GameState.current_map_id = test_map
 		get_tree().change_scene_to_file("res://scenes/world/world_map.tscn")
 		return
+	if _test_bridge.consume_test_goto_intro():
+		get_tree().change_scene_to_file("res://scenes/ui/intro.tscn")
+		return
 	var teleport_pos: Vector2 = _test_bridge.consume_test_teleport()
 	if teleport_pos != Vector2.ZERO:
 		var player_node: Node2D = get_node_or_null("Player")
@@ -688,9 +691,9 @@ func _spawn_portal() -> void:
 	label.position = Vector2(-40, -52)
 	label.size = Vector2(80, 80)
 	portal.add_child(label)
-	# Small "вперёд" hint below
+	# Small "портал" hint below
 	var hint: Label = Label.new()
-	hint.text = "вперёд"
+	hint.text = "портал"
 	hint.add_theme_font_size_override("font_size", 13)
 	hint.add_theme_color_override("font_color", Color(0.85, 1.0, 0.85))
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

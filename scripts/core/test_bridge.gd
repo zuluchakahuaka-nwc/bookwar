@@ -76,6 +76,10 @@ func _setup_js_bridge() -> void:
 			window._godotTestMapSwitch = mapId;
 			return true;
 		};
+		window.gameTestGotoIntro = function() {
+			window._godotTestGotoIntro = true;
+			return true;
+		};
 		window.gameForceRecruit = function(success) {
 			window._godotRecruitForce = success ? 1 : 0;
 			return true;
@@ -244,6 +248,13 @@ func consume_test_map_switch() -> String:
 	if mid == null:
 		return ""
 	return str(mid)
+
+func consume_test_goto_intro() -> bool:
+	if not _is_web():
+		return false
+	var v: Variant = JavaScriptBridge.eval("(window._godotTestGotoIntro === true) ? 1 : 0")
+	JavaScriptBridge.eval("window._godotTestGotoIntro = false;")
+	return int(v) == 1
 
 func consume_recruit_force() -> int:
 	"""Returns -1 (random), 0 (force fail), or 1 (force success) if Puppeteer set it."""

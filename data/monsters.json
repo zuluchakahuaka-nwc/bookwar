@@ -104,7 +104,7 @@
       "id": "forest_creature",
       "name": "Лесная Тварь",
       "symbol": "!",
-      "hp": 80,
+      "hp": 140,
       "behavior": "aggressive",
       "detection_radius": 175.0,
       "attack_radius": 72.0,
