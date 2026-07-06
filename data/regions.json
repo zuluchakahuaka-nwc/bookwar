@@ -1,0 +1,52 @@
+{
+  "regions": [
+    {
+      "id": "light_valley",
+      "name": "Светлая Долина",
+      "position": {"x": 0, "y": 0},
+      "difficulty": 0,
+      "biome": "meadow",
+      "light_level": 1.0,
+      "monster_ids": ["question", "exclamation"],
+      "description": "Залитые солнцем луга, уютная деревня. Стартовая локация."
+    },
+    {
+      "id": "two_letter_forest",
+      "name": "Лес Двубуквия",
+      "position": {"x": 1, "y": 0},
+      "difficulty": 1,
+      "biome": "light_forest",
+      "light_level": 0.7,
+      "monster_ids": ["question", "exclamation"],
+      "description": "Светлый лес с густой листвой. Монстры используют две буквы. Здесь живёт Длинноязыкий."
+    },
+      "name": "Окраинный Перелесок",
+      "position": {"x": 1, "y": 0},
+      "difficulty": 1,
+      "biome": "light_forest",
+      "light_level": 0.8,
+      "monster_ids": ["question"],
+      "description": "Первые тени, редкие деревья."
+    },
+    {
+      "id": "misty_grove",
+      "name": "Туманная Роща",
+      "position": {"x": 1, "y": -1},
+      "difficulty": 2,
+      "biome": "misty_forest",
+      "light_level": 0.6,
+      "monster_ids": [],
+      "description": "Низкий туман, скрипящие деревья."
+    },
+    {
+      "id": "dark_forest",
+      "name": "Тёмный Лес",
+      "position": {"x": 2, "y": -1},
+      "difficulty": 3,
+      "biome": "dark_forest",
+      "light_level": 0.3,
+      "monster_ids": ["shadow_lurker", "dark_wolf"],
+      "description": "Полное отсутствие солнца, гниющие деревья. Опасные твари с буквами."
+    }
+  ]
+}

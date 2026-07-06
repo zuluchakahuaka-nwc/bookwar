@@ -1,0 +1,37 @@
+# Godot
+.godot/
+*.import
+
+# Build artifacts (regenerated)
+builds/
+/android/
+*.apk
+
+# Node
+node_modules/
+
+# Test screenshots (regenerated)
+tests/e2e/screenshots/
+tests/screenshots/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Private / local-only — not published.
+AGENTS.md
+opencode.json
+errors.md
+TODO.md
+/scripts/dev/
+/ANDROID_VERSION/
+
+# No markdown docs are published.
+*.md
