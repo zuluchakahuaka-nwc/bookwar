@@ -1,0 +1,3 @@
+# Music files are served as static /music/*.mp3 from the server (NOT bundled in
+# the .pck — see music.gd _play_current_web). This file tells Godot to skip this
+# folder during export, keeping the .pck small (~76 MB instead of ~145 MB).
