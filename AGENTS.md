@@ -352,6 +352,57 @@ test('intro panel advance: 1 tap → +1 panel', async () => {
 - Делать iteration-цикл «правка → деплой → live-test» для каждой мелочи (это часы на каждый цикл)
 - Пропускать `patch_web_shell.js` после build (дефолтный shell = чёрный экран при загрузке)
 
+### 0.12 ПРАВИЛО ЧИСТКИ ДИСКА (ЗАЯВЛЕНО ПОЛЬЗОВАТЕЛЕМ 2026-07-06)
+
+> Проект раздувался до 4.5 ГБ из-за скриншотов тестов (1.6 ГБ, копились месяцами)
+> и Android-tooling (`android/build/` + `ANDROID_VERSION/` = 2.7 ГБ gradle-кэшей и
+> сборочных артефактов). Это всё регенерируемый шлак — результат (APK) и исходники
+> надо оставлять, остальное чистить.
+
+**СКОП `scripts/dev/cleanup.ps1`** — два независимых правила, dry-run по умолчанию,
+`-Apply` для фактического удаления:
+
+```powershell
+# DRY-RUN (отчёт что почистится, без удаления):
+& scripts/dev/cleanup.ps1               # только скриншоты
+& scripts/dev/cleanup.ps1 -Android      # только Android-шлак
+& scripts/dev/cleanup.ps1 -All          # всё
+
+# ФАКТИЧЕСКАЯ чистка:
+& scripts/dev/cleanup.ps1 -Apply                 # сессия старт → чистим скриншоты
+& scripts/dev/cleanup.ps1 -Android -Apply        # раз в N сессий → Android-шлак
+& scripts/dev/cleanup.ps1 -All -Apply            # всё
+```
+
+**ПРАВИЛО 1 — СКРИНШОТЫ (на каждый старт сессии):**
+- **В НАЧАЛЕ каждой новой сессии** (перед прогоном тестов) запускать
+  `& scripts/dev/cleanup.ps1 -Apply` — очищает `tests/screenshots/` и
+  `tests/e2e/screenshots/` и пересоздаёт пустые папки. Старые скриншоты прошлых
+  сессий = регенерируемый вывод тестов, ценности не несут, только жрут место.
+- Только ПОСЛЕ чистки сессия заполняет папки свежими скриншотами.
+
+**ПРАВИЛО 2 — ANDROID-ШЛАГ (периодически, когда распухло):**
+- `& scripts/dev/cleanup.ps1 -Android -Apply` сносит:
+  - `android/build/build/` — gradle-интермедиаты (регенерируется через `gradle build`)
+  - `android/build/.gradle/` — кэш
+  - `ANDROID_VERSION/test_project/{android,.godot,test.apk}` — вывод debug-сборки
+  - `ANDROID_VERSION/tests/` — скриншоты эмулятора
+  - `ANDROID_VERSION/testandroid_*.zip` — debug-архивы
+- **ЧТО ОСТАЁТСЯ (результат + исходники):**
+  - `builds/android/*.apk` — готовый APK (РЕЗУЛЬТАТ сборки)
+  - `ANDROID_VERSION/server/` — исходник WebSocket-сервера мультиплеера
+  - `ANDROID_VERSION/{scripts,docs,STATUS.md,builds}` — код и документы
+  - `android/build/{libs,src,gradle/wrapper,*.gradle,.build_version}` — скелет
+    Godot Android-шаблона (вкл. `libs/godot-lib.aar` ~200 МБ, чтобы следующий
+    gradle-build не качал заново)
+
+**АНТИ-ПАТТЕРН (ЗАПРЕЩЕНО):**
+- Хранить скриншоты между сессиями (они копятся до гигабайт)
+- Пушить скриншоты в git (`.gitignore` уже исключает `tests/**/screenshots/`)
+- Удалять `builds/android/*.apk`, `ANDROID_VERSION/server/`, или скелет
+  `android/build/libs/` — это результат/исходники, не шлак
+- Забывать `-Apply` и думать что почистилось (dry-run только показывает)
+
 ---
 
 ## 1. ОБЗОР ПРОЕКТА
