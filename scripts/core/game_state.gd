@@ -12,6 +12,10 @@ var player_hidden: bool = false
 var combat_cooldown: float = 0.0
 var dialogue_text: String = ""
 var dialogue_start_time: float = 0.0
+# --- Quest system ---
+# Active quest on current map: {type, target, count, progress, reward_letter, description}
+var active_quest: Dictionary = {}
+var completed_quests: Array[String] = []  # map_ids where quest is done
 
 var recruits: Array[Dictionary] = []
 var selected_hero: Dictionary = {}  # chosen hero from character select screen
@@ -22,11 +26,23 @@ var monster_overrides: Dictionary = {}
 var collected_items: Dictionary = {}
 var recruit_force_result: int = -1  # -1 random, 0 force fail, 1 force success (test hook)
 
+# Where to go after the intro/legend finishes. Set by callers, consumed by intro._finish.
+# "menu"        — back to main_menu (first-launch autolegend)
+# "char_select" — to character_select (after "New Game" tap)
+# "world"       — straight into the world (default if unset)
+var intro_return_to: String = "world"
+
 # Combat transition state — set by request_combat, consumed by battle scene
 var pending_combat_monster_id: String = ""
 var pending_combat_monster_name: String = ""
 var pending_combat_monster_hp: int = 0
 var pending_combat_monster_letters: Array = []
+# Post-combat cleanup: spawn_id of the monster the player just fought, and
+# whether they won. world_map reads these on reload to kill the monster if
+# needed (manual combat — unlike auto-recruit combat — doesn't kill the
+# monster in-place, so we finish the job on scene return).
+var last_combat_monster_spawn_id: String = ""
+var last_combat_won: bool = false
 
 signal hp_changed(current: int, maximum: int)
 signal region_changed(region_id: String)
@@ -37,38 +53,16 @@ signal dialogue_ended
 signal dialogue_text_set(text: String)
 signal dialogue_advance
 signal recruit_message(text: String)
+signal toast_requested(text: String)
 signal combat_requested(monster_id: String, monster_name: String, enemy_hp: int, enemy_letters: Array)
 signal recruit_added(recruit: Dictionary)
 signal recruit_removed(index: int)
 
 func _ready() -> void:
-	_apply_custom_font()
-
-func _apply_custom_font() -> void:
-	# Clean, highly-readable font with full Cyrillic + Latin coverage (replaces the
-	# hard-to-read decorative RuslanDisplay that also lacked many glyphs/emoji).
-	var font_path: String = "res://assets/fonts/RussoOne-Regular.ttf"
-	if not ResourceLoader.exists(font_path):
-		if OS.has_feature("web"):
-			JavaScriptBridge.eval("window.gameFontError = 'font_not_found: " + font_path + "';")
-		return
-	var font: Font = load(font_path) as Font
-	if font == null:
-		if OS.has_feature("web"):
-			JavaScriptBridge.eval("window.gameFontError = 'load_failed_null';")
-		return
-	var theme: Theme = Theme.new()
-	theme.set_font("font", "Label", font)
-	theme.set_font("font", "Button", font)
-	theme.set_font("font", "LineEdit", font)
-	theme.set_font("font", "RichTextLabel", font)
-	theme.set_font("font", "CheckBox", font)
-	theme.set_font("font", "OptionButton", font)
-	theme.set_font_size("font_size", "Label", 18)
-	theme.set_font_size("font_size", "Button", 18)
-	get_tree().root.set("theme", theme)
-	if OS.has_feature("web"):
-		JavaScriptBridge.eval("window.gameFontApplied = true;")
+	# Font/theme is now owned by the I18n autoload (per-locale font chain so
+	# Arabic & Chinese render via Noto fallbacks). I18n loads before GameState.
+	if I18n:
+		I18n.apply_theme_font()
 
 func set_region(region_id: String) -> void:
 	if current_region != region_id:
@@ -253,3 +247,53 @@ func mark_item_collected(key: String) -> void:
 
 func is_item_collected(key: String) -> bool:
 	return collected_items.has(key)
+
+# --- Quest system ---
+
+func start_quest_for_map(map_id: String) -> void:
+	if completed_quests.has(map_id):
+		active_quest = {}
+		return
+	# Simple quest: defeat N monsters on this map. N scales with map index.
+	var chain_idx: int = BookwarConst.MAP_CHAIN.find(map_id)
+	var target: int = 3 + chain_idx  # 3,4,5,...12 monsters
+	var reward_letters: Array = BookwarConst.MAP_LETTERS.get(map_id, [])
+	var reward: String = reward_letters[0] if reward_letters.size() > 0 else "А"
+	active_quest = {
+		"type": "defeat",
+		"target": target,
+		"progress": 0,
+		"reward_letter": reward,
+		"description": I18n.t_fmt("quest.defeat", [str(target), BookwarConst.get_map_name(map_id)], "Defeat %s enemies in the region \"%s\"")
+	}
+	if OS.has_feature("web"):
+		var escaped: String = String(active_quest["description"]).replace("\\", "\\\\").replace("'", "\\'")
+		JavaScriptBridge.eval("window.gameQuest = {target:" + str(target) + ", progress:0, desc:'" + escaped + "'};")
+
+func quest_progress_defeat() -> void:
+	if active_quest.is_empty():
+		return
+	active_quest["progress"] = int(active_quest["progress"]) + 1
+	var prog: int = int(active_quest["progress"])
+	var target: int = int(active_quest["target"])
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.gameQuest.progress = " + str(prog) + ";")
+	if prog >= target:
+		_quest_complete()
+
+func _quest_complete() -> void:
+	if active_quest.is_empty():
+		return
+	var reward: String = String(active_quest.get("reward_letter", "А"))
+	InventoryManager.add_letter(reward)
+	var map_id: String = current_map_id
+	completed_quests.append(map_id)
+	var msg: String = I18n.t_fmt("quest.done", [reward], "Quest complete! Reward: letter %s")
+	recruit_message.emit(msg)
+	toast_requested.emit(I18n.t_fmt("quest.done_toast", [reward], "★ Quest complete! Letter received: %s"))
+	active_quest = {}
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.gameQuest = null; window.gameQuestDone = true;")
+
+func is_quest_complete(map_id: String) -> bool:
+	return completed_quests.has(map_id)

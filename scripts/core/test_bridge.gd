@@ -92,6 +92,11 @@ func _setup_js_bridge() -> void:
 			window._godotTestTeleport = JSON.stringify({x: x, y: y});
 			return true;
 		};
+		window.gameAddRecruit = function(name, hp, letter) {
+			if (!window._godotAddRecruitQueue) window._godotAddRecruitQueue = [];
+			window._godotAddRecruitQueue.push({name: name || 'ТестСоюзник', hp: hp || 30, letter: letter || 'А'});
+			return true;
+		};
 		return true;
 		})()
 	""")
@@ -285,6 +290,27 @@ func consume_test_teleport() -> Vector2:
 		return Vector2.ZERO
 	var d: Dictionary = json.get_data()
 	return Vector2(float(d.get("x", 0)), float(d.get("y", 0)))
+
+func drain_add_recruit_queue() -> Array:
+	if not _is_web():
+		return []
+	var json_str: Variant = JavaScriptBridge.eval("JSON.stringify(window._godotAddRecruitQueue || [])")
+	JavaScriptBridge.eval("window._godotAddRecruitQueue = [];")
+	if json_str == null or str(json_str) == "" or str(json_str) == "[]":
+		return []
+	var json: JSON = JSON.new()
+	if json.parse(str(json_str)) != OK:
+		return []
+	var arr: Array = json.get_data()
+	var out: Array = []
+	for item: Variant in arr:
+		var dd: Dictionary = item
+		out.append({
+			"name": String(dd.get("name", "ТестСоюзник")),
+			"hp": int(dd.get("hp", 30)),
+			"letter": String(dd.get("letter", "А"))
+		})
+	return out
 
 func drain_spell_unlock_queue() -> Array:
 	if not _is_web():

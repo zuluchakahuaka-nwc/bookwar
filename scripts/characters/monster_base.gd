@@ -117,6 +117,21 @@ func _die_silent() -> void:
 		detection.set_monitoring(false)
 		detection.set_deferred("monitorable", false)
 
+func mark_killed_post_combat() -> void:
+	# Called by world_map on return from a player-won manual battle. The combat
+	# scene already awarded loot via InventoryManager, so here we just hide +
+	# persist death state — no double loot drop, no extra signals.
+	_set_state("dead")
+	_save_state()
+	visible = false
+	set_physics_process(false)
+	collision_layer = 0
+	collision_mask = 0
+	var detection: Area2D = get_node_or_null("DetectionArea")
+	if detection:
+		detection.set_monitoring(false)
+		detection.set_deferred("monitorable", false)
+
 func _set_initial_allegiance() -> void:
 	if is_aggressive_flag:
 		_allegiance = ALLEGIANCE_HOSTILE
@@ -145,7 +160,7 @@ func _setup_visual() -> void:
 	if _draw_type == "znak":
 		_build_evil_humanoid("znak")
 		if _label_ref:
-			_label_ref.text = "Знак"
+			_label_ref.text = I18n.t("monster.znak", "Sign")
 			_label_ref.add_theme_font_size_override("font_size", 26)
 			_label_ref.add_theme_color_override("font_color", Color(1.0, 0.82, 0.25))
 			_label_ref.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
@@ -156,7 +171,7 @@ func _setup_visual() -> void:
 	elif _draw_type == "zvuk":
 		_build_evil_humanoid("zvuk")
 		if _label_ref:
-			_label_ref.text = "Звук"
+			_label_ref.text = I18n.t("monster.zvuk", "Sound")
 			_label_ref.add_theme_font_size_override("font_size", 26)
 			_label_ref.add_theme_color_override("font_color", Color(0.35, 0.85, 1.0))
 			_label_ref.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
@@ -302,7 +317,8 @@ func _load_monster_data() -> void:
 		var monster_dict: Dictionary = monster
 		var mid: String = str(monster_dict.get("id", ""))
 		if mid == monster_id:
-			monster_name = monster_dict.get("name", monster_name)
+			var raw_name: String = String(monster_dict.get("name", monster_name))
+			monster_name = I18n.t("monster.name." + mid, raw_name)
 			hp = monster_dict.get("hp", hp)
 			max_hp = hp
 			move_speed = float(monster_dict.get("speed", move_speed))
@@ -325,24 +341,32 @@ func _load_monster_data() -> void:
 func _forest_dialogues(mid: String) -> Array:
 	if mid == "question":
 		return [
-			{"text": "Ты забрёл далеко, искатель букв. Здесь деревья помнят имена, которые ты забыл.", "result": "info"},
-			{"text": "Я видел, как колдун резал слова на коре. Большие буквы — у корней старого дуба, к востоку.", "result": "info"},
-			{"text": "Не доверяй теням. Они носят чужие лица и говорят чужими голосами.", "result": "info"}
+			{"text": I18n.t("forest.q1", "Ты забрёл далеко, искатель букв. Здесь деревья помнят имена, которые ты забыл."), "result": "info"},
+			{"text": I18n.t("forest.q2", "Я видел, как колдун резал слова на коре. Большие буквы — у корней старого дуба, к востоку."), "result": "info"},
+			{"text": I18n.t("forest.q3", "Не доверяй теням. Они носят чужие лица и говорят чужими голосами."), "result": "info"}
 		]
 	return [
-		{"text": "Стой! Этот лес — территория Хозяина. Разворачивайся и иди обратно.", "result": "slow"},
-		{"text": "Хм. В тебе есть искра. Быть может, ты не добыча, а охотник. Пока живи.", "result": "slow"},
-		{"text": "Когти острее любых гласных. Но слово... слово ранит глубже. Беги.", "result": "slow"}
+		{"text": I18n.t("forest.e1", "Стой! Этот лес — территория Хозяина. Разворачивайся и иди обратно."), "result": "slow"},
+		{"text": I18n.t("forest.e2", "Хм. В тебе есть искра. Быть может, ты не добыча, а охотник. Пока живи."), "result": "slow"},
+		{"text": I18n.t("forest.e3", "Когти острее любых гласных. Но слово... слово ранит глубже. Беги."), "result": "slow"}
 	]
 
 func _setup_patrol() -> void:
 	var center: Vector2 = global_position
+	# Clamp each patrol point inside the map so monsters never path off-map
+	# (patrol drift was the main cause of "?" monsters wandering past the edge).
 	_patrol_points = [
-		center + Vector2(-80.0, 0.0),
-		center + Vector2(80.0, 0.0),
-		center + Vector2(0.0, -80.0),
-		center + Vector2(0.0, 80.0)
+		_clamp_to_map(center + Vector2(-80.0, 0.0)),
+		_clamp_to_map(center + Vector2(80.0, 0.0)),
+		_clamp_to_map(center + Vector2(0.0, -80.0)),
+		_clamp_to_map(center + Vector2(0.0, 80.0))
 	]
+
+func _clamp_to_map(pos: Vector2) -> Vector2:
+	return Vector2(
+		clampf(pos.x, BookwarConst.MAP_BOUND_MIN_X, BookwarConst.MAP_BOUND_MAX_X),
+		clampf(pos.y, BookwarConst.MAP_BOUND_MIN_Y, BookwarConst.MAP_BOUND_MAX_Y)
+	)
 
 func _physics_process(delta: float) -> void:
 	match _state:
@@ -360,6 +384,13 @@ func _physics_process(delta: float) -> void:
 			_process_follow(delta)
 		"dialogue", "dead":
 			pass
+	# Hard clamp to map bounds — patrol offsets and chase drift can otherwise
+	# push monsters past the invisible boundary walls (their collision masks
+	# don't all include the world layer). Keeps everyone inside the playable rect.
+	global_position = Vector2(
+		clampf(global_position.x, BookwarConst.MAP_BOUND_MIN_X, BookwarConst.MAP_BOUND_MAX_X),
+		clampf(global_position.y, BookwarConst.MAP_BOUND_MIN_Y, BookwarConst.MAP_BOUND_MAX_Y)
+	)
 	# Waddle tied to actual movement — every monster staggers like the hero.
 	# Alerted monsters (noticed the hero) wobble 2x harder, even standing in place.
 	var alerted: bool = _state == "chase" or _state == "suspicion" or _state == "search"
@@ -429,11 +460,14 @@ func _process_follow(_delta: float) -> void:
 		_follow_target = _find_player()
 		if _follow_target == null:
 			return
-	# Recruited allies PROACTIVELY attack nearby hostile "!" monsters.
-	# This routes through GameState.request_combat → world_map._auto_combat_recruit,
-	# which resolves the fight INLINE (army vs enemy) WITHOUT dragging the player
-	# into the manual battle scene.
+	# Recruited allies PROACTIVELY attack nearby hostile "!" monsters — but ONLY
+	# when the enemy is close to the player too, so monsters never vanish from
+	# the map for no visible reason. (Distant roaming kills were the bug.)
 	var enemy: MonsterBase = _find_nearest_hostile(400.0)
+	if enemy != null and _follow_target != null and is_instance_valid(_follow_target):
+		var player_to_enemy: float = _follow_target.global_position.distance_to(enemy.global_position)
+		if player_to_enemy > 220.0:
+			enemy = null  # too far from the hero — don't hunt, keep following
 	if enemy != null:
 		var enemy_dist: float = global_position.distance_to(enemy.global_position)
 		var now: float = Time.get_ticks_msec() / 1000.0
@@ -580,13 +614,13 @@ func _try_recruit() -> void:
 		_follow_offset = Vector2(randf_range(-60.0, 60.0), randf_range(60.0, 120.0))
 		collision_mask = 32
 		_set_state("follow")
-		msg = monster_name + ": Возможно ты и не враг... Я с тобой!"
+		msg = I18n.t_fmt("recruit.success", [monster_name], "ALLY! %s: Perhaps you are no foe... I'm with you!")
 		GameState.add_recruit(monster_name, _letters, hp)
 		monster_recruited.emit(self)
 	else:
 		_allegiance = ALLEGIANCE_NEUTRAL
 		_set_state("patrol")
-		msg = monster_name + ": Ладно, иди. Я не хочу драться."
+		msg = I18n.t_fmt("recruit.fail", [monster_name], "FAIL! %s was not swayed — 3 tokens wasted.")
 	if hint != "":
 		msg += "\n" + hint
 	_update_color()
@@ -620,6 +654,38 @@ func take_damage(amount: int) -> void:
 	hp = max(0, hp - amount)
 	if hp <= 0:
 		_die()
+
+func attack_me(player: Player) -> bool:
+	# Player-initiated combat (F key). Works on ANY non-recruited monster —
+	# including neutral "?". The target becomes hostile and combat starts,
+	# so "?" monsters also "suffer losses" like "!" do (AGENTS.md §5).
+	if _state == "dead":
+		return false
+	if _allegiance == ALLEGIANCE_RECRUITED:
+		return false
+	if GameState.is_in_combat:
+		return false
+	if GameState.combat_cooldown > 0.0:
+		return false
+	# F cancels any active dialogue with this monster — the player chose violence
+	# over diplomacy. Flip state FIRST so the global dialogue_ended signal does
+	# NOT trigger _try_recruit (no 50/50 roll when the player chose to attack).
+	if _state == "dialogue":
+		_set_state("patrol")
+	if GameState.is_in_dialogue:
+		GameState.end_dialogue()
+		if OS.has_feature("web"):
+			JavaScriptBridge.eval("window.gameDialogueActive = false; window.gameDialogueText = '';")
+	# Turn neutral "?" hostile the moment the player attacks — no more diplomacy.
+	if _allegiance != ALLEGIANCE_HOSTILE:
+		_allegiance = ALLEGIANCE_HOSTILE
+		_update_color()
+	_approached = true
+	_player_ref = player
+	var now: float = Time.get_ticks_msec() / 1000.0
+	_last_combat_time = now
+	GameState.request_combat(monster_id, monster_name, hp, _letters.duplicate())
+	return true
 
 func _die() -> void:
 	_set_state("dead")
@@ -701,37 +767,37 @@ func _get_letter_direction_hint() -> String:
 	var dir_text: String = ""
 	var landmark: String = ""
 	if angle >= -45.0 and angle < 45.0:
-		dir_text = "на восток"
+		dir_text = I18n.t("dir.east", "to the east")
 		if abs(diff.x) > 500.0:
-			landmark = "у самого края долины"
+			landmark = I18n.t("dir.edge", "at the very edge of the valley")
 		else:
-			landmark = "правее отсюда"
+			landmark = I18n.t("dir.right", "just to the right")
 	elif angle >= 45.0 and angle < 135.0:
-		dir_text = "на юг"
+		dir_text = I18n.t("dir.south", "to the south")
 		if abs(diff.y) > 300.0:
-			landmark = "у воды, внизу"
+			landmark = I18n.t("dir.water", "by the water, down below")
 		else:
-			landmark = "ниже по склону"
+			landmark = I18n.t("dir.slope", "down the slope")
 	elif angle >= -135.0 and angle < -45.0:
-		dir_text = "на север"
+		dir_text = I18n.t("dir.north", "to the north")
 		if abs(diff.y) > 400.0:
-			landmark = "к опушке леса, наверху"
+			landmark = I18n.t("dir.forest_edge", "toward the forest edge, up above")
 		else:
-			landmark = "чуть выше, у деревьев"
+			landmark = I18n.t("dir.trees", "a bit higher, by the trees")
 	else:
-		dir_text = "на запад"
+		dir_text = I18n.t("dir.west", "to the west")
 		if abs(diff.x) > 500.0:
-			landmark = "в дальней чаще"
+			landmark = I18n.t("dir.thicket", "in the far thicket")
 		else:
-			landmark = "левее, за холмом"
+			landmark = I18n.t("dir.hill", "to the left, behind the hill")
 	var dist_text: String = ""
 	if best_dist < 200.0:
-		dist_text = "совсем рядом"
+		dist_text = I18n.t("dir.close", "very close")
 	elif best_dist < 500.0:
-		dist_text = "неподалёку"
+		dist_text = I18n.t("dir.near", "not far")
 	else:
-		dist_text = "далеко, но я знаю место"
-	return "Слушай! Букву " + best_letter + " ищи " + dir_text + " — " + landmark + ". " + dist_text + "."
+		dist_text = I18n.t("dir.far", "far, but I know the place")
+	return I18n.t_fmt("dir.hint", [best_letter, dir_text, landmark, dist_text], "Listen! Seek the letter %s %s — %s. %s.")
 
 func get_snapshot() -> Dictionary:
 	return {

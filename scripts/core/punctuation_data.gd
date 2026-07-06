@@ -38,3 +38,17 @@ func get_all_punctuation() -> Dictionary:
 
 func get_count() -> int:
 	return _punctuation.size()
+
+# Localized name / effect / source for a punctuation sign (keys "punct.name.<char>"
+# etc., falling back to the JSON values).
+func get_sign_name(punct_char: String) -> String:
+	var raw: String = String(_punctuation.get(punct_char, {}).get("name", ""))
+	return I18n.t("punct.name." + punct_char, raw)
+
+func get_effect(punct_char: String) -> String:
+	var raw: String = String(_punctuation.get(punct_char, {}).get("effect", ""))
+	return I18n.t("punct.effect." + punct_char, raw)
+
+func get_source(punct_char: String) -> String:
+	var raw: String = String(_punctuation.get(punct_char, {}).get("source", ""))
+	return I18n.t("punct.source." + punct_char, raw)

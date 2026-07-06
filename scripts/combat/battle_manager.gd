@@ -24,6 +24,9 @@ var _resolving: bool = false
 @onready var _flee_button: Button = $ButtonRow/FleeButton
 @onready var _timer_label: Label = get_node_or_null("TimerLabel")
 @onready var _player_letters_label: Label = get_node_or_null("PlayerLettersLabel")
+@onready var _title_label: Label = get_node_or_null("TitleLabel")
+@onready var _player_info_label: Label = get_node_or_null("PlayerInfo")
+@onready var _hand_label: Label = get_node_or_null("HandLabel")
 
 var _action_log_lines: Array = []
 
@@ -67,15 +70,28 @@ func _ready() -> void:
 	if _enemy_letters.size() == 0:
 		_enemy_letters = ["Я"] if GameState.pending_combat_monster_id == "question" else ["А", "Б"]
 	GameState.clear_pending_combat()
+	_apply_battle_texts()
 	_setup_js_bridge()
 	_build_hand_buttons()
 	_build_visual_overlays()
 	_update_player_letters_label()
 	call_deferred("_start_combat", enemy_hp)
 
+func _apply_battle_texts() -> void:
+	if _title_label:
+		_title_label.text = I18n.t("battle.title", "BATTLE")
+	if _player_info_label:
+		_player_info_label.text = I18n.t("battle.player", "Player")
+	if _hand_label:
+		_hand_label.text = I18n.t("battle.select_prompt", "Choose a letter or spell:")
+	if _confirm_button:
+		_confirm_button.text = I18n.t("battle.confirm", "Confirm Turn")
+	if _flee_button:
+		_flee_button.text = I18n.t("battle.flee", "Flee")
+
 func _start_combat(enemy_hp: int) -> void:
 	_combat_system.start_combat(_enemy_name, enemy_hp, _enemy_letters)
-	battle_message.emit("Бой начался: " + _enemy_name)
+	battle_message.emit(I18n.t_fmt("battle.started", [_enemy_name], "Battle started: %s"))
 	_start_turn_timer()
 
 func _setup_js_bridge() -> void:
@@ -158,7 +174,7 @@ func select_card(letter_char: String) -> void:
 	if _combat_resolved or _resolving:
 		return
 	if _combat_system.play_card(letter_char):
-		battle_message.emit("Сыграна буква: " + letter_char)
+		battle_message.emit(I18n.t_fmt("battle.card_played", [letter_char], "Played letter: %s"))
 		# Disable the played letter's button: each letter once per battle
 		var btn: Button = _letter_buttons.get(letter_char, null) as Button
 		if btn:
@@ -166,7 +182,7 @@ func select_card(letter_char: String) -> void:
 			btn.modulate = Color(0.4, 0.4, 0.4, 0.6)
 		_emit_state()
 	else:
-		battle_message.emit("Буква " + letter_char + " уже использована в этом бою.")
+		battle_message.emit(I18n.t_fmt("battle.already_used", [letter_char], "Letter %s already used this battle."))
 		_emit_state()
 
 func confirm_turn() -> void:
@@ -185,7 +201,7 @@ func _auto_resolve_turn() -> void:
 		return
 	if _combat_system.is_active() == false:
 		return
-	battle_message.emit("Время вышло! Авто-ход.")
+	battle_message.emit(I18n.t("battle.time_up", "Time's up! Auto-turn."))
 	_resolving = true
 	_timer_active = false
 	_play_enemy_ai()
@@ -216,7 +232,7 @@ func _flee_battle() -> void:
 	_combat_resolved = true
 	_timer_active = false
 	_combat_system.end_combat_via_flee()
-	battle_message.emit("Бегство с поля боя!")
+	battle_message.emit(I18n.t("battle.fled", "Fled the battle!"))
 	_return_to_world(false)
 
 func _start_turn_timer() -> void:
@@ -241,17 +257,17 @@ func _update_player_letters_label() -> void:
 		return
 	var letters: Dictionary = InventoryManager.get_all_letters()
 	if letters.is_empty():
-		_player_letters_label.text = "Ваши буквы: нет букв"
+		_player_letters_label.text = I18n.t("battle.your_letters_none", "Your letters: none")
 		return
 	var sorted_keys: Array = letters.keys()
 	sorted_keys.sort()
 	var parts: Array = []
 	for k: String in sorted_keys:
 		parts.append(k + "(" + str(letters[k]) + ")")
-	_player_letters_label.text = "Ваши буквы: " + "  ".join(parts)
+	_player_letters_label.text = I18n.t("battle.your_letters", "Your letters:") + " " + "  ".join(parts)
 
 func _on_combat_started(enemy_name: String, enemy_hp: int) -> void:
-	battle_message.emit("Противник: " + enemy_name + " (HP " + str(enemy_hp) + ")")
+	battle_message.emit(I18n.t_fmt("battle.opponent", [enemy_name, str(enemy_hp)], "Opponent: %s (HP %s)"))
 	_emit_state()
 
 func _on_card_played(card: Dictionary) -> void:
@@ -262,17 +278,17 @@ func _on_turn_order_resolved(order: Array) -> void:
 		JavaScriptBridge.eval("window.gameCombatTurnOrder = " + JSON.stringify(order) + ";")
 
 func _on_damage_dealt(target: String, amount: float, letter_char: String) -> void:
-	battle_message.emit(letter_char + " нанёс " + str(int(amount)) + " урона -> " + target)
+	battle_message.emit(I18n.t_fmt("battle.damage", [letter_char, str(int(amount)), target], "%s dealt %s damage -> %s"))
 	_spawn_damage_popup("-" + str(int(amount)), target == "player", Color(1, 0.4, 0.3))
 	_emit_state()
 
 func _on_shield_applied(target: String, amount: float, letter_char: String) -> void:
-	battle_message.emit(letter_char + " создал щит " + str(int(amount)) + " -> " + target)
-	_spawn_damage_popup("+" + str(int(amount)) + " щит", target == "player", Color(0.4, 0.7, 1))
+	battle_message.emit(I18n.t_fmt("battle.shield_msg", [letter_char, str(int(amount)), target], "%s raised shield %s -> %s"))
+	_spawn_damage_popup(I18n.t_fmt("battle.shield_popup", [str(int(amount))], "+%s shield"), target == "player", Color(0.4, 0.7, 1))
 	_emit_state()
 
 func _on_buff_applied(target: String, buff_type: String, multiplier: float, letter_char: String) -> void:
-	battle_message.emit(letter_char + " усилил " + buff_type + " x" + str(multiplier) + " -> " + target)
+	battle_message.emit(I18n.t_fmt("battle.buff", [letter_char, buff_type, str(multiplier), target], "%s boosted %s x%s -> %s"))
 	_emit_state()
 
 func _on_action_resolved(action: Dictionary) -> void:
@@ -295,20 +311,22 @@ func _on_combat_ended(player_won: bool, loot: Array) -> void:
 	_combat_resolved = true
 	_timer_active = false
 	if player_won:
-		var loot_text: String = "Победа! Лут: "
+		var loot_text: String = I18n.t("battle.victory", "Victory! Loot: ")
 		if loot.size() > 0:
 			loot_text += ", ".join(loot)
 		else:
-			loot_text += "ничего"
+			loot_text += I18n.t("battle.nothing", "nothing")
 		battle_message.emit(loot_text)
 	else:
-		battle_message.emit("Поражение...")
+		battle_message.emit(I18n.t("battle.defeat", "Defeat..."))
 	_emit_state()
 	await get_tree().create_timer(1.5).timeout
 	_return_to_world(player_won)
 
 func _return_to_world(player_won: bool) -> void:
 	GameState.is_in_combat = false
+	# Record the outcome so world_map can finish off the monster on return.
+	GameState.last_combat_won = player_won
 	if not player_won:
 		GameState.saved_player_position = Vector2(-1.0, -1.0)
 		GameState.player_hp = max(GameState.player_hp, int(GameState.player_max_hp * 0.5))
@@ -327,11 +345,13 @@ func _emit_state() -> void:
 
 func _update_ui(snapshot: Dictionary) -> void:
 	if _enemy_info_label:
-		_enemy_info_label.text = "Враг: " + String(snapshot.get("enemy_name", "?"))
+		_enemy_info_label.text = I18n.t("battle.enemy", "Enemy:") + " " + String(snapshot.get("enemy_name", "?"))
+	var hp_lbl: String = I18n.t("common.hp", "HP")
+	var sh_lbl: String = I18n.t("common.shield", "Shield")
 	if _enemy_hp_label:
-		_enemy_hp_label.text = "HP: " + str(snapshot.get("enemy_hp", 0)) + "/" + str(snapshot.get("enemy_max_hp", 0)) + "  Щит: " + str(int(snapshot.get("enemy_shield", 0)))
+		_enemy_hp_label.text = hp_lbl + ": " + str(snapshot.get("enemy_hp", 0)) + "/" + str(snapshot.get("enemy_max_hp", 0)) + "  " + sh_lbl + ": " + str(int(snapshot.get("enemy_shield", 0)))
 	if _player_hp_label:
-		_player_hp_label.text = "HP: " + str(snapshot.get("player_hp", 0)) + "/" + str(snapshot.get("player_max_hp", 0)) + "  Щит: " + str(int(snapshot.get("player_shield", 0)))
+		_player_hp_label.text = hp_lbl + ": " + str(snapshot.get("player_hp", 0)) + "/" + str(snapshot.get("player_max_hp", 0)) + "  " + sh_lbl + ": " + str(int(snapshot.get("player_shield", 0)))
 	if _enemy_hp_bar:
 		_enemy_hp_bar.max_value = float(max(1, int(snapshot.get("enemy_max_hp", 1))))
 		_enemy_hp_bar.value = float(int(snapshot.get("enemy_hp", 0)))
@@ -403,7 +423,7 @@ func _build_visual_overlays() -> void:
 	add_child(_player_hp_bar)
 	# Auto-battle button (F1)
 	_auto_battle_btn = Button.new()
-	_auto_battle_btn.text = "Автобой"
+	_auto_battle_btn.text = I18n.t("battle.autobattle", "Auto")
 	_auto_battle_btn.offset_left = 850.0
 	_auto_battle_btn.offset_top = 635.0
 	_auto_battle_btn.offset_right = 1010.0
@@ -417,7 +437,7 @@ func _build_visual_overlays() -> void:
 func _toggle_auto_battle() -> void:
 	_auto_battle = not _auto_battle
 	if _auto_battle_btn:
-		_auto_battle_btn.text = "Автобой ВКЛ" if _auto_battle else "Автобой"
+		_auto_battle_btn.text = I18n.t("battle.autobattle_on", "Auto ON") if _auto_battle else I18n.t("battle.autobattle", "Auto")
 	if _auto_battle and not _combat_resolved and not _resolving:
 		_run_auto_battle_turn()
 
@@ -541,21 +561,21 @@ func cast_spell(word: String) -> void:
 	if _combat_resolved or _resolving:
 		return
 	if not SpellData.is_unlocked(word) or not SpellData.can_cast(word):
-		battle_message.emit("Заклинание " + word + " недоступно!")
+		battle_message.emit(I18n.t_fmt("battle.spell_unavailable", [word], "Spell %s unavailable!"))
 		return
 	var power: float = SpellData.calculate_power(word)
 	var effect: String = SpellData.get_effect(word)
 	var spell_type: String = SpellData.get_spell_type(word)
 	var speed: int = SpellData.get_slowest_speed(word)
 	if _combat_system.play_spell(word, power, effect, spell_type, speed):
-		battle_message.emit("Заклинание " + word + "! Сила " + str(int(power)))
+		battle_message.emit(I18n.t_fmt("battle.spell_cast", [word, str(int(power))], "Spell %s! Power %s"))
 		var sbtn: Button = _spell_buttons.get(word, null) as Button
 		if sbtn:
 			sbtn.disabled = true
 			sbtn.modulate = Color(0.4, 0.4, 0.4, 0.6)
 		_emit_state()
 	else:
-		battle_message.emit("Заклинание " + word + " уже применено в этом ходу.")
+		battle_message.emit(I18n.t_fmt("battle.spell_used", [word], "Spell %s already cast this turn."))
 
 func _sort_by_speed_desc(a: String, b: String) -> bool:
 	return AlphabetData.get_speed(a) > AlphabetData.get_speed(b)

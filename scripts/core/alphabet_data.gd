@@ -111,3 +111,10 @@ func get_base_power(letter_char: String) -> int:
 	if letter.is_empty():
 		return 0
 	return letter.get("base_power", 0)
+
+# Localized description: returns the translated text for the current locale if a
+# key "letter.desc.<char>" exists, else the raw description from letters.json.
+func get_description(letter_char: String) -> String:
+	var letter: Dictionary = get_letter(letter_char)
+	var raw: String = String(letter.get("description", ""))
+	return I18n.t("letter.desc." + letter_char, raw)

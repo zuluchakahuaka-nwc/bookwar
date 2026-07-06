@@ -83,7 +83,7 @@ func start_dialogue_with_lines(npc_id: String, dialogue_data: Array) -> void:
 		return
 	var npc: Dictionary = get_npc(npc_id)
 	_current_npc_id = npc_id
-	_current_npc_name = npc.get("name", npc_id)
+	_current_npc_name = I18n.t(String(npc.get("name", npc_id)), String(npc.get("name", npc_id)))
 	_current_lines = dialogue_data.duplicate(true)
 	_current_line_index = 0
 	_is_active = true
@@ -97,11 +97,18 @@ func _show_current_line() -> void:
 		return
 	var line: Dictionary = _current_lines[_current_line_index]
 	if line.has("choices"):
-		dialogue_choices_shown.emit(line["choices"])
-		_push_dialogue_text(_current_npc_name + " ждёт ответа.")
+		var localized_choices: Array = []
+		for c: Variant in line["choices"]:
+			var cd: Dictionary = c
+			var lc: Dictionary = cd.duplicate()
+			lc["text"] = I18n.t(String(cd.get("text", "")), String(cd.get("text", "")))
+			localized_choices.append(lc)
+		dialogue_choices_shown.emit(localized_choices)
+		_push_dialogue_text(I18n.t("dialogue.waits", "%s awaits an answer.") % _current_npc_name)
 		return
 	var speaker: String = line.get("speaker", _current_npc_name)
-	var text: String = line.get("text", "")
+	var raw_text: String = String(line.get("text", ""))
+	var text: String = I18n.t(raw_text, raw_text)
 	dialogue_line_shown.emit(speaker, text)
 	_push_dialogue_text(speaker + ": " + text)
 
@@ -133,12 +140,14 @@ func _handle_choice_result(result: String) -> void:
 		"give_hint":
 			# Spend dots, then show the data-driven hint line and finish.
 			if InventoryManager.use_dots(BookwarConst.ELLIPSIS_COST + 2):
-				var hint: String = _responses.get("give_hint", "...")
+				var raw_hint: String = String(_responses.get("give_hint", "..."))
+				var hint: String = I18n.t(raw_hint, raw_hint)
 				dialogue_line_shown.emit(_current_npc_name, hint)
 				_push_dialogue_text(_current_npc_name + ": " + hint)
 				end_dialogue()
 			else:
-				var no_dots: String = _responses.get("no_dots", "...")
+				var raw_no: String = String(_responses.get("no_dots", "..."))
+				var no_dots: String = I18n.t(raw_no, raw_no)
 				dialogue_line_shown.emit(_current_npc_name, no_dots)
 				_push_dialogue_text(_current_npc_name + ": " + no_dots)
 				end_dialogue()

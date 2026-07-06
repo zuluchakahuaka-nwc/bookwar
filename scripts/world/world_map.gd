@@ -2,6 +2,8 @@ extends Node2D
 
 const DOT_SCENE: PackedScene = preload("res://scenes/world/dot_item.tscn")
 const BATTLE_SCENE_PATH: String = "res://scenes/combat/battle_scene.tscn"
+const CHAT_OVERLAY_SCENE: PackedScene = preload("res://scenes/ui/chat_overlay.tscn")
+const WORLD_MP_SYNC_SCRIPT: Script = preload("res://scripts/multiplayer/world_mp_sync.gd")
 
 const MAP_BOUND_MIN_X: float = 80.0
 const MAP_BOUND_MAX_X: float = 2480.0
@@ -30,12 +32,8 @@ func _ready() -> void:
 		if GameState.saved_player_position.x >= 0.0:
 			player.global_position = GameState.saved_player_position
 			GameState.saved_player_position = Vector2(-1.0, -1.0)
-		elif GameState.current_map_id == BookwarConst.MAP_DARK_OAKS:
-			player.global_position = BookwarConst.PLAYER_START_DARK_OAKS
-		elif GameState.current_map_id == BookwarConst.MAP_TWO_LETTER_FOREST:
-			player.global_position = BookwarConst.PLAYER_START_FOREST
 		else:
-			player.global_position = BookwarConst.PLAYER_START_VALLEY
+			player.global_position = BookwarConst.get_player_start(GameState.current_map_id)
 	_init_test_bridge()
 	_setup_monster_spawner()
 	_spawn_map_items()
@@ -44,8 +42,15 @@ func _ready() -> void:
 	call_deferred("_count_totals")
 	if _hud and _hud.has_method("set_region_name"):
 		_hud.set_region_name(_region_name())
-	# Per-map ambient tint: bright valley → green forest → cold dark wood
+	# Per-map ambient tint
 	_apply_ambient()
+	# Start quest for this map (if not already completed)
+	GameState.start_quest_for_map(GameState.current_map_id)
+	# Show quest toast on map entry
+	if not GameState.active_quest.is_empty():
+		var qdesc: String = String(GameState.active_quest.get("description", ""))
+		if qdesc != "":
+			GameState.toast_requested.emit("📜 " + qdesc)
 	# Start the background music playlist (loops for the whole game from level 1).
 	Music.start()
 	# Combat flow: monster requests → world transitions to battle scene
@@ -57,6 +62,15 @@ func _ready() -> void:
 	GameState.combat_ended.connect(_on_combat_ended)
 	GameState.dialogue_started.connect(_on_dialogue_started)
 	GameState.dialogue_ended.connect(_on_dialogue_ended)
+	# Multiplayer: spawn remote players layer + chat overlay (only if connected)
+	if NetworkManager.is_connected_to_server():
+		var mp_sync: Node2D = Node2D.new()
+		mp_sync.set_script(WORLD_MP_SYNC_SCRIPT)
+		mp_sync.name = "MpSync"
+		add_child(mp_sync)
+		var chat_overlay: CanvasLayer = CHAT_OVERLAY_SCENE.instantiate()
+		chat_overlay.name = "ChatOverlay"
+		add_child(chat_overlay)
 
 func _init_test_bridge() -> void:
 	# TestBridge is a child of this scene (added in tscn) OR created here
@@ -88,6 +102,8 @@ func _process(_delta: float) -> void:
 	var player: Node2D = $Player
 	if player:
 		_test_bridge.update_player_position(player.global_position.x, player.global_position.y)
+		# Track live position so SaveManager autosave captures it for "Continue".
+		GameState.saved_player_position = player.global_position
 	if _test_bridge.has_select_card_callback():
 		for letter: String in _test_bridge.drain_select_card_queue():
 			_test_bridge.invoke_select_card(letter)
@@ -102,6 +118,12 @@ func _process(_delta: float) -> void:
 	var recruit_force: int = _test_bridge.consume_recruit_force()
 	if recruit_force != -1:
 		GameState.recruit_force_result = recruit_force
+	# Test driver: add recruited allies directly (bypass dialogue)
+	for recruit: Dictionary in _test_bridge.drain_add_recruit_queue():
+		var rname: String = String(recruit.get("name", "ТестСоюзник"))
+		var rhp: int = int(recruit.get("hp", 30))
+		var rletter: String = String(recruit.get("letter", "А"))
+		GameState.add_recruit(rname, [rletter], rhp)
 	if _test_bridge.consume_clear_region():
 		for child: Node in get_children():
 			if child is MonsterBase:
@@ -154,9 +176,12 @@ func _on_combat_started() -> void:
 	if _test_bridge:
 		_test_bridge.set_in_combat(true)
 
-func _on_combat_ended(_player_won: bool) -> void:
+func _on_combat_ended(player_won: bool) -> void:
 	if _test_bridge:
 		_test_bridge.set_in_combat(false)
+	# Quest progress: defeating an enemy counts toward the current map's quest.
+	if player_won:
+		GameState.quest_progress_defeat()
 
 func _on_dialogue_started() -> void:
 	if _test_bridge:
@@ -173,56 +198,103 @@ func _dots_text() -> String:
 	return "Буквицы: " + str(InventoryManager.get_dots())
 
 func _region_name() -> String:
-	if GameState.current_map_id == BookwarConst.MAP_DARK_OAKS:
-		return BookwarConst.DARK_OAKS_NAME
-	if GameState.current_map_id == BookwarConst.MAP_TWO_LETTER_FOREST:
-		return BookwarConst.FOREST_NAME
-	return BookwarConst.LIGHT_VALLEY_NAME
+	return BookwarConst.get_map_name(GameState.current_map_id)
 
 func _apply_ambient() -> void:
-	# CanvasModulate tints the whole rendered world — cheap mood shift per map.
-	var tint: Color = Color(1.0, 0.98, 0.88)  # Light Valley: warm noon
-	if GameState.current_map_id == BookwarConst.MAP_TWO_LETTER_FOREST:
-		tint = Color(0.72, 0.82, 0.66)  # Forest: dim green shade
-	elif GameState.current_map_id == BookwarConst.MAP_DARK_OAKS:
-		tint = Color(0.46, 0.50, 0.64)  # Dark Oaks: cold blue gloom
+	# Ambient tint interpolated across the 33-level chain: level 1 = warm bright
+	# noon, level 33 = cold abyssal dark. Per-map overrides kept for the first
+	# three hand-tuned levels; everything else is driven by the chain index so
+	# the world visibly darkens as difficulty climbs.
+	var tint: Color = Color(1.0, 0.98, 0.92)  # default warm
+	var idx: int = BookwarConst.get_level_index(GameState.current_map_id)
+	if idx < 0:
+		idx = 0
+	match GameState.current_map_id:
+		BookwarConst.MAP_TWO_LETTER_FOREST:    tint = Color(0.96, 0.98, 0.90)
+		BookwarConst.MAP_DARK_OAKS:            tint = Color(0.92, 0.94, 1.00)
+		_:
+			# Smooth ramp from bright meadow (idx 0) to abyssal dark (idx 32).
+			var t: float = float(idx) / 32.0
+			var bright: Color = Color(1.00, 0.98, 0.90)
+			var dark: Color = Color(0.42, 0.44, 0.58)
+			tint = bright.lerp(dark, t)
 	var ambient: CanvasModulate = CanvasModulate.new()
 	ambient.name = "Ambient"
 	ambient.color = tint
 	add_child(ambient)
 
 func _player_start() -> Vector2:
-	if GameState.current_map_id == BookwarConst.MAP_DARK_OAKS:
-		return BookwarConst.PLAYER_START_DARK_OAKS
-	if GameState.current_map_id == BookwarConst.MAP_TWO_LETTER_FOREST:
-		return BookwarConst.PLAYER_START_FOREST
-	return BookwarConst.PLAYER_START_VALLEY
+	return BookwarConst.get_player_start(GameState.current_map_id)
 
 func _setup_monster_spawner() -> void:
 	var spawner: Node = $MonsterSpawner
 	if spawner == null:
 		return
-	if GameState.current_map_id == BookwarConst.MAP_DARK_OAKS:
-		if spawner.has_method("setup_dark_oaks"):
-			spawner.setup_dark_oaks()
-	elif GameState.current_map_id == BookwarConst.MAP_TWO_LETTER_FOREST:
-		if spawner.has_method("setup_two_letter_forest"):
-			spawner.setup_two_letter_forest()
-	else:
-		if spawner.has_method("setup_light_valley"):
-			spawner.setup_light_valley()
+	# Use the appropriate spawner setup for the current map. For new maps (4-10)
+	# we fall back to the forest spawner config which has a good mix of enemies.
+	match GameState.current_map_id:
+		BookwarConst.MAP_LIGHT_VALLEY:
+			if spawner.has_method("setup_light_valley"):
+				spawner.setup_light_valley()
+		BookwarConst.MAP_DARK_OAKS:
+			if spawner.has_method("setup_dark_oaks"):
+				spawner.setup_dark_oaks()
+		BookwarConst.MAP_TWO_LETTER_FOREST:
+			if spawner.has_method("setup_two_letter_forest"):
+				spawner.setup_two_letter_forest()
+		_:
+			# Levels 4–33: generic data-driven spawner (escalating counts/tiers,
+			# final level = mass battle + evil wizard boss).
+			if spawner.has_method("setup_generic"):
+				spawner.setup_generic(GameState.current_map_id)
+			elif spawner.has_method("setup_light_valley"):
+				spawner.setup_light_valley()
 
 func _spawn_map_items() -> void:
 	# Deterministic RNG per map: same seed → same random positions/letters/colors across
 	# battle scene reloads, so collected-item keys (map:index) stay stable.
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = hash(GameState.current_map_id)
-	if GameState.current_map_id == BookwarConst.MAP_DARK_OAKS:
-		_spawn_dark_oaks_items(rng)
-	elif GameState.current_map_id == BookwarConst.MAP_TWO_LETTER_FOREST:
-		_spawn_forest_items(rng)
-	else:
-		_spawn_light_valley_items(rng)
+	match GameState.current_map_id:
+		BookwarConst.MAP_DARK_OAKS:
+			_spawn_dark_oaks_items(rng)
+		BookwarConst.MAP_TWO_LETTER_FOREST:
+			_spawn_forest_items(rng)
+		BookwarConst.MAP_LIGHT_VALLEY:
+			_spawn_light_valley_items(rng)
+		_:
+			# Maps 4-10: generic spawn using MAP_LETTERS for this region.
+			_spawn_generic_items(rng)
+
+func _spawn_generic_items(rng: RandomNumberGenerator) -> void:
+	# Spawn dots + letters for any map. Uses MAP_LETTERS dict to pick which letters
+	# are available on this map (progressive unlock).
+	var items: Node2D = $Items
+	if items == null:
+		return
+	var map_id: String = GameState.current_map_id
+	var chain_idx: int = BookwarConst.MAP_CHAIN.find(map_id)
+	if chain_idx < 0:
+		chain_idx = 0
+	# Smooth escalating ramp so richness climbs monotonically from level 1 to 33
+	# with level 15 sitting at the midpoint. Anchored on level 3's hand-tuned 90
+	# so there is no drop-off when the generic spawner takes over at level 4:
+	#   lv4 ~97, lv15 ~174 (midpoint of 40..300), lv33 ~300 (max).
+	var dot_count: int = 90 + maxi(0, chain_idx - 2) * 7
+	var letters: Array = BookwarConst.MAP_LETTERS.get(map_id, ["А"])
+	var letter_count: int = 3 + chain_idx
+	var idx: int = 0
+	for i: int in range(dot_count):
+		var x: float = rng.randf_range(BookwarConst.MAP_BOUND_MIN_X + 40, BookwarConst.MAP_BOUND_MAX_X - 40)
+		var y: float = rng.randf_range(BookwarConst.MAP_BOUND_MIN_Y + 40, BookwarConst.MAP_BOUND_MAX_Y - 40)
+		_spawn_item(items, "dot", "", _clamp_pos(Vector2(x, y)), rng, map_id + ":d" + str(i))
+		idx += 1
+	for j: int in range(letter_count):
+		var letter: String = String(letters[rng.randi() % letters.size()])
+		var lx: float = rng.randf_range(BookwarConst.MAP_BOUND_MIN_X + 80, BookwarConst.MAP_BOUND_MAX_X - 80)
+		var ly: float = rng.randf_range(BookwarConst.MAP_BOUND_MIN_Y + 80, BookwarConst.MAP_BOUND_MAX_Y - 80)
+		_spawn_item(items, "letter", letter, _clamp_pos(Vector2(lx, ly)), rng, map_id + ":l" + str(j))
+		idx += 1
 
 func _item_key(idx: int) -> String:
 	return GameState.current_map_id + ":item:" + str(idx)
@@ -399,6 +471,12 @@ func _on_combat_requested(monster_id: String, monster_name: String, enemy_hp: in
 	var p: Node2D = $Player
 	if p:
 		GameState.saved_player_position = p.global_position
+	# Remember which monster (by spawn_id) the player is about to fight, so
+	# when the world reloads after a player victory we can finish off that
+	# monster (manual combat doesn't kill it in-place).
+	var enemy: MonsterBase = _find_monster_by_id(monster_id)
+	GameState.last_combat_monster_spawn_id = enemy.spawn_id if enemy != null else ""
+	GameState.last_combat_won = false
 	GameState.set_pending_combat(monster_id, monster_name, enemy_hp, enemy_letters)
 	GameState.start_combat()
 	get_tree().change_scene_to_file(BATTLE_SCENE_PATH)
@@ -552,6 +630,25 @@ func _check_player_hidden() -> void:
 func _count_totals() -> void:
 	_total_monsters = _count_monsters()
 	_total_items = _count_items()
+	# Post-combat cleanup: if the player won a manual battle on the previous
+	# scene visit, kill the monster they fought. Without this the spawner
+	# recreates the monster fresh — making it look like combat was pointless.
+	var post_debug: Dictionary = {"won": GameState.last_combat_won, "target_spawn_id": GameState.last_combat_monster_spawn_id, "found": false, "total": _total_monsters}
+	if GameState.last_combat_won and GameState.last_combat_monster_spawn_id != "":
+		var target_id: String = GameState.last_combat_monster_spawn_id
+		for child: Node in get_children():
+			if child is MonsterBase:
+				var m: MonsterBase = child as MonsterBase
+				if m.spawn_id == target_id and m.is_active():
+					m.mark_killed_post_combat()
+					post_debug["found"] = true
+					post_debug["killed"] = m.monster_name
+					break
+	# Reset the flag so we don't re-kill on the next map transition.
+	GameState.last_combat_won = false
+	GameState.last_combat_monster_spawn_id = ""
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.gamePostCombatDebug = " + JSON.stringify(post_debug))
 
 func _build_map_bounds() -> void:
 	# Invisible walls around the playable map so the player CANNOT leave into the gray void.
@@ -736,12 +833,8 @@ func _on_portal_entered(body: Node2D) -> void:
 	call_deferred("_do_portal_transition")
 
 func _do_portal_transition() -> void:
-	# Determine next map
-	var next_map: String = ""
-	if GameState.current_map_id == BookwarConst.MAP_LIGHT_VALLEY:
-		next_map = BookwarConst.MAP_TWO_LETTER_FOREST
-	elif GameState.current_map_id == BookwarConst.MAP_TWO_LETTER_FOREST:
-		next_map = BookwarConst.MAP_DARK_OAKS
+	# Determine next map using the chain (supports all 10 maps).
+	var next_map: String = BookwarConst.get_next_map(GameState.current_map_id)
 	if next_map == "":
 		return
 	# Reset saved position so the hero spawns cleanly at the next map's start (no stuck)
