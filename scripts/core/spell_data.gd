@@ -100,6 +100,13 @@ func get_spell_type(word: String) -> String:
 		return ""
 	return String(_spells[word].get("type", ""))
 
+# Localized spell description (key "spell.desc.<word>", falls back to JSON).
+func get_description(word: String) -> String:
+	if not _spells.has(word):
+		return ""
+	var raw: String = String(_spells[word].get("description", ""))
+	return I18n.t("spell.desc." + word, raw)
+
 func get_slowest_speed(word: String) -> int:
 	# Spell acts at the speed of the slowest letter in the word (S16.4)
 	if not _spells.has(word):

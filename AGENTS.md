@@ -48,6 +48,310 @@
 
 **Нарушение этого порядка = ты тратишь часы пользователя на мусор.**
 
+### 0.5 ЭТАПЫ И ТАЙМАУТЫ (ЗАЩИТА ОТ ЗАВИСАНИЯ)
+
+> ⚠️ Добавлено 2026-06-23 после случая 2-часового зависания на UI automation Godot.
+> **Цель**: один этап разработки не должен занимать бесконечно. Если процесс идёт в тупик —
+> бросать его, фиксировать статус, переходить к следующему этапу или искать альтернативу.
+
+**ПРАВИЛО «20 МИНУТ»** (ЗАЯВЛЕНО ПОЛЬЗОВАТЕЛЕМ 2026-06-23):
+
+| Параметр | Лимит | Что делать |
+|----------|-------|------------|
+| **MAX этап** | 20 минут | По достижении — ПРИНИМАТЬ МЕРЫ (см. ниже), не продолжать слепо |
+| **ABORT порог** | 15 минут без прогресса | Если 15 мин итераций не дали сдвига — СТОП, искать альтернативу |
+| **MAX итераций одной ошибки** | 5 попыток | После 5 попыток чинить одно и то же — STOP, менять подход |
+
+**МЕРЫ ПРИ ДОСТИЖЕНИИ 20 МИНУТ (ОБЯЗАТЕЛЬНО):**
+
+1. **Зафиксировать прогресс** — что сделано, что нет (в `ANDROID_VERSION/STATUS.md` или в TODO)
+2. **Записать блокер** — конкретная причина зависания (error msg, что пробовал)
+3. **Kill зависших процессов** — Godot, Gradle, adb, emulator, Puppeteer
+4. **Очистить порты/locks** — `Get-NetTCPConnection :3000 | Stop-Process`, remove temp locks
+5. **Перейти к следующему этапу** — отложить блокер, продолжить работу
+6. **Отдельный цикл по blocked** — в конце сессии вернуться к unresolved блокерам
+
+**ПРИЗНАКИ ТУПИКА (увидел → сразу принимай меры, не жди 20 мин):**
+- 5+ итераций команды возвращает тот же результат
+- Tool error "Request timed out" повторяется чаще 3 раз
+- Vision-MCP не может прочитать скриншот 2 раза подряд
+- Команда `adb`/`gradle` висит > timeout
+- UI automation Godot не находит элемент после 3 циклов кликов/keyboard
+- Build APK падает на одной и той же error 3 раза
+
+**АНТИ-ПАТТЕРН (ЗАПРЕЩЕНО):**
+- Делать 10+ итераций SendKeys/click по Godot UI для одного menu
+- Перебирать pixel coordinates вручную
+- Ждать «может ещё чуть-чуть подождать и заработает» после 15 мин
+- Повторять одну и ту же команду ожидая разный результат
+- Тратить > 20 минут на этап без фиксации прогресса
+
+### 0.6 ПРИОРИТЕТ VISION MCP — ВНЕШНИЙ mcp-cli (НЕ встроенный!)
+
+> ⚠️ Добавлено 2026-06-23. БОЛЬШАЯ разница в качестве между встроенным MCP opencode
+> и внешним `mcp-cli.exe` (Bun, GLM-4.6V). Пользователь явно требует: **mcp-cli ПЕРВИЧЕН**.
+
+**ПРИОРИТЕТ Vision (использовать строго в этом порядке):**
+
+1. **ПЕРВИЧНО — внешний `mcp-cli.exe`** (`~\.bun\bin\mcp-cli.exe`, сервер `zai-vision`)
+   - Качество: высокое (GLM-4.6V, native vision model)
+   - Запуск: `& scripts/dev/vision.ps1 -Tool analyze_image -Json '{...}' -TimeoutSec 90`
+   - JSON-аргументы в одинарных кавычках
+   - Пути к картинкам с `/` (forward slash), НЕ `\`
+
+2. **FALLBACK — встроенные MCP opencode** (`zai-mcp-server_*` функции)
+   - Использовать ТОЛЬКО если mcp-cli недоступен (Defender блокировка, нет binary)
+   - Качество: ниже (встроенный proxy), иногда timeout без причины
+   - Функции: `zai-mcp-server_analyze_image`, `_extract_text_from_screenshot`, и т.д.
+
+**ПРАВИЛО**: перед каждым Vision-анализом — обновить PATH:
+```powershell
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","User") + ";" + [System.Environment]::GetEnvironmentVariable("Path","Machine")
+```
+
+**ПРОВЕРКА доступности mcp-cli** (первым делом в сессии):
+```powershell
+& "~\.bun\bin\mcp-cli.exe" -d 2>&1 | Select-String "zai-vision"
+```
+
+**ОБЯЗАТЕЛЬНО** в `scripts/dev/vision.ps1` использовать внешний `mcp-cli.exe` — НЕ встроенный
+opencode tool. Если `mcp-cli.exe` заблокирован Defender'ом — добавить исключение:
+```powershell
+Add-MpPreference -ExclusionPath "~\.bun"
+Add-MpPreference -ExclusionProcess "bun.exe"
+```
+
+### 0.7 ЭТАПЫ С БОЛЬШИМИ ТАЙМАУТАМИ (Android/Gradle/Emulator)
+
+> Специфичные таймауты для Android разработки (добавлено 2026-06-23).
+
+| Этап | MAX таймаут | ABORT порог |
+|------|-------------|-------------|
+| `gradle` download deps (первый раз) | 30 мин | 20 мин без прогресса |
+| `build_apk.ps1` (BOOKWAR debug) | 15 мин | 10 мин без прогресса |
+| `emulator` boot | 5 мин | 4 мин без boot_completed |
+| `adb install` | 3 мин | 2 мин |
+| `adb pull/push` | 2 мин | 1 мин |
+| `mcp-cli call zai-vision` | 90 сек | 60 сек |
+| Puppeteer HTML5 e2e | 90 сек/тест | 60 сек |
+
+**Все эти этапы — потенциальные trap.** Каждый запуск с явным `-TimeoutSec` через
+dev-скрипты (`scripts/dev/*.ps1`). При timeout — kill + переход к следующему шагу.
+
+**НЕПРЕРЫВНЫЙ прогресс = ОК. Таймаут без прогресса = бросать задачу.**
+
+### 0.8 ВЕРИФИКАЦИЯ ДЕПЛОЯ В РЕАЛЬНОМ БРАУЗЕРЕ (Puppeteer + Vision)
+
+> ⚠️ Добавлено 2026-06-24 после кейса «чёрный экран»: фронтенд задеплоили, файлы на сервере,
+> curl отдаёт 200 — а игрок видит чёрный экран. Причина: дефолтный Godot HTML-shell не показывает
+> прогресс, и пока качаются 112 МБ, экран тёмный. **curl/HEAD НЕ доказывают, что игра работает.**
+
+**ПРАВИЛО: после ЛЮБОГО деплоя (билд на сервер, фронтенд, сцена) — НЕ говорить «работает», пока не проверено в реальном браузере через Puppeteer + Vision-MCP.** curl `200` и «файлы залиты» = НЕ доказательство.
+
+**Обязательный цикл проверки деплоя:**
+1. **Puppeteer грузит live-URL** (или локальный `http-server :3000`, если канал агента до сервера плохой — см. ниже) с throttled-сетью (`Network.emulateNetworkConditions`, ~1 МБ/с), чтобы поймать экран загрузки.
+2. **Скриншот экрана загрузки** → Vision-MCP (`analyze_image`): подтвердить, что виден брендинг/прогресс/%, а НЕ чёрный/пустой экран.
+3. **Скриншот после загрузки** (меню/игра) → Vision-MCP: подтвердить, что кириллица рендерится, кнопки видны, цвета верные.
+4. **Полный e2e** (минимум `regression_smoke` + загрузка + меню) → 0 падений.
+
+**Если канал агента до сервера не тянет 112 МБ (throttle/loss — было у самого автора):**
+- Воспроизвести **локально**: `npx http-server builds/html5 -p 3000` (localhost, без throttle) → тот же Puppeteer-цикл по `http://localhost:3000/`. Билд идентичен — баг воспроизводится.
+- На сервере отдельно проверить только транспорт: HTTP `200` + **content-type** для `/. /index.js (application/javascript), /index.wasm (application/wasm), /index.pck (octet-stream)` + наличие `/ws` прокси.
+- НЕ закрывать задачу «работает у пользователя» без локальной Puppeteer+Vision проверки того же билда.
+
+**Для Godot web-билдов — ВСЕГДА:**
+- Применять кастомный shell (`scripts/dev/patch_web_shell.js` после `build.ps1`) с экраном загрузки (BOOKWAR + прогресс % + watchdog 45с). Дефолтный shell = чёрный экран во время загрузки = репорт «сломано».
+- Проверить `Engine.getMissingFeatures()` не падает (иначе оверлей ошибки вместо игры).
+
+### 0.9 ЛЮБОЕ ИЗМЕНЕНИЕ → И ДЛЯ ТЕЛЕФОНОВ, И ДЛЯ КОМПОВ (ЗАЯВЛЕНО ПОЛЬЗОВАТЕЛЕМ 2026-06-25)
+
+> ⚠️ Это ГЛОБАЛЬНОЕ правило. Применяется ко ВСЕМ фичам/фиксам/правкам UI/геймплея.
+
+**ПРАВИЛО:** Любая просьба пользователя «сделай X» означает: **X должно работать и на mobile (touch), и на desktop (mouse + keyboard)**. Не «сделать только для одной платформы» — обе сразу.
+
+**Что это значит на практике (ОБЯЗАТЕЛЬНО для каждой UI/геймплей-правки):**
+
+1. **Touch handler наравне с mouse/keyboard.** Любой новый Control, кнопка, зона тапа —
+   обрабатывать `InputEventScreenTouch` так же надёжно, как `InputEventMouseButton` и
+   `InputEventKey`. В Godot HTML5 `Input.emulate_mouse_from_touch` **ненадёжен**
+   (проверено 2026-06-25: ловит только верхние кнопки + даёт двойную обработку → toggle cancels).
+   **Решение:** кастомный `_input(event)` с явным hit-test по `btn.get_global_rect().has_point(pos)`
+   и **прямым вызовом** обработчика (не через `emit_signal("pressed")` — signal-connection может
+   не отработать если _ready упал на дочерней сцене). См. эталон `scripts/ui/main_menu.gd`.
+
+2. **Координаты touch маппятся через АКТУАЛЬНЫЙ viewport.** При `stretch/aspect="expand"`
+   Godot меняет viewport под aspect дисплея (например, 1280×720 → 1676×720 при wide screen).
+   `Control.get_global_rect()` возвращает coords в АКТУАЛЬНОМ viewport, не в базовом 1280×720.
+   ВСЕ тесты/Puppeteer должны читать `window.gameViewportSize` (или аналог) и маппить
+   CSS → Godot через `css * (viewport / canvasBox)`. Хардкод `1280×720` = баг.
+
+3. **HTML5 AudioContext unlock.** На web музыка/звук заблокированы до первого user gesture.
+   Каждое новое место где может играть звук — убедиться что первый tap/click вызывает
+   `audioContext.resume()` (см. `patch_web_shell.js` — обработчик на `touchstart`/`mousedown`).
+   Без этого «музыка не играет» на 100% случаев.
+
+4. **Browser-only кнопки прячутся или заменяются.** `window.close()`, `get_tree().quit()`,
+   доступ к файловой системе — браузеры блокируют. Если фича требует этого — скрыть на web
+   через `if OS.has_feature("web"): btn.visible = false` (как кнопка Quit в `main_menu.gd`).
+
+5. **Desktop-only фичи работают через keyboard/mouse.** Если фича требует клавиатуры
+   (WASD, hotkeys) — оставить, но убедиться что есть и touch-альтернатива (виртуальный
+   D-pad, кнопки действий). Сцены мира/боя имеют touch-buttons в HUD — проверять их.
+
+**ПРИ ПРОВЕРКЕ (GATE 2):** Puppeteer-тест прогонять в **ДВУХ режимах**:
+- `setViewport({ isMobile: true, hasTouch: true })` + `page.touchscreen.tap(x,y)` — mobile
+- `setViewport({ isMobile: false })` + `page.mouse.click()` + `page.keyboard.press()` — desktop
+
+Если работает только в одном — **задача НЕ завершена**, чинить до обоих.
+
+**АНТИ-ПАТТЕРН (ЗАПРЕЩЕНО):**
+- Сказать «сделано» после проверки только на desktop (мышью/клавиатурой)
+- Полагаться на `Input.emulate_mouse_from_touch` как на единственный touch-путь
+- Использовать хардкод `1280×720` для координат (viewport меняется при expand)
+- Скрыть фичу «потому что на мобильном сложно» (правильно — сделать touch-альтернативу)
+- Обрабатывать `emit_signal("pressed")` без прямого вызова обработчика (signal-connect ненадёжен)
+
+**ЭТАЛОНная реализация:** `scripts/ui/main_menu.gd` — кастомный `_input` + `_dispatch_button` +
+`window.gameButtonRects` + `window.gameViewportSize` + debounce 300мс (от двойных touch+emulate).
+
+### 0.11 ПРИНЦИП «1 ДЕЙСТВИЕ = 1 ЭФФЕКТ» (ЗАЯВЛЕНО ПОЛЬЗОВАТЕЛЕМ 2026-06-25)
+
+> ⚠️ Корневая причина большинства UI-багов в BOOKWAR (легенда перескакивает 1→3,
+> toggle cancels, кнопки не реагируют) — **двойная/тройная обработка одного тапа**.
+> Этот принцип запрещает такие баги системно.
+
+**ПРАВИЛО: на HTML5 web-export КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО `Button.pressed.connect(handler)`
+для интерактивных UI-кнопок (меню, легенда, инвентарь, крафт, multiplayer, бой).**
+
+**Причина:** Godot 4.6 HTML5 на один физический tap генерирует сразу НЕСКОЛЬКО input events:
+1. `InputEventScreenTouch` (нативный touch)
+2. `InputEventMouseButton` (через `emulate_mouse_from_touch`)
+3. Для каждого — отдельный проход `_gui_input` → `pressed` signal
+
+Если обработчик подключён и через `pressed.connect`, и через кастомный `_input` hit-test —
+**один тап = 2-3 вызова handler'а**. Для toggle-логики (открыть/закрыть) = cancel. Для
+advance-логики (листать страницы) = перескок через 1-2 страницы. Для craft — расход
+модификаторов вдвое быстрее.
+
+**ЕДИНСТВЕННЫЙ разрешённый паттерн (mobile + desktop):**
+
+```gdscript
+extends Control
+
+var _last_action_time: float = 0.0  # debounce guard
+
+func _input(event: InputEvent) -> void:
+    # Accept BOTH touch AND mouse — universal handler.
+    var pos := Vector2(-1, -1)
+    var is_press := false
+    if event is InputEventScreenTouch:
+        pos = event.position
+        is_press = event.pressed
+    elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+        pos = event.position
+        is_press = true
+    if not is_press or pos.x < 0:
+        return
+    # Debounce 200-300ms — kill double-firing from touch+emulate.
+    var now: float = Time.get_ticks_msec() / 1000.0
+    if now - _last_action_time < 0.25:
+        return
+    # Hit-test all interactive buttons, dispatch the FIRST match.
+    if _button_a and _button_a.get_global_rect().has_point(pos):
+        _last_action_time = now
+        _on_button_a_pressed()
+        get_viewport().set_input_as_handled()
+        return
+    if _button_b and _button_b.get_global_rect().has_point(pos):
+        _last_action_time = now
+        _on_button_b_pressed()
+        get_viewport().set_input_as_handled()
+        return
+
+func _on_button_a_pressed() -> void:
+    # Direct handler — NO emit_signal("pressed"), NO pressed.connect elsewhere.
+    pass
+```
+
+**ОБЯЗАТЕЛЬНЫЕ правила:**
+
+1. **`Input.emulate_mouse_from_touch = false`** в каждом `_ready()` интерактивной сцены.
+   Touch приходит только как `InputEventScreenTouch` (один event, не два).
+2. **Никаких `pressed.connect(handler)`** для кнопок которые что-то делают (смена сцены,
+   toggle, advance страниц, выбор буквы). Только `_input` hit-test → прямой вызов.
+3. **Debounce ≥ 200мс** на каждый `_input` — защита от оставшихся дублей.
+4. **`set_input_as_handled()`** после срабатывания — блокирует downstream processing.
+5. **Hit-test по `get_global_rect().has_point(pos)`** — НЕ по хардкод-координатам.
+6. **Прямой вызов обработчика** (`_on_button_xxx_pressed()`), НЕ `emit_signal("pressed")`.
+
+**ИСКЛЮЧЕНИЯ (где `pressed.connect` ещё допустимо):**
+- НеИнтерактивные подписки на внешние сигналы (`InventoryManager.inventory_changed.connect(_refresh)`).
+- Hold-кнопки D-pad в HUD (`button_down`/`button_up`) — там логика press+release, не toggle.
+- Сигналы `gui_input.connect(_on_cell_input)` для клеточных grid'ов — НО только при условии
+  что внутри обработчика есть тот же debounce.
+
+**ТРЕБОВАНИЕ К ТЕСТАМ (GATE 2 для UI):**
+
+Каждая новая UI-кнопка ОБЯЗАНА сопровождаться regression-тестом:
+
+```javascript
+// В tests/e2e — обязательный чек: 1 tap = 1 эффект, не больше.
+test('intro panel advance: 1 tap → +1 panel', async () => {
+  const before = await page.evaluate(() => window.gameIntroIndex);
+  await page.touchscreen.tap(nextBtn.cx, nextBtn.cy);
+  await sleep(500);
+  const after = await page.evaluate(() => window.gameIntroIndex);
+  expect(after).toBe(before + 1);  // ← НЕ +2, НЕ +3
+});
+```
+
+Тот же тест прогоняется и в mobile-режиме (`hasTouch:true, page.touchscreen.tap`)
+и в desktop (`page.mouse.click`). Если в любом из них `delta != 1` — **баг, фиксить**.
+
+**АНТИ-ПАТТЕРН (ЗАПРЕЩЕНО):**
+- `btn.pressed.connect(handler)` + `_input` hit-test на ту же кнопку
+- `emit_signal("pressed")` из кастомного handler'а (вызывает signal subscribers + наш код)
+- Забывать `set_input_as_handled()` — downstream nodes тоже обработают event
+- Debounce < 200мс (Touch + emulate-mouse приходят с разницей ~50-100мс)
+- Тестировать UI только на desktop (touch duplicate проявляется только на mobile)
+
+**ЭТАЛОНЫ:** `scripts/ui/main_menu.gd`, `scripts/ui/intro.gd`, `scripts/ui/inventory_ui.gd`,
+`scripts/ui/multiplayer_ui.gd` — все кнопки через `_input` + hit-test + debounce.
+
+### 0.10 СНАЧАЛА ЛОКАЛЬНЫЙ ТЕСТ → ПОТОМ ДЕПЛОЙ НА СЕРВЕР (ЗАЯВЛЕНО ПОЛЬЗОВАТЕЛЕМ 2026-06-25)
+
+> Workflow для любой правки. Дешевле и быстрее итерировать локально, чем гонять
+> 112-МБ билд через VPN-канал на live-сервер после каждой мелочи.
+
+**ПОРЯДОК (СТРОГО):**
+
+1. **Код** — написать/изменить.
+2. **Build** → `& scripts/dev/build.ps1 -TimeoutSec 300` (exit≠0 = стоп).
+3. **Patch shell** → `node scripts/dev/patch_web_shell.js` (build перегенерирует index.html,
+   патч нужно применять **после** каждого build).
+4. **Локальный serve** → `http-server builds/html5 -p 3000` (один раз, держать запущенным).
+5. **Puppeteer-тест локально** → `node <test>.js` против `http://localhost:3000/`.
+   - Канал локальный = мгновенная загрузка 112МБ из памяти (1-3с).
+   - Все манипуляции (tap, keyboard, мосты `window.game*`) работают.
+6. **Vision-MCP** на ключевые скриншоты → убедиться что кириллица, цвета, кнопки ОК.
+7. **e2e regression** → `cd tests/e2e && npx jest --testPathIgnorePatterns capture.test.js` → 0 падений.
+8. **ТОЛЬКО когда всё зелёное локально → деплой на сервер** через `scp -C -i <key> ... root@<bookwar-server-ip>:/var/www/bookwar/`.
+9. **После деплоя** — `curl` transport-проверка (content-type + размер + наличие патча в index.html).
+   Полный Puppeteer-test против live — **только если канал до сервера позволяет скачать 112МБ**
+   (curl --max-time 300 если зависает → канал не годится, проверка transport-только).
+10. **Сказать «работает на сервере» можно только после шага 9.** До этого — «работает локально, деплой подтверждён transport-проверкой».
+
+**ПОЧЕМУ ТАК:** канал агента до сервера <bookwar-server-ip> через VPN нестабилен — `curl index.wasm`
+может висеть 6+ минут и обрываться с `ERR_CONNECTION_RESET`. Chrome через Puppeteer тогда падает
+с `Engine is not defined` и рендерит чёрный экран. Это **не баг игры** — это ограничение сети агента.
+Игроки с нормальным интернетом (как подтверждено пользователем на Android-телефоне) грузят без проблем.
+
+**АНТИ-ПАТТЕРН (ЗАПРЕЩЕНО):**
+- Деплоить на сервер, не протестировав локально
+- Говорить «работает на сервере» без шагов 8-9
+- Делать iteration-цикл «правка → деплой → live-test» для каждой мелочи (это часы на каждый цикл)
+- Пропускать `patch_web_shell.js` после build (дефолтный shell = чёрный экран при загрузке)
+
 ---
 
 ## 1. ОБЗОР ПРОЕКТА
@@ -1729,6 +2033,285 @@ func _draw_npc(npc_type: String) -> void:
 - Светлая Долина: тёплый полдень `Color(1.0, 0.98, 0.88)`
 - Лес Двубуквия: зелёная тень `Color(0.72, 0.82, 0.66)`
 - Дремучие Дубы: холодный синий мрак `Color(0.46, 0.50, 0.64)`
+
+---
+
+## 20. ИНВЕРСИЯ БАЛАНСА БУКВ + РЕДКОСТЬ + НОВЫЙ БОЙ (2026-06-22)
+
+> **важно**: этот раздел фиксирует договорённость с пользователем от 2026-06-22.
+> Старые §2.1 и §2.3 частично устарели — при расхождениях с §20 **применять §20**.
+> Реализация инверсии планируется после быстрых фиксов (см. §20.4).
+
+### 20.1 Новая формула силы букв (ИНВЕРСИЯ §2.1)
+
+**Старое правило (устарело)**: `base_power = 34 − position` (А=33 сила, Я=1 сила).
+**Новое правило (согласно §20)**:
+
+```
+letter_coefficient = position_in_alphabet
+  А = 1   (самая слабая)
+  ...
+  Я = 33  (самая сильная)
+```
+
+**Сила = позиция в алфавите.** Буквы ближе к концу алфавита (Ю, Э, Я, Ъ, Ы, Ь) — мощные.
+Буквы ближе к началу (А, Б, В, Г, Д) — слабые.
+
+Это **полная инверсия** прежнего правила. Требует обновления:
+- `data/letters.json` — у всех 33 букв `base_power = position` (НЕ `34 − position`)
+- `scripts/core/alphabet_data.gd` — формула `get_base_power()`
+- Все формулы боя в `combat_system.gd` (см. §2.3) — переписать через новый коэффициент
+- Спеллы в `data/spells.json` — формула силы тоже опирается на новый коэффициент
+- Описание букв в `data/letters.json` — обновить тексты («мощная/слабая»)
+
+### 20.2 Редкость букв по уровням
+
+Распределение дропа/спавна букв подчиняется правилу:
+
+| Уровень (карта) | Максимум копий одной буквы на карте |
+|-----------------|--------------------------------------|
+| 1 (Светлая Долина) | 2 |
+| 2 (Лес Двубуквия) | 3 |
+| 3 (Дремучие Дубы) | 3 |
+| N (где N ≥ 4) | N |
+
+Плюс правило редкости:
+- **Частые** (позиции 1-10, А-И): падают с весом ×3
+- **Обычные** (позиции 11-22, Й-У): падают с весом ×2
+- **Редкие** (позиции 23-33, Ф-Я): падают с весом ×1
+
+Реализация: в `world_map.gd._spawn_*_items` и в `monster_base._drop_loot` использовать
+взвешенный выбор буквы вместо равновероятного.
+
+### 20.3 Новый бой: тело-экипировка (тактический режим)
+
+Параллельно со старым автобусоем — **схема тела героя** с слотами под буквы:
+
+```
+        [Шлем]           ← согласная (голова)
+         ⬛
+   ⬛⬛⬛[Корпус]⬛⬛⬛    ← согласная (кольчуга/торс)
+   ⬛   ⬛⬛⬛   ⬛
+  [Л.рука]       [П.рука]
+   ⬛              ⬛       ← П.рука = гласная (оружие)
+   ⬛              ⬛       ← Л.рука = согласная (щит) ИЛИ ещё одна гласная
+```
+
+**Слоты и формулы:**
+- **Правая рука** — гласная (оружие). Может быть две гласные (два оружия).
+- **Левая рука** — согласная (щит) ИЛИ гласная (второе оружие).
+- **Корпус** — согласная (кольчуга).
+- **Голова** — согласная (шлем).
+- **Очки атаки** = Σ коэффициентов гласных в руках.
+- **Очки брони** = Σ коэффициентов согласных в щите/корпусе/шлеме.
+
+**Тумблер режимов** (кнопка в `battle_manager.gd`, уже есть «Автобой»):
+- **Автобой ВКЛ** — текущий card-based бой (как сейчас).
+- **Автобой ВЫКЛ** — тактический режим с телом-экипировкой.
+
+В автобое используется та же фигурка героя, но исход боя resolves автоматически
+из текущих очков атаки/брони экипировки.
+
+### 20.4 План реализации (порядок)
+
+1. ✅ **Быстрые фиксы (2026-06-22)**:
+   - Герой увеличен (`player.gd` scale 0.70 → 0.95)
+   - Монстры и предметы не уходят за край карты (`monster_base.gd` clamp в `_physics_process`)
+   - `?`-монстры тоже гибнут в бою — добавлен **F-key attack** (`monster_base.attack_me()` +
+     `player._try_attack_monster()`). Игрок может инициировать бой против любого монстра,
+     включая нейтральных `?`. JS-bridge: `window.gameAttackMonster()`.
+2. ⏳ **Инверсия букв** — переписать `data/letters.json`, `alphabet_data.gd`, формулы боя
+3. ⏳ **Редкость** — взвешенный спавн/дроп
+4. ⏳ **Тактический бой с телом** — новый UI + логика экипировки
+
+### 20.5 Карта-границы (constants.gd)
+
+Общие константы границ карты вынесены в `BookwarConst` (используются `world_map.gd`,
+`monster_spawner.gd`, `monster_base.gd`):
+
+```
+MAP_BOUND_MIN_X = 80.0    MAP_BOUND_MAX_X = 2480.0
+MAP_BOUND_MIN_Y = 80.0    MAP_BOUND_MAX_Y = 1840.0
+```
+
+Видимая тайлмап-область: 80×60 тайлов × 32px = 2560×1920.
+
+---
+
+## 21. ANDROID ВЕРСИЯ — ПОДПРОЕКТ ANDROID_VERSION
+
+> Добавлено 2026-06-23. Полностью автономная Android-разработка ведётся в
+> `D:\Projects\BOOKWAR\ANDROID_VERSION\`. Все dev-скрипты с **жёсткими таймаутами**
+> (см. §0.7). Все Vision-проверки через **mcp-cli** (см. §0.6).
+> Статус ведётся в `ANDROID_VERSION/STATUS.md`.
+
+### 21.1 Структура ANDROID_VERSION
+
+```
+ANDROID_VERSION/
+├── STATUS.md                    ← текущий прогресс + blocked задачи
+├── scripts/dev/                 ← dev-скрипты с таймаутами
+│   ├── build_apk.ps1            ← сборка APK через Godot CLI (timeout 600с)
+│   ├── run_emulator.ps1         ← запуск AVD headless (boot timeout 240с)
+│   ├── install_apk.ps1          ← adb install + monkey launch (timeout 120с)
+│   ├── screenshot.ps1           ← adb screencap pull (timeout 30с)
+│   ├── vision.ps1               ← обёртка mcp-cli (timeout 90с)
+│   ├── test_android.ps1         ← full pipeline (build→emu→install→shot→Vision)
+│   ├── install_template_mouse.py ← UI automation для Godot Install Android Build Template
+│   └── ...                      ← другие helper-скрипты
+├── tests/e2e/screenshots/       ← скриншоты с эмулятора
+├── test_project/                ← минимальный проект для отладки Android export
+├── server/                      ← (зарезервировано) сервер мультиплеера
+├── docs/                        ← документация
+└── builds/                      ← артефакты сборки
+```
+
+### 21.2 Ключевые файлы в основном проекте
+
+- `D:\Projects\BOOKWAR\builds\android\bookwar.apk` — **итоговый APK** (debug, 148 MB)
+- `D:\Projects\BOOKWAR\export_presets.cfg` — `preset.1` = Android (gradle build, arm64-v8a)
+- `D:\Projects\BOOKWAR\android\` — gradle build template (ВРУЧНУЮ не трогать, см. §21.5)
+- `D:\Projects\BOOKWAR\android\.build_version` — версия template (`4.6.3.stable`)
+- `D:\Projects\BOOKWAR\project.godot` — имеет `rendering/textures/vram_compression/import_etc2_astc=true`
+  и `renderer/rendering_method="gl_compatibility"` (обязательно для Android)
+- `D:\Projects\BOOKWAR\assets\ui\app_icon_*.png` — иконки 192/432/512
+
+### 21.3 КРИТИЧНЫЕ настройки окружения
+
+| Что | Где | Значение |
+|-----|------|----------|
+| Godot binary | `D:\Godot\Godot_v4.6.3-stable_win64.exe` | (не в Program Files — иначе UAC) |
+| Android SDK | `D:\Android\Sdk` (env `ANDROID_HOME`) | platform-tools, build-tools 34/35, platforms 34/35/36 |
+| JAVA_HOME | `D:\Program Files\Android\Android Studio\jbr` | Java 21 |
+| Debug keystore | `~\.android\debug.keystore` | alias=`androiddebugkey`, pass=`android` |
+| Editor settings | `%APPDATA%\Godot\editor_settings-4.6.tres` | paths to SDK/JDK/keystore |
+| Android templates | `%APPDATA%\Godot\export_templates\4.6.3.stable\android_debug.apk` | уже установлены |
+| AVD | `Test_API34` (API 34, arm64-v8a) | запускать с `-gpu host` |
+| Local gradle 8.12 | `D:\AndroidStudioData\gradle\wrapper\dists\gradle-8.12-all\...\gradle-8.12-all.zip` | для wrapper (см. §21.5) |
+
+### 21.4 СТАНДАРТНЫЙ цикл разработки Android
+
+```powershell
+# 1. Сборка APK
+& "D:\Projects\BOOKWAR\ANDROID_VERSION\scripts\dev\build_apk.ps1" -TimeoutSec 600
+
+# 2. Запуск эмулятора (один раз)
+& "D:\Projects\BOOKWAR\ANDROID_VERSION\scripts\dev\run_emulator.ps1" -AvdName Test_API34 -BootTimeoutSec 240 -Headless -KillExisting
+
+# 3. Установка + запуск
+& "D:\Projects\BOOKWAR\ANDROID_VERSION\scripts\dev\install_apk.ps1" -TimeoutSec 120 -Run
+
+# 4. Скриншот
+& "D:\Projects\BOOKWAR\ANDROID_VERSION\scripts\dev\screenshot.ps1" -Label "my_feature"
+
+# 5. Vision через mcp-cli (PRIMARY)
+& "D:\Projects\BOOKWAR\ANDROID_VERSION\scripts\dev\vision.ps1" -Tool analyze_image -Json '{"image_source":"path.png","prompt":"..."}' -TimeoutSec 90
+
+# OR full pipeline одним вызовом:
+& "D:\Projects\BOOKWAR\ANDROID_VERSION\scripts\dev\test_android.ps1" -ShotLabel "my_feature"
+```
+
+### 21.5 ИЗВЕСТНЫЕ БАГИ GODOT 4.6.3 + WORKAROUND'ы
+
+> Эти баги заняли часы отладки. Записано чтобы не повторять.
+
+1. **`can_export()` возвращает false без объяснения** в CLI. UI показывает preset валидным,
+   CLI падает с "configuration errors: " (пусто после двоеточия).
+   **Workaround**: включить в `project.godot`:
+   ```
+   [rendering]
+   textures/vram_compression/import_etc2_astc=true
+   ```
+
+2. **`.build_version` файл обязателен** в `android/.build_version` (на уровне ВЫШЕ build/!).
+   Содержимое: `4.6.3.stable`. Без него export падает с
+   "Trying to build from a gradle built template, but no version info for it exists."
+
+3. **Gradle wrapper download timeout** — `gradle-wrapper.properties` по умолчанию тянет
+   `gradle-8.11.1-bin.zip` с `services.gradle.org`, иногда timeout.
+   **Workaround**: использовать локальный gradle от Android Studio:
+   ```powershell
+   $src = "D:\AndroidStudioData\gradle\wrapper\dists\gradle-8.12-all\ejduaidbjup3bmmkhw3rie4zb\gradle-8.12-all.zip"
+   $dst = "D:\Projects\BOOKWAR\android\build\gradle\wrapper\gradle-8.12-all.zip"
+   Copy-Item $src $dst -Force
+   "distributionUrl=file:///$($dst -replace '\\','/')" | Out-File gradle-wrapper.properties -Encoding ASCII
+   ```
+   `build_apk.ps1` делает это автоматически.
+
+4. **Install Android Build Template** НЕ создаётся при CLI export автоматически.
+   Только через UI меню Project → Install Android Build Template.
+   **Workaround**: используй `install_template_mouse.py` (pywinauto):
+   ```powershell
+   python "D:\Projects\BOOKWAR\ANDROID_VERSION\scripts\dev\install_template_mouse.py"
+   ```
+
+5. **Vulkan на эмуляторе падает** с `GL_MAX_FRAGMENT_UNIFORM_VECTORS exceeded` (SwiftShader).
+   **Workaround**: в `project.godot`:
+   ```
+   [rendering]
+   renderer/rendering_method="gl_compatibility"
+   renderer/rendering_method.mobile="gl_compatibility"
+   ```
+   И запускать эмулятор с `-gpu host` (через `run_emulator.ps1`).
+
+6. **Stretch aspect="keep" ломает touch coordinates** — на эмуляторе с разным DPI/aspect
+   координаты transforms неправильно.
+   **Workaround**: использовать `aspect="expand"` в `project.godot` (или `ignore`).
+
+### 21.6 Запуск на реальном телефоне (USB debug)
+
+```powershell
+# 1. Включить USB debugging на телефоне (Developer options → USB debugging)
+# 2. Подключить по USB
+adb devices                        # должно показать device
+adb install -r D:\Projects\BOOKWAR\builds\android\bookwar.apk
+adb shell monkey -p org.bookwar.game -c android.intent.category.LAUNCHER 1
+```
+
+На реальном телефоне taps должны работать (на эмуляторе есть coordinate mapping bug).
+
+### 21.7 ПРИОРИТЕТ задач Android (на 2026-06-23)
+
+1. ✅ Сборка APK (готово)
+2. ✅ Установка + запуск на эмуляторе (готово)
+3. ✅ Главное меню отображается с кириллицей (готово)
+4. ⚠️ Tap input на эмуляторе — есть coordinate mapping bug, на реальном телефоне должно работать
+5. ⏳ Сенсор-controls (виртуальный джойстик) — добавить когда taps confirmed working
+6. ⏳ E2E тесты Android (adb input + screencap + mcp-cli Vision)
+7. ⏳ Splash screen + красивая иконка (через Pollinations.ai, см. §15.3)
+8. ⏳ Ориентация lock (landscape)
+9. ⏸️ Мультиплеер (сервер 45) — отложено пользователем до предоставления SSH доступа
+
+### 21.8 Эмулятор команды (quick reference)
+
+```powershell
+$adb = "D:\Android\Sdk\platform-tools\adb.exe"
+
+# Список AVD
+& "D:\Android\Sdk\emulator\emulator.exe" -list-avds
+
+# Tap
+& $adb shell input tap X Y
+
+# Swipe
+& $adb shell input swipe X1 Y1 X2 Y2 duration_ms
+
+# Long press (swipe на месте)
+& $adb shell input swipe X Y X Y 1000
+
+# Key event (BACK=4, HOME=3, ENTER=66, MENU=82)
+& $adb shell input keyevent 4
+
+# Screenshot
+& $adb exec-out screencap -p > shot.png
+
+# Logcat
+& $adb logcat -d -s godot:V
+
+# Install / uninstall
+& $adb install -r app.apk
+& $adb uninstall org.bookwar.game
+```
 
 ---
 

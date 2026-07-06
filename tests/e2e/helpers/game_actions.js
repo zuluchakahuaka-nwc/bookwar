@@ -80,10 +80,22 @@ async function isMenuVisible() {
 async function startNewGame() {
   await godot.clickButton('Новая игра');
   await godot.waitFrames(30);
+  // "New Game" always plays the legend intro first (intro_return_to="char_select").
+  // Wait for the intro scene to expose its bridge, then skip to character select.
+  try {
+    await godot.waitForCondition(async () => {
+      return await godot.evaluateInPage(() => typeof window.gameSkipIntro === 'function');
+    }, 12000);
+    await godot.evaluateInPage(() => {
+      if (typeof window.gameSkipIntro === 'function') window.gameSkipIntro();
+    });
+  } catch (e) {
+    // Intro may have already finished/been skipped — fall through to char select.
+  }
   // Character select screen — confirm default hero (index 0)
   await godot.waitForCondition(async () => {
     return await godot.evaluateInPage(() => !!(window.gameCharSelectLoaded));
-  }, 10000);
+  }, 15000);
   await godot.evaluateInPage(() => {
     if (typeof window.gameConfirmHero === 'function') window.gameConfirmHero();
   });

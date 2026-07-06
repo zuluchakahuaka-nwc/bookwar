@@ -5,10 +5,16 @@ const CLOSE_KEY: String = "open_manual"
 
 var _tabs: TabContainer = null
 var _close_btn: Button = null
+# Independent open-flag — relying on .visible is unreliable when the scene
+# instantiates before _ready fully runs (it can default to true).
+var _is_open: bool = false
 
 func _ready() -> void:
+	_is_open = false
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.gameManualReady = (window.gameManualReady||0)+1; window.gameManualVisible = false;")
 	_build_layout()
 
 func _build_layout() -> void:
@@ -270,16 +276,18 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 
 func show_manual() -> void:
+	_is_open = true
 	visible = true
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.gameShowCalls = (window.gameShowCalls||0)+1; window.gameManualVisible = true;")
 	if _tabs:
 		_tabs.current_tab = 0
-	if OS.has_feature("web"):
-		JavaScriptBridge.eval("window.gameManualVisible = true;")
 
 func hide_manual() -> void:
+	_is_open = false
 	visible = false
 	if OS.has_feature("web"):
-		JavaScriptBridge.eval("window.gameManualVisible = false;")
+		JavaScriptBridge.eval("window.gameHideCalls = (window.gameHideCalls||0)+1; window.gameManualVisible = false;")
 
 func is_open() -> bool:
-	return visible
+	return _is_open

@@ -82,6 +82,12 @@ custom_minimum_size = Vector2(0, 50)
 theme_override_font_sizes/font_size = 22
 text = "Как играть  [?]"
 
+[node name="MultiplayerButton" type="Button" parent="CenterCol"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+theme_override_font_sizes/font_size = 22
+text = "Сетевая игра"
+
 [node name="QuitButton" type="Button" parent="CenterCol"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 50)

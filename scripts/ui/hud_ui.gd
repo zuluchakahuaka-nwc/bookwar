@@ -1,7 +1,7 @@
 extends CanvasLayer
 class_name HUDUI
 
-const DPAD_BTN_SIZE: float = 56.0
+const DPAD_BTN_SIZE: float = 110.0
 const MANUAL_SCENE: PackedScene = preload("res://scenes/ui/manual.tscn")
 
 @onready var _hp_label: Label = $HPLabel
@@ -14,6 +14,8 @@ const MANUAL_SCENE: PackedScene = preload("res://scenes/ui/manual.tscn")
 
 var _pause_label: Label = null
 var _manual: ManualUI = null
+var _toast_label: Label = null
+var _toast_tween: Tween = null
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -25,16 +27,59 @@ func _ready() -> void:
 	GameState.dialogue_ended.connect(_on_dialogue_ended)
 	GameState.dialogue_text_set.connect(_on_dialogue_text_set)
 	GameState.recruit_message.connect(_on_recruit_message)
+	GameState.toast_requested.connect(_on_toast_requested)
 	_on_hp_changed(GameState.player_hp, GameState.player_max_hp)
 	_on_dots_changed(InventoryManager.get_dots())
 	_interaction_label.visible = false
 	if _dialogue_box:
 		_dialogue_box.visible = false
+	_build_toast_label()
 	_build_touch_controls()
 	_build_pause_overlay()
 	_manual = MANUAL_SCENE.instantiate() as ManualUI
 	add_child(_manual)
 	_focus_canvas()
+
+# Transient toast at the top-center: "Получено ОРУЖИЕ — А" / "Получена БРОНЯ — Б".
+func _build_toast_label() -> void:
+	_toast_label = Label.new()
+	_toast_label.name = "ToastLabel"
+	_toast_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_toast_label.offset_left = -400.0
+	_toast_label.offset_right = 400.0
+	_toast_label.offset_top = 60.0
+	_toast_label.offset_bottom = 110.0
+	_toast_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_toast_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_toast_label.add_theme_font_size_override("font_size", 26)
+	_toast_label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.55))
+	_toast_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+	_toast_label.add_theme_constant_override("outline_size", 6)
+	_toast_label.modulate = Color(1, 1, 1, 0)
+	_toast_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_toast_label.visible = false
+	add_child(_toast_label)
+
+func _on_toast_requested(text: String) -> void:
+	if text == "" or _toast_label == null:
+		return
+	_toast_label.text = text
+	_toast_label.visible = true
+	if _toast_tween:
+		_tween_kill_safe(_toast_tween)
+	_toast_tween = create_tween()
+	# Fade in fast, hold, fade out.
+	_toast_tween.tween_property(_toast_label, "modulate:a", 1.0, 0.15)
+	_toast_tween.tween_interval(1.8)
+	_toast_tween.tween_property(_toast_label, "modulate:a", 0.0, 0.6)
+	_toast_tween.tween_callback(func(): _toast_label.visible = false)
+	if OS.has_feature("web"):
+		var escaped: String = text.replace("\\", "\\\\").replace("'", "\\'").replace("\n", "\\n")
+		JavaScriptBridge.eval("window.gameToast = '" + escaped + "'; window.gameToastTs = Date.now();")
+
+func _tween_kill_safe(t: Tween) -> void:
+	if is_instance_valid(t):
+		t.kill()
 
 # --- On-screen controls so the game is playable by mouse/touch without keyboard focus ---
 func _build_touch_controls() -> void:
@@ -43,14 +88,14 @@ func _build_touch_controls() -> void:
 	# D-pad (bottom-left): up/down/left/right held buttons
 	_make_dpad(vw * 0.06, vh * 0.72)
 	# Action buttons (bottom-right): take(E), inventory(I), dialogue(T)
-	_make_action_btn(vw * 0.78, vh * 0.74, "E", "interact", "Взять")
-	_make_action_btn(vw * 0.86, vh * 0.74, "I", "open_inventory", "Сумка")
-	_make_action_btn(vw * 0.78, vh * 0.62, "T", "open_dialogue", "Речь")
+	_make_action_btn(vw * 0.78, vh * 0.74, "E", "interact", I18n.t("hud.take", "Take"))
+	_make_action_btn(vw * 0.86, vh * 0.74, "I", "open_inventory", I18n.t("hud.bag", "Bag"))
+	_make_action_btn(vw * 0.78, vh * 0.62, "T", "open_dialogue", I18n.t("hud.speech", "Speech"))
 	_make_manual_btn(vw * 0.86, vh * 0.62)
 	_make_legend_btn(vw * 0.86, vh * 0.50)
 	# Persistent controls hint (top-center)
 	var hint: Label = Label.new()
-	hint.text = "WASD / кнопки — движение   |   E — взять   |   I — инвентарь   |   T — речь"
+	hint.text = I18n.t("hud.hint", "WASD / buttons — move | E — take | I — inventory | T — speech")
 	hint.add_theme_font_size_override("font_size", 14)
 	hint.add_theme_color_override("font_color", Color(0.95, 0.92, 0.80))
 	hint.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
@@ -156,7 +201,7 @@ func _make_legend_btn(x: float, y: float) -> void:
 	var w: float = DPAD_BTN_SIZE * 1.5
 	var h: float = DPAD_BTN_SIZE
 	var btn: Button = Button.new()
-	btn.text = "Легенда"
+	btn.text = I18n.t("hud.legend", "Legend")
 	btn.focus_mode = Control.FOCUS_NONE
 	btn.modulate = Color(1.0, 0.92, 0.6, 0.95)
 	btn.add_theme_font_size_override("font_size", 14)
@@ -176,7 +221,7 @@ func _focus_canvas() -> void:
 		JavaScriptBridge.eval("setTimeout(function(){var c=document.querySelector('canvas');if(c){c.focus();}},150);", true)
 
 func _on_hp_changed(current: int, maximum: int) -> void:
-	var text: String = "HP: " + str(current) + "/" + str(maximum)
+	var text: String = I18n.t("common.hp", "HP") + ": " + str(current) + "/" + str(maximum)
 	if _hp_label:
 		_hp_label.text = text
 
@@ -185,7 +230,7 @@ func set_region_name(name: String) -> void:
 		_region_label.text = name
 
 func _on_dots_changed(count: int) -> void:
-	var text: String = "Буквицы: " + str(count)
+	var text: String = I18n.t("hud.tokens", "Tokens") + ": " + str(count)
 	if _dots_label:
 		_dots_label.text = text
 
@@ -198,7 +243,7 @@ func _on_inventory_changed() -> void:
 	# Subtle "можно говорить" hint only when the player has enough буквицы for speech
 	if _ellipsis_label:
 		var can_talk: bool = InventoryManager.has_ellipsis()
-		_ellipsis_label.text = "Можно говорить (T)" if can_talk else ""
+		_ellipsis_label.text = I18n.t("hud.can_speak", "Can speak (T)") if can_talk else ""
 		_ellipsis_label.visible = can_talk
 
 func show_interaction_hint(text: String) -> void:
@@ -217,7 +262,7 @@ func _on_dialogue_started() -> void:
 	if _dialogue_box:
 		_dialogue_box.visible = true
 	if _interaction_label:
-		_interaction_label.text = "[E/T или движение] — закрыть"
+		_interaction_label.text = I18n.t("hud.close_move", "[E/T or move] — close")
 		_interaction_label.visible = true
 
 func _on_dialogue_ended() -> void:
@@ -240,7 +285,7 @@ func _on_recruit_message(text: String) -> void:
 	if _dialogue_box:
 		_dialogue_box.visible = true
 	if _interaction_label:
-		_interaction_label.text = "[E/T] — закрыть"
+		_interaction_label.text = I18n.t("hud.close", "[E/T] — close")
 		_interaction_label.visible = true
 	if OS.has_feature("web"):
 		var escaped: String = text.replace("\\", "\\\\").replace("'", "\\'").replace("\n", "\\n")
@@ -264,7 +309,7 @@ func _hide_recruit_message() -> void:
 
 func _build_pause_overlay() -> void:
 	_pause_label = Label.new()
-	_pause_label.text = "[ ПАУЗА ]\nПробел — продолжить"
+	_pause_label.text = I18n.t("hud.paused", "[ PAUSED ]\nSpace — resume")
 	_pause_label.add_theme_font_size_override("font_size", 48)
 	_pause_label.add_theme_color_override("font_color", Color(1, 1, 0.8))
 	_pause_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))

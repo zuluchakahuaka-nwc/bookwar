@@ -1,7 +1,7 @@
 # HTML5 export with hard timeout. Kills hung Godot and reports error.
 [CmdletBinding()]
 param(
-    [string]$GodotPath = "C:\Tools\Godot_v4.6.3-stable_win64.exe",
+    [string]$GodotPath = "D:\Godot\Godot_v4.6.3-stable_win64.exe",
     [string]$Project = "D:\Projects\BOOKWAR\project.godot",
     [string]$Preset = "HTML5",
     [int]$TimeoutSec = 300

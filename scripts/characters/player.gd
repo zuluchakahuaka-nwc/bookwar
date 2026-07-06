@@ -41,12 +41,13 @@ func _ready() -> void:
 	var legacy_sprite: Node = get_node_or_null("Sprite")
 	if legacy_sprite:
 		legacy_sprite.reparent(_visual_root)
-	# Smaller hero so he can duck into thickets/bushes (32px tiles) to hide.
-	_visual_root.scale = Vector2(0.70, 0.70)
+	# Hero visual scale — slightly larger so he reads well against 32px tiles.
+	_visual_root.scale = Vector2(0.95, 0.95)
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("""
 			window.gameTriggerDialogue = function() { window._godotDialogue = true; };
 			window.gameAdvanceDialogue = function() { window._godotAdvanceDialogue = true; };
+			window.gameAttackMonster = function() { window._godotAttack = true; };
 		""")
 
 func _apply_hero_appearance() -> void:
@@ -223,6 +224,24 @@ func _physics_process(_delta: float) -> void:
 	direction.x = Input.get_axis("move_left", "move_right")
 	direction.y = Input.get_axis("move_up", "move_down")
 
+	# Gyroscope: if enabled (window.gameGyroEnabled), add tilt-derived direction.
+	# The shell's onOrientation handler already rotates raw beta/gamma into screen-space
+	# (x = right, y = down) based on screen.orientation.angle, so we just consume x/y.
+	if OS.has_feature("web"):
+		var gyro_json: String = str(JavaScriptBridge.eval("JSON.stringify({e: !!window.gameGyroEnabled, x: (window.gameGyro||{}).x||0, y: (window.gameGyro||{}).y||0})", true))
+		if gyro_json != "" and gyro_json != "null":
+			var parsed: JSON = JSON.new()
+			if parsed.parse(gyro_json) == OK:
+				var d: Dictionary = parsed.get_data()
+				if bool(d.get("e", false)):
+					var gx: float = float(d.get("x", 0.0))
+					var gy: float = float(d.get("y", 0.0))
+					var dz: float = 5.0
+					if absf(gx) > dz:
+						direction.x += clampf((gx - dz * sign(gx)) / 30.0, -1.0, 1.0)
+					if absf(gy) > dz:
+						direction.y += clampf((gy - dz * sign(gy)) / 30.0, -1.0, 1.0)
+
 	if direction != Vector2.ZERO and GameState.is_in_dialogue:
 		var now: float = Time.get_ticks_msec() / 1000.0
 		if now - GameState.dialogue_start_time >= DIALOGUE_MOVE_DELAY:
@@ -288,6 +307,12 @@ func _update_wobble(delta: float, moving: bool, alert: bool) -> void:
 		_visual_root.position.y = lerp(_visual_root.position.y, 0.0, clampf(delta * 10.0, 0.0, 1.0))
 
 func _unhandled_input(event: InputEvent) -> void:
+	# F (attack) is always available — even mid-dialogue — so the player can
+	# choose violence over diplomacy with a "?" monster (AGENTS.md §20.4).
+	if event.is_action_pressed("attack"):
+		_try_attack_monster()
+		get_viewport().set_input_as_handled()
+		return
 	if GameState.is_in_dialogue:
 		if event.is_action_pressed("interact") or event.is_action_pressed("open_dialogue"):
 			GameState.dialogue_advance.emit()
@@ -310,6 +335,16 @@ func _try_dialogue() -> void:
 			var monster: MonsterBase = body as MonsterBase
 			if monster.can_dialogue() and InventoryManager.has_ellipsis():
 				monster.start_dialogue()
+				return
+
+func _try_attack_monster() -> void:
+	# F key — attack the nearest monster in interaction range. Works on "?"
+	# (neutral) and "!" (hostile) alike, so both monster types can "suffer
+	# losses" via player-initiated combat.
+	for body: Node2D in _interaction_area.get_overlapping_bodies():
+		if body is MonsterBase:
+			var monster: MonsterBase = body as MonsterBase
+			if monster.attack_me(self):
 				return
 
 func _on_area_entered(body: Node2D) -> void:
@@ -346,3 +381,6 @@ func _poll_js_bridge() -> void:
 	if JavaScriptBridge.eval("typeof window._godotAdvanceDialogue !== 'undefined' && window._godotAdvanceDialogue"):
 		JavaScriptBridge.eval("window._godotAdvanceDialogue = false;")
 		GameState.dialogue_advance.emit()
+	if JavaScriptBridge.eval("typeof window._godotAttack !== 'undefined' && window._godotAttack"):
+		JavaScriptBridge.eval("window._godotAttack = false;")
+		_try_attack_monster()

@@ -28,6 +28,10 @@ var _combat_log: Array = []
 # Each letter/spell may be played at most once PER BATTLE (rationing → strategy)
 var _player_played_this_battle: Dictionary = {}
 var _player_spells_this_battle: Dictionary = {}
+# Allied monsters (recruits) acting as meat-shields. When the enemy attacks,
+# there's a chance the blow lands on a random ally instead of the player.
+# If the ally's HP drops to 0, they die and are removed from the gang.
+var _ally_deaths_this_combat: int = 0
 
 signal combat_started(enemy_name: String, enemy_hp: int)
 signal card_played(card: Dictionary)
@@ -66,6 +70,7 @@ func start_combat(enemy_name: String, enemy_hp: int, enemy_letters: Array) -> vo
 	_combat_log.clear()
 	_player_played_this_battle.clear()
 	_player_spells_this_battle.clear()
+	_ally_deaths_this_combat = 0
 	GameState.start_combat()
 	combat_started.emit(enemy_name, enemy_hp)
 	_log({"event": "combat_start", "enemy_name": enemy_name, "enemy_hp": enemy_hp})
@@ -308,29 +313,74 @@ func _apply_damage(target: String, damage: float, letter_char: String, buff_mult
 			remaining -= shield_absorbed
 		_enemy_hp = max(0, _enemy_hp - int(round(remaining)))
 	else:
-		if _player_shield > 0.0:
-			shield_absorbed = min(_player_shield, remaining)
-			_player_shield -= shield_absorbed
-			remaining -= shield_absorbed
-		var hp_loss: int = int(round(remaining))
-		_player_hp = max(0, _player_hp - hp_loss)
-		# Sync to GameState (single source of truth)
-		GameState.take_damage(hp_loss)
-	damage_dealt.emit(target, damage, letter_char)
-	var action: Dictionary = {
-		"event": "damage",
-		"target": target,
-		"letter": letter_char,
-		"damage": damage,
-		"shield_absorbed": shield_absorbed,
-		"hp_loss": int(round(remaining)),
-		"buff_mult": buff_mult,
-		"target_hp": _enemy_hp if target == "enemy" else _player_hp,
-		"target_shield": _enemy_shield if target == "enemy" else _player_shield
-	}
-	action_resolved.emit(action)
-	_combat_log.append(action)
-	_log(action)
+		# Player is about to take damage. If the player has recruited allies (gang),
+		# there's a chance the enemy blow lands on a random ally instead — they
+		# act as meat-shields. Without this, the gang never took losses (БАГ-007).
+		# Probability scales with gang size: 1 ally = 30%, 5 allies = 70%.
+		var redirected_to_ally: bool = false
+		if not GameState.recruits.is_empty():
+			var redirect_chance: float = clampf(0.20 + 0.10 * GameState.recruits.size(), 0.0, 0.75)
+			if randf() < redirect_chance:
+				var ally_idx: int = randi() % GameState.recruits.size()
+				var ally: Dictionary = GameState.recruits[ally_idx]
+				var ally_hp: int = int(ally.get("hp", 30))
+				# Account for ally shield if any (recruits don't carry one today, but be safe)
+				var ally_shield: float = float(ally.get("shield", 0.0))
+				if ally_shield > 0.0:
+					shield_absorbed = min(ally_shield, remaining)
+					ally_shield -= shield_absorbed
+					remaining -= shield_absorbed
+					ally["shield"] = ally_shield
+				var ally_loss: int = int(round(remaining))
+				ally["hp"] = max(0, ally_hp - ally_loss)
+				var ally_name: String = String(ally.get("name", "Союзник"))
+				damage_dealt.emit("ally", damage, letter_char)
+				var act: Dictionary = {
+					"event": "damage",
+					"target": "ally",
+					"letter": letter_char,
+					"damage": damage,
+					"shield_absorbed": shield_absorbed,
+					"hp_loss": ally_loss,
+					"ally_name": ally_name,
+					"ally_hp": int(ally["hp"]),
+					"buff_mult": buff_mult
+				}
+				action_resolved.emit(act)
+				_combat_log.append(act)
+				_log(act)
+				# Ally death?
+				if int(ally["hp"]) <= 0:
+					# remove_recruit shifts indices, so we operate on the copy then re-sync.
+					GameState.remove_recruit(ally_idx)
+					_ally_deaths_this_combat += 1
+					GameState.recruit_message.emit("💀 " + ally_name + " пал в бою!")
+					_log({"event": "ally_killed", "name": ally_name})
+				redirected_to_ally = true
+		if not redirected_to_ally:
+			if _player_shield > 0.0:
+				shield_absorbed = min(_player_shield, remaining)
+				_player_shield -= shield_absorbed
+				remaining -= shield_absorbed
+			var hp_loss: int = int(round(remaining))
+			_player_hp = max(0, _player_hp - hp_loss)
+			# Sync to GameState (single source of truth)
+			GameState.take_damage(hp_loss)
+			damage_dealt.emit(target, damage, letter_char)
+			var action: Dictionary = {
+				"event": "damage",
+				"target": target,
+				"letter": letter_char,
+				"damage": damage,
+				"shield_absorbed": shield_absorbed,
+				"hp_loss": hp_loss,
+				"buff_mult": buff_mult,
+				"target_hp": _player_hp,
+				"target_shield": _player_shield
+			}
+			action_resolved.emit(action)
+			_combat_log.append(action)
+			_log(action)
 
 func _end_turn_round() -> void:
 	# Clear played cards for next round; buffs persist into next round (consumed on first use).
