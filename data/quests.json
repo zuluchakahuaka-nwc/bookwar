@@ -7,8 +7,15 @@
       "npc_name": "Слушач",
       "type": "collect",
       "description": "Мои уши слышат шёпот букв. Принеси мне 2 буквы «В», и я поделюсь силой «Г».",
-      "requirement": {"letter": "В", "count": 2},
-      "reward": {"type": "letter", "letter": "Г", "count": 1}
+      "requirement": {
+        "letter": "В",
+        "count": 2
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Г",
+        "count": 1
+      }
     },
     {
       "id": "mossy_lowlands_q1",
@@ -16,8 +23,14 @@
       "npc_name": "Болотный Старец",
       "type": "defeat",
       "description": "Твари болот одичали. Одолей 4 из них, и я открою тебе тайну буквы «З».",
-      "requirement": {"count": 4},
-      "reward": {"type": "letter", "letter": "З", "count": 1}
+      "requirement": {
+        "count": 4
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "З",
+        "count": 1
+      }
     },
     {
       "id": "mossy_lowlands_q2",
@@ -25,8 +38,15 @@
       "npc_name": "Тихий Странник",
       "type": "buy",
       "description": "15 буквиц за редкую букву «С». Не торгуемся.",
-      "cost": {"resource": "dots", "amount": 15},
-      "reward": {"type": "letter", "letter": "С", "count": 1}
+      "cost": {
+        "resource": "dots",
+        "amount": 15
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "С",
+        "count": 1
+      }
     },
     {
       "id": "mossy_lowlands_q3",
@@ -34,9 +54,17 @@
       "npc_name": "Староста Топи",
       "type": "trade",
       "description": "Обменяю мою «Ф» на твою «М». Честный размен.",
-      "give": {"letter": "М"},
-      "receive": {"letter": "Ф"},
-      "reward": {"type": "letter", "letter": "Ф", "count": 1}
+      "give": {
+        "letter": "М"
+      },
+      "receive": {
+        "letter": "Ф"
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Ф",
+        "count": 1
+      }
     },
     {
       "id": "rotten_swamps_q1",
@@ -44,8 +72,14 @@
       "npc_name": "Призрачный Глас",
       "type": "talk",
       "description": "Найди моего брата в Гнилых Болотах. Скажи: «Память хранит». Он даст тебе «Х».",
-      "requirement": {"target_npc": "Призрачный Брат"},
-      "reward": {"type": "letter", "letter": "Х", "count": 1}
+      "requirement": {
+        "target_npc": "Призрачный Брат"
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Х",
+        "count": 1
+      }
     },
     {
       "id": "rotten_swamps_q2",
@@ -53,8 +87,217 @@
       "npc_name": "Призрачный Брат",
       "type": "defeat",
       "description": "Мсти за нашу деревню. Одолей 5 гнилых тварей.",
-      "requirement": {"count": 5},
-      "reward": {"type": "letter", "letter": "Ц", "count": 1}
+      "requirement": {
+        "count": 5
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Ц",
+        "count": 1
+      }
+    },
+    {
+      "id": "swamp_lights_q1",
+      "map_id": "swamp_lights",
+      "npc_name": "Огонник",
+      "type": "talk",
+      "description": "Скажи моему брату на восточном берегу: «Свет не обман». Он даст тебе Щ.",
+      "requirement": {
+        "target_npc": "Брат-Огонник"
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Щ",
+        "count": 1
+      }
+    },
+    {
+      "id": "swamp_lights_q2",
+      "map_id": "swamp_lights",
+      "npc_name": "Тихий Странник",
+      "type": "defeat",
+      "description": "Обманные огни утащили трёх моих друзей. Отомсти за них — одолей 5 тварей.",
+      "requirement": {
+        "count": 5
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Ш",
+        "count": 1
+      }
+    },
+    {
+      "id": "stony_wastes_q1",
+      "map_id": "stony_wastes",
+      "npc_name": "Каменяр",
+      "type": "collect",
+      "description": "Принеси 2 буквы «Б» — вырежу тебе ключ к Башне. Сильная «Б» — крепкий ключ.",
+      "requirement": {
+        "letter": "Б",
+        "count": 2
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Ъ",
+        "count": 1
+      }
+    },
+    {
+      "id": "stony_wastes_q2",
+      "map_id": "stony_wastes",
+      "npc_name": "Ветрогон",
+      "type": "trade",
+      "description": "Обменяю мою редкую «Ъ» на твою крепкую «Б». Честный размен в пустоши.",
+      "give": {
+        "letter": "Б"
+      },
+      "receive": {
+        "letter": "Ъ"
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Ъ",
+        "count": 1
+      }
+    },
+    {
+      "id": "stony_wastes_q3",
+      "map_id": "stony_wastes",
+      "npc_name": "Пепельный Старец",
+      "type": "defeat",
+      "description": "Здесь когда-то была библиотека. Отомсти за пепел — одолей 6 врагов.",
+      "requirement": {
+        "count": 6
+      },
+      "reward": {
+        "type": "dots",
+        "amount": 30
+      }
+    },
+    {
+      "id": "ash_plains_q1",
+      "map_id": "ash_plains",
+      "npc_name": "Пепельный Бард",
+      "type": "talk",
+      "description": "Найди мой потерянный стих на юге равнины. Принесёшь — дам тебе Ы.",
+      "requirement": {
+        "target_npc": "Призрак Стиха"
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Ы",
+        "count": 1
+      }
+    },
+    {
+      "id": "ash_plains_q2",
+      "map_id": "ash_plains",
+      "npc_name": "Стёртый",
+      "type": "collect",
+      "description": "Собери 3 буквы «Ы» — это слово «мы», последняя надежда.",
+      "requirement": {
+        "letter": "Ы",
+        "count": 3
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Ь",
+        "count": 1
+      }
+    },
+    {
+      "id": "ash_plains_q3",
+      "map_id": "ash_plains",
+      "npc_name": "Угольщик",
+      "type": "buy",
+      "description": "20 буквиц за редчайшую «Ь». Не торгуемся — она мне нужна для крафта.",
+      "cost": {
+        "resource": "dots",
+        "amount": 20
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Ь",
+        "count": 1
+      }
+    },
+    {
+      "id": "crystal_grottos_q1",
+      "map_id": "crystal_grottos",
+      "npc_name": "Хрустальный Голос",
+      "type": "collect",
+      "description": "Мои кристаллы откликаются только на «Э». Принеси 2 — научу тебя эху.",
+      "requirement": {
+        "letter": "Э",
+        "count": 2
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Ю",
+        "count": 1
+      }
+    },
+    {
+      "id": "crystal_grottos_q2",
+      "map_id": "crystal_grottos",
+      "npc_name": "Глубинник",
+      "type": "defeat",
+      "description": "В гротах завелись пожиратели кристаллов. Избавь меня от 7 тварей.",
+      "requirement": {
+        "count": 7
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Я",
+        "count": 1
+      }
+    },
+    {
+      "id": "dark_cathedral_q1",
+      "map_id": "dark_cathedral",
+      "npc_name": "Падший Жрец",
+      "type": "talk",
+      "description": "Помолись с мной у алтаря. Я дам тебе ключ к финальной битве — букву «Я».",
+      "requirement": {
+        "target_npc": "Алтарь Собора"
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Я",
+        "count": 1
+      }
+    },
+    {
+      "id": "dark_cathedral_q2",
+      "map_id": "dark_cathedral",
+      "npc_name": "Теневой Монах",
+      "type": "defeat",
+      "description": "Собор осквернён. Очисти его — одолей 8 приспешников Запрета.",
+      "requirement": {
+        "count": 8
+      },
+      "reward": {
+        "type": "dots",
+        "amount": 50
+      }
+    },
+    {
+      "id": "dark_cathedral_q3",
+      "map_id": "dark_cathedral",
+      "npc_name": "Криптарь",
+      "type": "trade",
+      "description": "Храню редкую «Ф». Обмен на твою «Я» — и моя миссия выполнена.",
+      "give": {
+        "letter": "Я"
+      },
+      "receive": {
+        "letter": "Ф"
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Ф",
+        "count": 1
+      }
     }
   ],
   "_templates": {

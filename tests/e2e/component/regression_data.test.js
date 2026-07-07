@@ -21,30 +21,30 @@ describe('Regression: Data Integrity', () => {
     expect(alphabet.length).toBe(33);
   });
 
-  test('letter А is position 1, base_power 33, speed 1, vowel attack', async () => {
+  test('letter А is position 1, base_power 1, speed 1, vowel attack (§20 inverted)', async () => {
     const alphabet = await gameActions.getAlphabet();
     const a = alphabet.find((l) => l.char === 'А');
     expect(a).toBeDefined();
     expect(a.position).toBe(1);
-    expect(a.base_power).toBe(33);
+    expect(a.base_power).toBe(1);  // §20: base_power = position (was 33 pre-inversion)
     expect(a.speed).toBe(1);
     expect(a.type).toBe('vowel');
     expect(a.role).toBe('attack');
   });
 
-  test('letter Я is position 33, base_power 1, speed 33 (fastest)', async () => {
+  test('letter Я is position 33, base_power 33, speed 33 (strongest)', async () => {
     const alphabet = await gameActions.getAlphabet();
     const ya = alphabet.find((l) => l.char === 'Я');
     expect(ya).toBeDefined();
     expect(ya.position).toBe(33);
-    expect(ya.base_power).toBe(1);
+    expect(ya.base_power).toBe(33);  // §20: base_power = position (was 1 pre-inversion)
     expect(ya.speed).toBe(33);
   });
 
-  test('base_power == 34 - position and speed == position for every letter', async () => {
+  test('§20: base_power == position and speed == position for every letter', async () => {
     const alphabet = await gameActions.getAlphabet();
     for (const l of alphabet) {
-      expect(l.base_power).toBe(34 - l.position);
+      expect(l.base_power).toBe(l.position);  // §20 inverted
       expect(l.speed).toBe(l.position);
     }
   });
