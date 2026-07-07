@@ -44,6 +44,7 @@ var _label_ref: Label = null
 var _drawn: bool = false
 var _draw_type: String = ""
 var _visual_root: Node2D = null
+var _quest_marker: Label = null  # Q6: жёлтая '!' над '?' монстром с активным квестом
 var _walk_phase: float = 0.0
 
 signal monster_died(monster: MonsterBase)
@@ -156,6 +157,8 @@ func _setup_visual() -> void:
 		_label_ref.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 		_label_ref.position = Vector2(-BookwarConst.MONSTER_LABEL_SIZE * 0.35, -BookwarConst.MONSTER_LABEL_SIZE * 0.8)
 		_label_ref.reparent(_visual_root)
+	# Q6: создать маркер квеста (пока невидимый) — жёлтая '!' над головой
+	_build_quest_marker()
 	scale = Vector2(BookwarConst.MONSTER_SCALE, BookwarConst.MONSTER_SCALE)
 	if _draw_type == "znak":
 		_build_evil_humanoid("znak")
@@ -413,6 +416,8 @@ func _physics_process(delta: float) -> void:
 		clampf(global_position.x, BookwarConst.MAP_BOUND_MIN_X, _max_x),
 		clampf(global_position.y, BookwarConst.MAP_BOUND_MIN_Y, _max_y)
 	)
+	# Q6: обновить видимость маркера квеста над '?' монстром
+	_update_quest_marker()
 	# Waddle tied to actual movement — every monster staggers like the hero.
 	# Alerted monsters (noticed the hero) wobble 2x harder, even standing in place.
 	var alerted: bool = _state == "chase" or _state == "suspicion" or _state == "search"
@@ -430,6 +435,49 @@ func _update_wobble(delta: float, moving: bool, alert: bool) -> void:
 		_walk_phase = 0.0
 		_visual_root.rotation = lerp(_visual_root.rotation, 0.0, clampf(delta * 10.0, 0.0, 1.0))
 		_visual_root.position.y = lerp(_visual_root.position.y, 0.0, clampf(delta * 10.0, 0.0, 1.0))
+
+# Q6: построить маркер квеста над головой (пока невидимый).
+# Показывается только у '?' монстров когда на карте есть активные квесты.
+func _build_quest_marker() -> void:
+	if _visual_root == null:
+		return
+	_quest_marker = Label.new()
+	_quest_marker.name = "QuestMarker"
+	_quest_marker.text = "!"
+	_quest_marker.add_theme_font_size_override("font_size", 36)
+	_quest_marker.add_theme_color_override("font_color", Color(1.0, 0.85, 0.20, 1))
+	_quest_marker.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+	_quest_marker.add_theme_constant_override("outline_size", 6)
+	_quest_marker.position = Vector2(-10.0, -110.0)
+	_quest_marker.size = Vector2(40, 40)
+	_quest_marker.z_index = 60
+	_quest_marker.visible = false
+	_visual_root.add_child(_quest_marker)
+
+# Q6: показывать маркер если это '?' монстр и есть невыполненные квесты.
+# Зелёная подсветка если квест готов к сдаче (can_complete).
+func _update_quest_marker() -> void:
+	if _quest_marker == null:
+		return
+	if monster_id != "question" or _allegiance != ALLEGIANCE_NEUTRAL:
+		_quest_marker.visible = false
+		return
+	if GameState.active_quests.is_empty():
+		_quest_marker.visible = false
+		return
+	_quest_marker.visible = true
+	# Если хотя бы один квест готов к сдаче — зелёный, иначе жёлтый
+	var any_ready: bool = false
+	for q: Dictionary in GameState.active_quests:
+		if QuestData.can_complete(q):
+			any_ready = true
+			break
+	if any_ready:
+		_quest_marker.add_theme_color_override("font_color", Color(0.40, 1.0, 0.40, 1))
+		_quest_marker.text = "?"
+	else:
+		_quest_marker.add_theme_color_override("font_color", Color(1.0, 0.85, 0.20, 1))
+		_quest_marker.text = "!"
 
 func _process_patrol(_delta: float) -> void:
 	if _patrol_points.size() == 0:

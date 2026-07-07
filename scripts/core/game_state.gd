@@ -296,12 +296,30 @@ func quest_progress_defeat() -> void:
 		var qid: String = String(q.get("id", ""))
 		quest_defeat_progress[qid] = int(quest_defeat_progress.get(qid, 0)) + 1
 		any_progressed = true
+		# Toast: мгновенный фидбек «N/M врагов»
+		var prog: int = int(quest_defeat_progress[qid])
+		var target: int = int(q.get("requirement", {}).get("count", 0))
+		if prog <= target:
+			toast_requested.emit("⚔ " + str(prog) + "/" + str(target) + " врагов")
 	if not any_progressed and not active_quest.is_empty():
 		# Legacy: старый single-quest API
 		active_quest["progress"] = int(active_quest["progress"]) + 1
 		if int(active_quest["progress"]) >= int(active_quest["target"]):
 			_quest_complete_legacy()
 	_sync_quest_js_bridge()
+
+# Уведомить о подборе буквы — показать прогресс collect-квестов если буква релевантна.
+# Вызывается из InventoryManager при add_letter.
+func notify_letter_picked(letter: String) -> void:
+	for q: Dictionary in active_quests:
+		if String(q.get("type", "")) != "collect":
+			continue
+		var req_letter: String = String(q.get("requirement", {}).get("letter", ""))
+		if req_letter != letter:
+			continue
+		var have: int = InventoryManager.get_letter_level(letter)
+		var need: int = int(q.get("requirement", {}).get("count", 0))
+		toast_requested.emit("📦 " + str(have) + "/" + str(need) + " букв «" + letter + "»")
 
 # Прогресс defeat-квеста по его ID (для QuestData.can_complete)
 func quest_progress_for(quest_id: String) -> int:

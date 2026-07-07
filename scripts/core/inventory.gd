@@ -79,6 +79,9 @@ func add_letter(letter_char: String) -> void:
 	_letter_levels[letter_char] = _letter_levels.get(letter_char, 0) + 1
 	letter_acquired.emit(letter_char, _letter_levels[letter_char])
 	inventory_changed.emit()
+	# Q6 (2026-07-07): уведомить quest-систему о подборе буквы (для collect-квестов)
+	if GameState and GameState.has_method("notify_letter_picked"):
+		GameState.notify_letter_picked(letter_char)
 
 func remove_letter(letter_char: String) -> bool:
 	var current: int = _letter_levels.get(letter_char, 0)
