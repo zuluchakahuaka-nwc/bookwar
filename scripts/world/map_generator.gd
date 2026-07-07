@@ -2,8 +2,10 @@ extends Node2D
 class_name MapGenerator
 
 const TILE_SIZE: int = 32
-const MAP_WIDTH: int = 80
-const MAP_HEIGHT: int = 60
+# Базовая ширина/высота. Реальные значения устанавливаются в _ready от current_map_id
+# (Q5: ширина растёт на 1 клетку за каждый уровень — 80 → 112 на карте 33).
+var MAP_WIDTH: int = 80
+var MAP_HEIGHT: int = 60
 
 const GRASS: int = 0
 const TREE: int = 1
@@ -16,6 +18,9 @@ const GRASS_DARK: int = 6
 @onready var tile_map: TileMapLayer = $"../TileMapLayer"
 
 func _ready() -> void:
+	# Q5: динамическая ширина карты — растёт на 1 клетку за каждый уровень.
+	MAP_WIDTH = BookwarConst.get_map_width(GameState.current_map_id)
+	MAP_HEIGHT = BookwarConst.get_map_height(GameState.current_map_id)
 	_create_tileset()
 	var map_id: String = GameState.current_map_id
 	if map_id == BookwarConst.MAP_TWO_LETTER_FOREST:
