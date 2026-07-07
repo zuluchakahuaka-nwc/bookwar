@@ -16,6 +16,7 @@ var _pause_label: Label = null
 var _manual: ManualUI = null
 var _toast_label: Label = null
 var _toast_tween: Tween = null
+var _lore_label: Label = null  # Q6: lore-строка под именем региона
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -37,9 +38,27 @@ func _ready() -> void:
 	_build_touch_controls()
 	_build_pause_overlay()
 	_build_status_frame()  # Parchment panel behind the top-left label cluster.
+	_build_lore_label()  # Q6: lore под регионом
 	_manual = MANUAL_SCENE.instantiate() as ManualUI
 	add_child(_manual)
 	_focus_canvas()
+
+# Q6: lore-строка под region label — показывает атмосферное описание карты
+func _build_lore_label() -> void:
+	_lore_label = Label.new()
+	_lore_label.name = "LoreLabel"
+	_lore_label.add_theme_font_size_override("font_size", 14)
+	_lore_label.add_theme_color_override("font_color", Color(0.85, 0.82, 0.65, 0.9))
+	_lore_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
+	_lore_label.add_theme_constant_override("shadow_offset_x", 1)
+	_lore_label.add_theme_constant_override("shadow_offset_y", 1)
+	_lore_label.offset_left = 12.0
+	_lore_label.offset_top = 75.0
+	_lore_label.offset_right = 460.0
+	_lore_label.offset_bottom = 110.0
+	_lore_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_lore_label.visible = false
+	add_child(_lore_label)
 
 # Transient toast at the top-center: "Получено ОРУЖИЕ — А" / "Получена БРОНЯ — Б".
 func _build_toast_label() -> void:
@@ -126,6 +145,7 @@ func _build_touch_controls() -> void:
 	_make_action_btn(vw * 0.78, vh * 0.74, "E", "interact", I18n.t("hud.take", "Take"))
 	_make_action_btn(vw * 0.86, vh * 0.74, "I", "open_inventory", I18n.t("hud.bag", "Bag"))
 	_make_action_btn(vw * 0.78, vh * 0.62, "T", "open_dialogue", I18n.t("hud.speech", "Speech"))
+	_make_quest_log_btn(vw * 0.78, vh * 0.50)
 	_make_manual_btn(vw * 0.86, vh * 0.62)
 	_make_legend_btn(vw * 0.86, vh * 0.50)
 	# Persistent controls hint (top-center)
@@ -250,6 +270,28 @@ func _make_legend_btn(x: float, y: float) -> void:
 	btn.pressed.connect(func() -> void:
 		get_tree().change_scene_to_file("res://scenes/ui/intro.tscn"))
 
+func _make_quest_log_btn(x: float, y: float) -> void:
+	# Q6 (2026-07-07): touch-friendly кнопка для журнала квестов (мобильные).
+	# На desktop — Q-key работает из quest_log.gd._input.
+	var w: float = DPAD_BTN_SIZE * 1.5
+	var h: float = DPAD_BTN_SIZE
+	var btn: Button = Button.new()
+	btn.text = I18n.t("hud.quests", "Квесты") + "\n[Q]"
+	btn.focus_mode = Control.FOCUS_NONE
+	btn.modulate = Color(1.0, 0.88, 0.45, 0.95)
+	btn.add_theme_font_size_override("font_size", 14)
+	add_child(btn)
+	btn.offset_left = x
+	btn.offset_top = y
+	btn.offset_right = x + w
+	btn.offset_bottom = y + h
+	btn.size = Vector2(w, h)
+	btn.position = Vector2(x, y)
+	btn.pressed.connect(func() -> void:
+		# Toggle quest log via the JS bridge (quest_log.gd._process polls this)
+		if OS.has_feature("web"):
+			JavaScriptBridge.eval("if (window.gameToggleQuestLog) window.gameToggleQuestLog();", true))
+
 func _focus_canvas() -> void:
 	# HTML5: ensure the game canvas has keyboard focus so WASD works immediately
 	if OS.has_feature("web"):
@@ -263,6 +305,11 @@ func _on_hp_changed(current: int, maximum: int) -> void:
 func set_region_name(name: String) -> void:
 	if _region_label:
 		_region_label.text = name
+	# Q6: показать lore текущей карты
+	if _lore_label:
+		var lore: String = BookwarConst.get_region_lore(GameState.current_map_id)
+		_lore_label.text = lore
+		_lore_label.visible = (lore != "")
 
 func _on_dots_changed(count: int) -> void:
 	var text: String = I18n.t("hud.tokens", "Tokens") + ": " + str(count)
