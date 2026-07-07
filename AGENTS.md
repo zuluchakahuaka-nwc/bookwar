@@ -93,7 +93,7 @@
 
 **ПРИОРИТЕТ Vision (использовать строго в этом порядке):**
 
-1. **ПЕРВИЧНО — внешний `mcp-cli.exe`** (`~\.bun\bin\mcp-cli.exe`, сервер `zai-vision`)
+1. **ПЕРВИЧНО — внешний `mcp-cli.exe`** (`~/\.bun\bin\mcp-cli.exe`, сервер `zai-vision`)
    - Качество: высокое (GLM-4.6V, native vision model)
    - Запуск: `& scripts/dev/vision.ps1 -Tool analyze_image -Json '{...}' -TimeoutSec 90`
    - JSON-аргументы в одинарных кавычках
@@ -111,13 +111,13 @@ $env:Path = [System.Environment]::GetEnvironmentVariable("Path","User") + ";" + 
 
 **ПРОВЕРКА доступности mcp-cli** (первым делом в сессии):
 ```powershell
-& "~\.bun\bin\mcp-cli.exe" -d 2>&1 | Select-String "zai-vision"
+& "~/\.bun\bin\mcp-cli.exe" -d 2>&1 | Select-String "zai-vision"
 ```
 
 **ОБЯЗАТЕЛЬНО** в `scripts/dev/vision.ps1` использовать внешний `mcp-cli.exe` — НЕ встроенный
 opencode tool. Если `mcp-cli.exe` заблокирован Defender'ом — добавить исключение:
 ```powershell
-Add-MpPreference -ExclusionPath "~\.bun"
+Add-MpPreference -ExclusionPath "~/\.bun"
 Add-MpPreference -ExclusionProcess "bun.exe"
 ```
 
@@ -1192,8 +1192,8 @@ Vision-анализ доступен **ДВУМЯ способами** (испо
 
 #### Способ 2 — внешний `mcp-cli.exe` (fallback, работает из любого проекта)
 
-- Бинарник: `~\.bun\bin\mcp-cli.exe` (Bun, mcp-cli v0.3.0)
-- Конфиг: `~\.mcp_servers.json` (сервер `zai-vision`, модель GLM-4.6V)
+- Бинарник: `~/\.bun\bin\mcp-cli.exe` (Bun, mcp-cli v0.3.0)
+- Конфиг: `~/\.mcp_servers.json` (сервер `zai-vision`, модель GLM-4.6V)
 - Работает из любой директории
 
 **Перед каждым вызовом обновить PATH:**
@@ -2287,7 +2287,7 @@ ANDROID_VERSION/
 | Godot binary | `D:\Godot\Godot_v4.6.3-stable_win64.exe` | (не в Program Files — иначе UAC) |
 | Android SDK | `D:\Android\Sdk` (env `ANDROID_HOME`) | platform-tools, build-tools 34/35, platforms 34/35/36 |
 | JAVA_HOME | `D:\Program Files\Android\Android Studio\jbr` | Java 21 |
-| Debug keystore | `~\.android\debug.keystore` | alias=`androiddebugkey`, pass=`android` |
+| Debug keystore | `~/\.android\debug.keystore` | alias=`androiddebugkey`, pass=`android` |
 | Editor settings | `%APPDATA%\Godot\editor_settings-4.6.tres` | paths to SDK/JDK/keystore |
 | Android templates | `%APPDATA%\Godot\export_templates\4.6.3.stable\android_debug.apk` | уже установлены |
 | AVD | `Test_API34` (API 34, arm64-v8a) | запускать с `-gpu host` |

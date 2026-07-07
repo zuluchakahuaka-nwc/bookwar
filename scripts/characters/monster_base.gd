@@ -181,6 +181,23 @@ func _setup_visual() -> void:
 			_label_ref.visible = true
 	elif _drawn or monster_id == "forest_creature":
 		_build_creature_body()
+	elif monster_id == "question" or monster_id == "exclamation":
+		# Starter enemies used to be a bare "?" / "!" Label — looked like a debug
+		# placeholder. Give them a small creature body (audit rec #4, 2026-07-07)
+		# while keeping the punctuation glyph as a glowing "thought bubble" above
+		# the head, so the player still recognises the patrol/aggression cue.
+		_visual_root.scale = Vector2(0.70, 0.70)
+		_build_creature_body()
+		if _label_ref:
+			_label_ref.visible = true
+			_label_ref.position = Vector2(-22, -78)
+			_label_ref.z_index = 50
+			_label_ref.add_theme_font_size_override("font_size", 48)
+			# Yellow "?" = curious/neutral; Red "!" = aggressive.
+			var glyph_color: Color = Color(1.0, 0.95, 0.30) if monster_id == "question" else Color(1.0, 0.28, 0.20)
+			_label_ref.add_theme_color_override("font_color", glyph_color)
+			_label_ref.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+			_label_ref.add_theme_constant_override("outline_size", 10)
 	_update_color()
 
 func _build_evil_humanoid(kind: String) -> void:

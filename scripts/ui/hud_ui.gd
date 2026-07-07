@@ -36,6 +36,7 @@ func _ready() -> void:
 	_build_toast_label()
 	_build_touch_controls()
 	_build_pause_overlay()
+	_build_status_frame()  # Parchment panel behind the top-left label cluster.
 	_manual = MANUAL_SCENE.instantiate() as ManualUI
 	add_child(_manual)
 	_focus_canvas()
@@ -59,6 +60,40 @@ func _build_toast_label() -> void:
 	_toast_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_toast_label.visible = false
 	add_child(_toast_label)
+
+func _build_status_frame() -> void:
+	# Wrap the bare top-left labels (HP / dots / ellipsis / region) in a parchment
+	# Panel so the HUD stops looking like a debug overlay. Matches the
+	# letter-card aesthetic (audit rec #3, 2026-07-07). Procedural — no asset.
+	var frame: Panel = Panel.new()
+	frame.name = "StatusFrame"
+	frame.offset_left = 6.0
+	frame.offset_top = 4.0
+	frame.offset_right = 332.0
+	frame.offset_bottom = 116.0
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var sty: StyleBoxFlat = StyleBoxFlat.new()
+	sty.bg_color = Color(0.86, 0.76, 0.55, 0.92)          # cream parchment
+	sty.border_color = Color(0.25, 0.16, 0.08, 1.0)       # dark brown border
+	sty.set_border_width_all(3)
+	sty.set_corner_radius_all(7)
+	sty.set_content_margin_all(8)
+	sty.shadow_color = Color(0.0, 0.0, 0.0, 0.45)
+	sty.shadow_size = 5
+	frame.add_theme_stylebox_override("panel", sty)
+	add_child(frame)
+	# Render BEHIND the labels (CanvasLayer draws children in order, so the
+	# first child is the bottom of the stack).
+	move_child(frame, 0)
+	# Tint the labels' text dark brown on the cream background for contrast.
+	for lbl: Label in [_hp_label, _dots_label, _ellipsis_label, _region_label]:
+		if lbl:
+			lbl.add_theme_color_override("font_color", Color(0.18, 0.10, 0.05))
+			lbl.add_theme_color_override("font_outline_color", Color(0.95, 0.88, 0.65, 0.7))
+			lbl.add_theme_constant_override("outline_size", 3)
+			# Push the label ABOVE the new parchment frame (CanvasLayer children
+			# stack in insertion order, so re-move each label to the end).
+			move_child(lbl, -1)
 
 func _on_toast_requested(text: String) -> void:
 	if text == "" or _toast_label == null:

@@ -44,6 +44,9 @@ func _ready() -> void:
 		_hud.set_region_name(_region_name())
 	# Per-map ambient tint
 	_apply_ambient()
+	# Atmospheric layer: dust motes + warm glow around player (dark-fantasy mood).
+	# Procedural — no assets required. (Audit rec #5, 2026-07-07.)
+	_apply_atmosphere()
 	# Start quest for this map (if not already completed)
 	GameState.start_quest_for_map(GameState.current_map_id)
 	# Show quest toast on map entry
@@ -223,6 +226,101 @@ func _apply_ambient() -> void:
 	ambient.color = tint
 	add_child(ambient)
 
+func _apply_atmosphere() -> void:
+	# Dust-mote field + warm player glow. Procedural — sells the "мрачное
+	# средневековье" art brief (AGENTS.md §11) without any asset work.
+	# Both effects are children of the Player (which owns the Camera2D) so
+	# they stay centered on screen as the camera scrolls.
+	var player: Node2D = get_node_or_null("Player")
+	if player == null:
+		return
+	var idx: int = BookwarConst.get_level_index(GameState.current_map_id)
+	if idx < 0:
+		idx = 0
+	# Depth factor: 0 at level 1 (bright meadow), 1 at level 33 (deep dark).
+	# In bright areas dust is barely visible (white motes, low alpha); in dark
+	# regions it gets colder/grayer and the player glow becomes more pronounced.
+	var depth: float = clamp(float(idx) / 32.0, 0.0, 1.0)
+	# --- Dust motes -------------------------------------------------------
+	# Slow-falling motes in screen-space — visible against the ambient tint.
+	var dust: CPUParticles2D = CPUParticles2D.new()
+	dust.name = "DustMotes"
+	dust.amount = 40
+	dust.lifetime = 9.0
+	# NOTE: preprocess disabled — on weak web builds a 3s warm-up hangs the
+	# first process frame and breaks regression_smoke movement timing.
+	dust.preprocess = 0.0
+	dust.explosiveness = 0.0
+	dust.randomness = 0.6
+	dust.fixed_fps = 30
+	dust.emitting = true
+	# Use local coords so the dust field stays centred on the player (which owns
+	# the camera). World coords would make motes drift off-screen as the camera
+	# scrolls, ruining the ambient feel.
+	dust.local_coords = true
+	# Local emission fills the viewport (player is at viewport center via camera).
+	# Use the integer enum value (2 = EMISSION_SHAPE_BOX) — direct enum access
+	# differs across Godot 4.x builds and can throw "Cannot find member".
+	dust.emission_shape = 2  # CPUParticles2D.EMISSION_SHAPE_BOX
+	dust.emission_box_extents = Vector3(720.0, 420.0, 0.0)
+	# Motes drift downward and slightly sideways — looks like falling dust / pollen.
+	dust.direction = Vector2(0.0, 1.0)
+	dust.spread = 18.0
+	dust.gravity = Vector2(0.0, 6.0)
+	dust.initial_velocity_min = 4.0
+	dust.initial_velocity_max = 14.0
+	# Larger motes (4-7px) so they're clearly visible against any backdrop.
+	dust.scale_amount_min = 3.5
+	dust.scale_amount_max = 6.5
+	# Bright meadow: warm cream motes. Deep maps: cold gray motes.
+	var mote_color: Color = Color(1.0, 0.96, 0.82, 0.75).lerp(Color(0.62, 0.66, 0.78, 0.85), depth)
+	dust.color = mote_color
+	# Fade in/out across the particle lifetime so motes don't pop.
+	dust.color_ramp = _build_dust_alpha_ramp()
+	player.add_child(dust)
+	# --- Player warm glow -------------------------------------------------
+	# A soft radial sprite (no real Light2D — works on gl_compatibility without
+	# a lighting pass). Sits behind the player sprite, scales with darkness.
+	var glow_tex: GradientTexture2D = GradientTexture2D.new()
+	# Integer enum (1 = FILL_RADIAL) — safer than the scoped name across builds.
+	glow_tex.fill = 1  # GradientTexture2D.FILL_RADIAL
+	glow_tex.fill_from = Vector2(0.5, 0.5)
+	glow_tex.fill_to = Vector2(1.0, 0.5)
+	var g: Gradient = Gradient.new()
+	g.clear()
+	# Warm gold center fading to transparent. Slightly colder in deep levels.
+	var warm_center: Color = Color(1.0, 0.85, 0.55, 0.85).lerp(Color(0.74, 0.82, 1.0, 0.85), depth * 0.7)
+	g.add_point(0.0, warm_center)
+	g.add_point(1.0, Color(1.0, 0.85, 0.55, 0.0))
+	glow_tex.gradient = g
+	glow_tex.width = 320
+	glow_tex.height = 320
+	var glow: Sprite2D = Sprite2D.new()
+	glow.name = "AtmosphereGlow"
+	glow.texture = glow_tex
+	# In bright maps the glow is medium (alpha 0.6), in dark maps it's the
+	# player's lifeline (alpha 1.0, larger radius).
+	var glow_alpha: float = 0.6 + depth * 0.4
+	glow.modulate = Color(1.0, 1.0, 1.0, glow_alpha)
+	var glow_radius: float = 240.0 + depth * 180.0
+	glow.scale = Vector2(glow_radius / 160.0, glow_radius / 160.0)
+	# Sit BEHIND the player sprite (z_index lower) but above the tilemap.
+	glow.z_index = -5
+	glow.z_as_relative = false
+	# Centre on the player's visual root (offset for wobble pivot).
+	player.add_child(glow)
+
+func _build_dust_alpha_ramp() -> Gradient:
+	# Motes fade in (0→0.25), hold peak (0.25→0.75), fade out (0.75→1.0).
+	# Use only the alpha channel — hue comes from `dust.color` above.
+	var ramp: Gradient = Gradient.new()
+	ramp.clear()
+	ramp.add_point(0.0,  Color(1, 1, 1, 0.0))
+	ramp.add_point(0.25, Color(1, 1, 1, 0.75))
+	ramp.add_point(0.75, Color(1, 1, 1, 0.75))
+	ramp.add_point(1.0,  Color(1, 1, 1, 0.0))
+	return ramp
+
 func _player_start() -> Vector2:
 	return BookwarConst.get_player_start(GameState.current_map_id)
 
@@ -281,7 +379,14 @@ func _spawn_generic_items(rng: RandomNumberGenerator) -> void:
 	# so there is no drop-off when the generic spawner takes over at level 4:
 	#   lv4 ~97, lv15 ~174 (midpoint of 40..300), lv33 ~300 (max).
 	var dot_count: int = 90 + maxi(0, chain_idx - 2) * 7
-	var letters: Array = BookwarConst.MAP_LETTERS.get(map_id, ["А"])
+	# Source letter pool for this map. Some deep-game maps (catacombs/mines/etc.)
+	# intentionally have an empty pool in MAP_LETTERS — fall back to the full
+	# Russian alphabet so the spawn loop never divides by zero and the player
+	# still gets *some* letter drops on every level (see LVL-1 audit, 2026-07-07).
+	var fallback_letters: Array = ["А", "О", "М", "Б", "Я", "Е", "К", "Т", "Р", "Д"]
+	var letters: Array = BookwarConst.MAP_LETTERS.get(map_id, fallback_letters)
+	if letters == null or letters.is_empty():
+		letters = fallback_letters
 	var letter_count: int = 3 + chain_idx
 	var idx: int = 0
 	for i: int in range(dot_count):

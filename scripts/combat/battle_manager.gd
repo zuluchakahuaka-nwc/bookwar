@@ -31,9 +31,9 @@ var _resolving: bool = false
 var _action_log_lines: Array = []
 
 # Visual overlays (F2)
-var _enemy_avatar: ColorRect = null
+var _enemy_avatar: Panel = null
 var _enemy_avatar_label: Label = null
-var _player_avatar: ColorRect = null
+var _player_avatar: Panel = null
 var _player_avatar_label: Label = null
 var _enemy_hp_bar: ProgressBar = null
 var _player_hp_bar: ProgressBar = null
@@ -364,13 +364,13 @@ func _update_ui(snapshot: Dictionary) -> void:
 		_confirm_button.disabled = not bool(snapshot.get("is_active", false))
 
 func _build_visual_overlays() -> void:
-	# Enemy avatar (top-right)
-	_enemy_avatar = ColorRect.new()
-	_enemy_avatar.color = Color(0.45, 0.12, 0.12, 1)
-	_enemy_avatar.offset_left = 950.0
-	_enemy_avatar.offset_top = 55.0
-	_enemy_avatar.offset_right = 1060.0
-	_enemy_avatar.offset_bottom = 165.0
+	# Enemy avatar (top-right): parchment panel + creature silhouette.
+	# Replaces the old flat ColorRect (audit rec #1, 2026-07-07).
+	_enemy_avatar = _build_avatar_panel(
+		950.0, 55.0, 110.0, 110.0,
+		Color(0.45, 0.12, 0.12, 0.85),   # tinted bg (dark red)
+		Color(0.95, 0.35, 0.30)           # silhouette color (red)
+	)
 	add_child(_enemy_avatar)
 	_enemy_avatar_label = Label.new()
 	_enemy_avatar_label.text = "?"
@@ -382,14 +382,16 @@ func _build_visual_overlays() -> void:
 	_enemy_avatar_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_enemy_avatar_label.add_theme_font_size_override("font_size", 56)
 	_enemy_avatar_label.add_theme_color_override("font_color", Color(1, 0.9, 0.9))
+	_enemy_avatar_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+	_enemy_avatar_label.add_theme_constant_override("outline_size", 8)
+	_enemy_avatar_label.z_index = 5
 	add_child(_enemy_avatar_label)
-	# Player avatar (bottom-left, blue hero)
-	_player_avatar = ColorRect.new()
-	_player_avatar.color = Color(0.15, 0.25, 0.55, 1)
-	_player_avatar.offset_left = 220.0
-	_player_avatar.offset_top = 415.0
-	_player_avatar.offset_right = 330.0
-	_player_avatar.offset_bottom = 505.0
+	# Player avatar (bottom-left): parchment panel + hero silhouette.
+	_player_avatar = _build_avatar_panel(
+		220.0, 415.0, 110.0, 90.0,
+		Color(0.15, 0.25, 0.55, 0.85),   # tinted bg (dark blue)
+		Color(0.45, 0.65, 0.95)           # silhouette color (blue)
+	)
 	add_child(_player_avatar)
 	_player_avatar_label = Label.new()
 	_player_avatar_label.text = "Я"
@@ -401,6 +403,9 @@ func _build_visual_overlays() -> void:
 	_player_avatar_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_player_avatar_label.add_theme_font_size_override("font_size", 48)
 	_player_avatar_label.add_theme_color_override("font_color", Color(0.85, 0.92, 1))
+	_player_avatar_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+	_player_avatar_label.add_theme_constant_override("outline_size", 6)
+	_player_avatar_label.z_index = 5
 	add_child(_player_avatar_label)
 	# HP bars
 	_enemy_hp_bar = ProgressBar.new()
@@ -433,6 +438,60 @@ func _build_visual_overlays() -> void:
 	_auto_battle_btn.modulate = Color(0.9, 0.85, 0.5)
 	_auto_battle_btn.pressed.connect(_toggle_auto_battle)
 	add_child(_auto_battle_btn)
+
+func _build_avatar_panel(x: float, y: float, w: float, h: float, bg: Color, silhouette_color: Color) -> Panel:
+	# Parchment-style avatar frame with a tinted background + a Polygon2D
+	# humanoid silhouette inside (head + bust). Replaces the flat ColorRect.
+	var panel: Panel = Panel.new()
+	panel.offset_left = x
+	panel.offset_top = y
+	panel.offset_right = x + w
+	panel.offset_bottom = y + h
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var sty: StyleBoxFlat = StyleBoxFlat.new()
+	sty.bg_color = bg
+	sty.border_color = Color(0.78, 0.62, 0.22, 1.0)   # gold border
+	sty.set_border_width_all(3)
+	sty.set_corner_radius_all(8)
+	sty.set_content_margin_all(4)
+	sty.shadow_color = Color(0.0, 0.0, 0.0, 0.55)
+	sty.shadow_size = 6
+	panel.add_theme_stylebox_override("panel", sty)
+	# Humanoid silhouette (head + bust) drawn via Polygon2D inside the panel.
+	# Head — octagon approximating a circle.
+	var cx: float = w * 0.5
+	var head_cy: float = h * 0.35
+	var head_r: float = w * 0.22
+	var head_pts: PackedVector2Array = PackedVector2Array()
+	for i: int in range(8):
+		var a: float = float(i) * TAU / 8.0
+		head_pts.append(Vector2(cx + cos(a) * head_r, head_cy + sin(a) * head_r))
+	var head: Polygon2D = Polygon2D.new()
+	head.polygon = head_pts
+	head.color = silhouette_color
+	panel.add_child(head)
+	# Torso/bust — trapezoid under the head.
+	var body: Polygon2D = Polygon2D.new()
+	body.polygon = PackedVector2Array([
+		Vector2(cx - head_r * 0.85, head_cy + head_r * 0.95),
+		Vector2(cx + head_r * 0.85, head_cy + head_r * 0.95),
+		Vector2(cx + head_r * 1.45, h * 0.92),
+		Vector2(cx - head_r * 1.45, h * 0.92),
+	])
+	body.color = silhouette_color.darkened(0.18)
+	panel.add_child(body)
+	# Two glowing eyes (darker dots on the head).
+	for eye_off: Vector2 in [Vector2(-head_r * 0.35, head_cy - head_r * 0.05), Vector2(head_r * 0.35, head_cy - head_r * 0.05)]:
+		var eye: Polygon2D = Polygon2D.new()
+		eye.polygon = PackedVector2Array([
+			eye_off + Vector2(-1.5, -1.5),
+			eye_off + Vector2(1.5, -1.5),
+			eye_off + Vector2(1.5, 1.5),
+			eye_off + Vector2(-1.5, 1.5),
+		])
+		eye.color = Color(0.05, 0.04, 0.03, 0.9)
+		panel.add_child(eye)
+	return panel
 
 func _toggle_auto_battle() -> void:
 	_auto_battle = not _auto_battle
