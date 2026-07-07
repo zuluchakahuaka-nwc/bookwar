@@ -182,6 +182,24 @@ func _setup_visual() -> void:
 			_label_ref.position = Vector2(-35.0, -95.0)
 			_label_ref.z_index = 50
 			_label_ref.visible = true
+	elif _draw_type in ["longtongue", "big_ears", "big_eyes", "big_mouth"]:
+		# §18.5 — named creatures per region (карта 2-5)
+		_build_named_creature(_draw_type)
+		if _label_ref:
+			var nm: String = ""
+			match _draw_type:
+				"longtongue": nm = I18n.t("monster.longtongue", "Длинноязыкий")
+				"big_ears":   nm = I18n.t("monster.big_ears", "Слушач")
+				"big_eyes":   nm = I18n.t("monster.big_eyes", "Зрячий")
+				"big_mouth":  nm = I18n.t("monster.big_mouth", "Жор")
+			_label_ref.text = nm
+			_label_ref.add_theme_font_size_override("font_size", 18)
+			_label_ref.add_theme_color_override("font_color", Color(0.95, 0.55, 0.30))
+			_label_ref.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+			_label_ref.add_theme_constant_override("outline_size", 6)
+			_label_ref.position = Vector2(-50.0, -90.0)
+			_label_ref.z_index = 50
+			_label_ref.visible = true
 	elif _drawn or monster_id == "forest_creature":
 		_build_creature_body()
 	elif monster_id == "question" or monster_id == "exclamation":
@@ -262,8 +280,132 @@ func _build_evil_humanoid(kind: String) -> void:
 		foot.color = Color(0.05, 0.04, 0.08)
 		_visual_root.add_child(foot)
 
+# §18.5 — named creatures per region. Гуманоид + уникальная «фишка».
+#   longtongue (карта 2) — длинный красный язык
+#   big_ears   (карта 3) — огромные уши
+#   big_eyes   (карта 4) — гигантские глаза
+#   big_mouth  (карта 5) — огромный рот
+func _build_named_creature(kind: String) -> void:
+	var body_color: Color = Color(0.22, 0.30, 0.20)  # зелёный болотный
+	var accent: Color = Color(0.85, 0.25, 0.20)      # красный акцент
+	match kind:
+		"longtongue":
+			body_color = Color(0.30, 0.35, 0.20)
+			accent = Color(0.85, 0.20, 0.20)
+		"big_ears":
+			body_color = Color(0.28, 0.26, 0.20)
+			accent = Color(0.65, 0.50, 0.30)
+		"big_eyes":
+			body_color = Color(0.20, 0.22, 0.28)
+			accent = Color(0.95, 0.85, 0.30)
+		"big_mouth":
+			body_color = Color(0.35, 0.18, 0.18)
+			accent = Color(0.30, 0.05, 0.05)
+	# Torso
+	var torso: Polygon2D = Polygon2D.new()
+	torso.polygon = PackedVector2Array([Vector2(-16, 25), Vector2(16, 25), Vector2(12, -10), Vector2(-12, -10)])
+	torso.color = body_color
+	_visual_root.add_child(torso)
+	# Head
+	var head: Polygon2D = Polygon2D.new()
+	head.polygon = PackedVector2Array([Vector2(-12, -10), Vector2(12, -10), Vector2(10, -36), Vector2(-10, -36)])
+	head.color = Color(body_color.r * 1.1, body_color.g * 1.1, body_color.b * 1.1)
+	_visual_root.add_child(head)
+	# Уникальная деталь
+	match kind:
+		"longtongue":
+			# Длинный язык свисает изо рта
+			var tongue: Polygon2D = Polygon2D.new()
+			tongue.polygon = PackedVector2Array([Vector2(-2, -28), Vector2(2, -28), Vector2(4, 20), Vector2(-4, 20)])
+			tongue.color = Color(0.90, 0.20, 0.30)
+			_visual_root.add_child(tongue)
+			# Маленькие злые глаза
+			for ex: float in [-5.0, 5.0]:
+				var e: Polygon2D = Polygon2D.new()
+				e.polygon = PackedVector2Array([Vector2(ex-2, -28), Vector2(ex+2, -28), Vector2(ex+2, -24), Vector2(ex-2, -24)])
+				e.color = Color(1.0, 0.85, 0.20)
+				_visual_root.add_child(e)
+		"big_ears":
+			# Огромные уши (2 больших треугольника по бокам головы)
+			for ear_side: float in [-1.0, 1.0]:
+				var ear: Polygon2D = Polygon2D.new()
+				ear.polygon = PackedVector2Array([
+					Vector2(ear_side * 10, -22),
+					Vector2(ear_side * 38, -42),
+					Vector2(ear_side * 28, -10),
+				])
+				ear.color = Color(body_color.r * 1.2, body_color.g * 1.2, body_color.b * 1.2)
+				_visual_root.add_child(ear)
+				# Внутреннее ухо (темнее)
+				var inner: Polygon2D = Polygon2D.new()
+				inner.polygon = PackedVector2Array([
+					Vector2(ear_side * 13, -22),
+					Vector2(ear_side * 30, -36),
+					Vector2(ear_side * 24, -14),
+				])
+				inner.color = Color(0.45, 0.25, 0.18)
+				_visual_root.add_child(inner)
+			# Маленькие глаза
+			for ex: float in [-4.0, 4.0]:
+				var e: Polygon2D = Polygon2D.new()
+				e.polygon = PackedVector2Array([Vector2(ex-1.5, -26), Vector2(ex+1.5, -26), Vector2(ex+1.5, -22), Vector2(ex-1.5, -22)])
+				e.color = Color(0.30, 0.10, 0.10)
+				_visual_root.add_child(e)
+		"big_eyes":
+			# Огромные глаза — занимают половину лица
+			for ex: float in [-6.0, 6.0]:
+				# Белок
+				var sclera: Polygon2D = Polygon2D.new()
+				sclera.polygon = PackedVector2Array([
+					Vector2(ex-5, -32), Vector2(ex+5, -32),
+					Vector2(ex+5, -20), Vector2(ex-5, -20)])
+				sclera.color = Color(0.95, 0.92, 0.80)
+				_visual_root.add_child(sclera)
+				# Зрачок (жёлтый, светящийся)
+				var pupil: Polygon2D = Polygon2D.new()
+				pupil.polygon = PackedVector2Array([
+					Vector2(ex-2, -30), Vector2(ex+2, -30),
+					Vector2(ex+2, -22), Vector2(ex-2, -22)])
+				pupil.color = Color(1.0, 0.75, 0.10)
+				_visual_root.add_child(pupil)
+		"big_mouth":
+			# Огромный рот — поперёк всего лица
+			var mouth: Polygon2D = Polygon2D.new()
+			mouth.polygon = PackedVector2Array([
+				Vector2(-14, -24), Vector2(14, -24),
+				Vector2(12, -14), Vector2(-12, -14)])
+			mouth.color = Color(0.10, 0.02, 0.02)
+			_visual_root.add_child(mouth)
+			# Зубы (маленькие треугольники)
+			for tx: float in [-10.0, -5.0, 0.0, 5.0, 10.0]:
+				var tooth: Polygon2D = Polygon2D.new()
+				tooth.polygon = PackedVector2Array([
+					Vector2(tx-1.5, -22), Vector2(tx+1.5, -22), Vector2(tx, -18)])
+				tooth.color = Color(0.95, 0.92, 0.70)
+				_visual_root.add_child(tooth)
+			# Маленькие злые глаза над ртом
+			for ex: float in [-5.0, 5.0]:
+				var e: Polygon2D = Polygon2D.new()
+				e.polygon = PackedVector2Array([Vector2(ex-1.5, -32), Vector2(ex+1.5, -32), Vector2(ex+1.5, -28), Vector2(ex-1.5, -28)])
+				e.color = Color(1.0, 0.20, 0.10)
+				_visual_root.add_child(e)
+	# Arms (руки опущены)
+	for ax: float in [-14.0, 14.0]:
+		var arm: Polygon2D = Polygon2D.new()
+		var dir: float = -1.0 if ax < 0.0 else 1.0
+		arm.polygon = PackedVector2Array([
+			Vector2(ax, -8), Vector2(ax + dir * 4, -8),
+			Vector2(ax + dir * 4, 18), Vector2(ax, 18)])
+		arm.color = Color(body_color.r * 0.85, body_color.g * 0.85, body_color.b * 0.85)
+		_visual_root.add_child(arm)
+	# Feet
+	for fx: float in [-9.0, 9.0]:
+		var foot: Polygon2D = Polygon2D.new()
+		foot.polygon = PackedVector2Array([Vector2(fx-5, 25), Vector2(fx+5, 25), Vector2(fx+5, 31), Vector2(fx-5, 31)])
+		foot.color = Color(0.08, 0.06, 0.10)
+		_visual_root.add_child(foot)
+
 func _build_creature_body() -> void:
-	# A drawn beast (real enemy, not just a "!"): hunched dark body + glowing red eyes.
 	# Body (torso)
 	var body: Polygon2D = Polygon2D.new()
 	body.polygon = PackedVector2Array([Vector2(-20, 22), Vector2(20, 22), Vector2(16, -10), Vector2(-16, -10)])
