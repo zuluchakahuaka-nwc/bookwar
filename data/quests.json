@@ -1,0 +1,68 @@
+{
+  "_comment": "Квестовый реестр BOOKWAR. Карты 1-2 — без квестов (обучение). Карты 3+ — генерируются quest_data.gd с прогрессией N-2 квестов на карту N. Этот файл содержит ручные квесты для карт 3-5 (storyline), остальные генерируются автоматически из шаблонов.",
+  "quests": [
+    {
+      "id": "dark_oaks_q1",
+      "map_id": "dark_oaks",
+      "npc_name": "Слушач",
+      "type": "collect",
+      "description": "Мои уши слышат шёпот букв. Принеси мне 2 буквы «В», и я поделюсь силой «Г».",
+      "requirement": {"letter": "В", "count": 2},
+      "reward": {"type": "letter", "letter": "Г", "count": 1}
+    },
+    {
+      "id": "mossy_lowlands_q1",
+      "map_id": "mossy_lowlands",
+      "npc_name": "Болотный Старец",
+      "type": "defeat",
+      "description": "Твари болот одичали. Одолей 4 из них, и я открою тебе тайну буквы «З».",
+      "requirement": {"count": 4},
+      "reward": {"type": "letter", "letter": "З", "count": 1}
+    },
+    {
+      "id": "mossy_lowlands_q2",
+      "map_id": "mossy_lowlands",
+      "npc_name": "Тихий Странник",
+      "type": "buy",
+      "description": "15 буквиц за редкую букву «С». Не торгуемся.",
+      "cost": {"resource": "dots", "amount": 15},
+      "reward": {"type": "letter", "letter": "С", "count": 1}
+    },
+    {
+      "id": "mossy_lowlands_q3",
+      "map_id": "mossy_lowlands",
+      "npc_name": "Староста Топи",
+      "type": "trade",
+      "description": "Обменяю мою «Ф» на твою «М». Честный размен.",
+      "give": {"letter": "М"},
+      "receive": {"letter": "Ф"},
+      "reward": {"type": "letter", "letter": "Ф", "count": 1}
+    },
+    {
+      "id": "rotten_swamps_q1",
+      "map_id": "rotten_swamps",
+      "npc_name": "Призрачный Глас",
+      "type": "talk",
+      "description": "Найди моего брата в Гнилых Болотах. Скажи: «Память хранит». Он даст тебе «Х».",
+      "requirement": {"target_npc": "Призрачный Брат"},
+      "reward": {"type": "letter", "letter": "Х", "count": 1}
+    },
+    {
+      "id": "rotten_swamps_q2",
+      "map_id": "rotten_swamps",
+      "npc_name": "Призрачный Брат",
+      "type": "defeat",
+      "description": "Мсти за нашу деревню. Одолей 5 гнилых тварей.",
+      "requirement": {"count": 5},
+      "reward": {"type": "letter", "letter": "Ц", "count": 1}
+    }
+  ],
+  "_templates": {
+    "_comment": "Шаблоны для автогенерации на картах 6-33. Каждая карта N получает N-2 квеста, типы чередуются.",
+    "defeat_template": "Зачисти регион «{region}» от {count} врагов.",
+    "collect_template": "Принеси {count} букв «{letter}» — научу тебя букве «{reward}».",
+    "buy_template": "Купи букву «{reward}» за {cost} буквиц.",
+    "trade_template": "Обменяй «{give}» на «{reward}».",
+    "talk_template": "Поговори с мудрецом в регионе «{region}»."
+  }
+}

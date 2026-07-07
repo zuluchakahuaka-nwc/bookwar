@@ -5,21 +5,24 @@ var _select_card_callback: Callable = Callable()
 
 const INITIAL_BRIDGE_JS: String = """
 	(function() {
-		window.gameLoaded = false;
-		window.gameMenuVisible = true;
-		window.gamePlayerPos = {x: 0, y: 0};
-		window.gameInventory = {letters: {}, dots: 0, punctuation: {}};
-		window.gameHUD = {hp: '', dots: '', region: ''};
-		window.gameDialogueText = '';
-		window.gameDialogueActive = false;
-		window.gameInCombat = false;
-		window.gameInventoryVisible = false;
-		window.gameSelectCard = null;
-		window.gameAlphabet = null;
-		window.gameMonsterState = null;
-		window.gameCombatLog = null;
-		window.gameCombatLogAll = [];
-		window.gameMonsterStates = [];
+		window.gameLoaded = window.gameLoaded || false;
+		window.gameMenuVisible = (typeof window.gameMenuVisible !== 'undefined') ? window.gameMenuVisible : true;
+		window.gamePlayerPos = window.gamePlayerPos || {x: 0, y: 0};
+		window.gameInventory = window.gameInventory || {letters: {}, dots: 0, punctuation: {}};
+		// ВАЖНО: НЕ перезаписывать gameHUD если уже есть — это позволяет новой world_map
+		// сохранить region от старой во время change_scene_to_file, пока update_hud не
+		// выставит новый. Без этого боты/тесты видят пустой region = '?' и думают что
+		// карта не загрузилась (фикс B-QUEST-1 race condition, 2026-07-07).
+		if (!window.gameHUD) window.gameHUD = {hp: '', dots: '', region: ''};
+		window.gameDialogueActive = window.gameDialogueActive || false;
+		window.gameInCombat = window.gameInCombat || false;
+		window.gameInventoryVisible = window.gameInventoryVisible || false;
+		if (!window.gameSelectCard) window.gameSelectCard = null;
+		if (!window.gameAlphabet) window.gameAlphabet = null;
+		if (!window.gameMonsterState) window.gameMonsterState = null;
+		if (!window.gameCombatLog) window.gameCombatLog = null;
+		if (!window.gameCombatLogAll) window.gameCombatLogAll = [];
+		if (!window.gameMonsterStates) window.gameMonsterStates = [];
 		return true;
 	})()
 """

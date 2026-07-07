@@ -281,3 +281,25 @@ const MAP_BOUND_MIN_X: float = 80.0
 const MAP_BOUND_MAX_X: float = 2480.0
 const MAP_BOUND_MIN_Y: float = 80.0
 const MAP_BOUND_MAX_Y: float = 1840.0
+
+# --- Dynamic map sizing (Q5, 2026-07-07) ---
+# Ширина карты растёт на 1 клетку за каждый уровень: уровень 1 = 80, уровень 33 = 112.
+# Высота остается 60. Это даёт ощущение "мир расширяется" по мере прогресса.
+const MAP_BASE_WIDTH: int = 80
+const MAP_BASE_HEIGHT: int = 60
+const MAP_MAX_WIDTH: int = 112  # cap at level 33 (80 + 32)
+
+static func get_map_width(map_id: String) -> int:
+	var idx: int = MAP_CHAIN.find(map_id)
+	if idx < 0:
+		return MAP_BASE_WIDTH
+	return clampi(MAP_BASE_WIDTH + idx, MAP_BASE_WIDTH, MAP_MAX_WIDTH)
+
+static func get_map_height(map_id: String) -> int:
+	return MAP_BASE_HEIGHT
+
+static func get_map_bound_max_x(map_id: String) -> float:
+	return float(get_map_width(map_id) * 32 - 80)
+
+static func get_map_bound_max_y(map_id: String) -> float:
+	return float(get_map_height(map_id) * 32 - 80)

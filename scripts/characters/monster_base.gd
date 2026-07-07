@@ -380,9 +380,11 @@ func _setup_patrol() -> void:
 	]
 
 func _clamp_to_map(pos: Vector2) -> Vector2:
+	var max_x: float = BookwarConst.get_map_bound_max_x(GameState.current_map_id)
+	var max_y: float = BookwarConst.get_map_bound_max_y(GameState.current_map_id)
 	return Vector2(
-		clampf(pos.x, BookwarConst.MAP_BOUND_MIN_X, BookwarConst.MAP_BOUND_MAX_X),
-		clampf(pos.y, BookwarConst.MAP_BOUND_MIN_Y, BookwarConst.MAP_BOUND_MAX_Y)
+		clampf(pos.x, BookwarConst.MAP_BOUND_MIN_X, max_x),
+		clampf(pos.y, BookwarConst.MAP_BOUND_MIN_Y, max_y)
 	)
 
 func _physics_process(delta: float) -> void:
@@ -404,9 +406,12 @@ func _physics_process(delta: float) -> void:
 	# Hard clamp to map bounds — patrol offsets and chase drift can otherwise
 	# push monsters past the invisible boundary walls (their collision masks
 	# don't all include the world layer). Keeps everyone inside the playable rect.
+	# Q5: bounds динамические — зависят от текущей карты (ширина растёт 80→112).
+	var _max_x: float = BookwarConst.get_map_bound_max_x(GameState.current_map_id)
+	var _max_y: float = BookwarConst.get_map_bound_max_y(GameState.current_map_id)
 	global_position = Vector2(
-		clampf(global_position.x, BookwarConst.MAP_BOUND_MIN_X, BookwarConst.MAP_BOUND_MAX_X),
-		clampf(global_position.y, BookwarConst.MAP_BOUND_MIN_Y, BookwarConst.MAP_BOUND_MAX_Y)
+		clampf(global_position.x, BookwarConst.MAP_BOUND_MIN_X, _max_x),
+		clampf(global_position.y, BookwarConst.MAP_BOUND_MIN_Y, _max_y)
 	)
 	# Waddle tied to actual movement — every monster staggers like the hero.
 	# Alerted monsters (noticed the hero) wobble 2x harder, even standing in place.
@@ -576,10 +581,36 @@ func start_dialogue() -> void:
 	# Need at least 3 буквицы to speak (the 3 are consumed on recruit completion in _try_recruit)
 	if not InventoryManager.has_ellipsis():
 		return
+	# Q4 (2026-07-07): если у этого "?" монстра есть невыполненный квест на карте,
+	# пытаемся его сдать автоматически (MVP — без отдельного UI выбора квеста).
+	# Это даёт рабочую RPG-механику: dialogue с NPC = сдача квеста.
+	_try_hand_in_quest()
 	_dialogue_index = 0
 	_set_state("dialogue")
 	GameState.start_dialogue()
 	_show_dialogue_line(_dialogue_index)
+
+# Q4: Автоматически сдать первый выполнимый квест из active_quests текущей карты.
+# show_toast=true если квест сдан — для диагностического сообщения в dialogue.
+func _try_hand_in_quest() -> void:
+	if GameState.active_quests.is_empty():
+		return
+	# Копируем чтобы безопасно удалять из оригинала во время итерации
+	var snapshot: Array = GameState.active_quests.duplicate()
+	for q: Dictionary in snapshot:
+		if QuestData.can_complete(q):
+			# Для trade/buy — списать стоимость сейчас
+			var qtype: String = String(q.get("type", ""))
+			if qtype == "buy":
+				var cost: int = int(q.get("cost", {}).get("amount", 0))
+				if not InventoryManager.use_dots(cost):
+					continue
+			elif qtype == "trade":
+				var give_letter: String = String(q.get("give", {}).get("letter", ""))
+				if not InventoryManager.remove_letter(give_letter):
+					continue
+			# Сдать квест (выдаёт награду + снимает с active)
+			GameState.try_complete_quest(q)
 
 func _show_dialogue_line(index: int) -> void:
 	if index >= _dialogue_data.size():

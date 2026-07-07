@@ -14,8 +14,16 @@ var dialogue_text: String = ""
 var dialogue_start_time: float = 0.0
 # --- Quest system ---
 # Active quest on current map: {type, target, count, progress, reward_letter, description}
+# (legacy — сейчас только defeat-квесты используют этот слот)
 var active_quest: Dictionary = {}
 var completed_quests: Array[String] = []  # map_ids where quest is done
+# Multi-type quest tracking (Q1-Q2, 2026-07-07):
+#   active_quests — все квесты текущей карты (Array[Dictionary])
+#   completed_quest_ids — ID выполненных квестов (не map_ids)
+#   quest_defeat_progress — {quest_id → kill_count} для defeat-квестов
+var active_quests: Array = []
+var completed_quest_ids: Array[String] = []
+var quest_defeat_progress: Dictionary = {}  # quest_id -> int
 
 var recruits: Array[Dictionary] = []
 var selected_hero: Dictionary = {}  # chosen hero from character select screen
@@ -250,50 +258,122 @@ func is_item_collected(key: String) -> bool:
 
 # --- Quest system ---
 
+# Инициализация квестов при входе на карту. Вызывается из world_map._ready.
+# Карты 1-2 — без квестов (обучение).
+# Карта N (N>=3) — N-2 квеста разных типов (через QuestData).
 func start_quest_for_map(map_id: String) -> void:
-	if completed_quests.has(map_id):
-		active_quest = {}
-		return
-	# Simple quest: defeat N monsters on this map. N scales with map index.
 	var chain_idx: int = BookwarConst.MAP_CHAIN.find(map_id)
-	var target: int = 3 + chain_idx  # 3,4,5,...12 monsters
-	var reward_letters: Array = BookwarConst.MAP_LETTERS.get(map_id, [])
-	var reward: String = reward_letters[0] if reward_letters.size() > 0 else "А"
-	active_quest = {
-		"type": "defeat",
-		"target": target,
-		"progress": 0,
-		"reward_letter": reward,
-		"description": I18n.t_fmt("quest.defeat", [str(target), BookwarConst.get_map_name(map_id)], "Defeat %s enemies in the region \"%s\"")
-	}
-	if OS.has_feature("web"):
-		var escaped: String = String(active_quest["description"]).replace("\\", "\\\\").replace("'", "\\'")
-		JavaScriptBridge.eval("window.gameQuest = {target:" + str(target) + ", progress:0, desc:'" + escaped + "'};")
+	# Старый single-quest API для backwards compat (используется на карте 1 в HUD)
+	active_quest = {}
+	if chain_idx < 2:
+		# Карты 1, 2 — без квестов
+		active_quests = []
+		_sync_quest_js_bridge()
+		return
+	active_quests = QuestData.get_quests_for_map(map_id)
+	# Убираем уже выполненные
+	var filtered: Array = []
+	for q: Dictionary in active_quests:
+		var qid: String = String(q.get("id", ""))
+		if not completed_quest_ids.has(qid):
+			filtered.append(q)
+	active_quests = filtered
+	# Для legacy HUD — показываем первый невыполненный как active_quest
+	if not active_quests.is_empty():
+		active_quest = active_quests[0]
+	_sync_quest_js_bridge()
+	# Toast: показать квесты карты
+	if not active_quests.is_empty():
+		var msg: String = "📜 Квестов на карте: " + str(active_quests.size())
+		toast_requested.emit(msg)
 
 func quest_progress_defeat() -> void:
-	if active_quest.is_empty():
-		return
-	active_quest["progress"] = int(active_quest["progress"]) + 1
-	var prog: int = int(active_quest["progress"])
-	var target: int = int(active_quest["target"])
-	if OS.has_feature("web"):
-		JavaScriptBridge.eval("window.gameQuest.progress = " + str(prog) + ";")
-	if prog >= target:
-		_quest_complete()
+	# Инкремент прогресса ВСЕХ активных defeat-квестов (один убитый враг засчитывается всем)
+	var any_progressed: bool = false
+	for q: Dictionary in active_quests:
+		if String(q.get("type", "")) != "defeat":
+			continue
+		var qid: String = String(q.get("id", ""))
+		quest_defeat_progress[qid] = int(quest_defeat_progress.get(qid, 0)) + 1
+		any_progressed = true
+	if not any_progressed and not active_quest.is_empty():
+		# Legacy: старый single-quest API
+		active_quest["progress"] = int(active_quest["progress"]) + 1
+		if int(active_quest["progress"]) >= int(active_quest["target"]):
+			_quest_complete_legacy()
+	_sync_quest_js_bridge()
 
-func _quest_complete() -> void:
+# Прогресс defeat-квеста по его ID (для QuestData.can_complete)
+func quest_progress_for(quest_id: String) -> int:
+	return int(quest_defeat_progress.get(quest_id, 0))
+
+# Проверить и засчитать выполнимые квесты (вызывается при диалоге с NPC).
+# Возвращает число выполненных.
+func try_complete_quest(quest: Dictionary) -> bool:
+	var qid: String = String(quest.get("id", ""))
+	if completed_quest_ids.has(qid):
+		return false
+	if not QuestData.can_complete(quest):
+		return false
+	QuestData.complete_quest(quest)
+	completed_quest_ids.append(qid)
+	active_quests.erase(quest)
+	if active_quest == quest:
+		active_quest = {}
+	toast_requested.emit("★ Квест выполнен: " + String(quest.get("description", "")).substr(0, 40))
+	_sync_quest_js_bridge()
+	return true
+
+func mark_quest_completed(qid: String) -> void:
+	if not completed_quest_ids.has(qid):
+		completed_quest_ids.append(qid)
+
+func is_quest_complete(map_id: String) -> bool:
+	# Legacy — хотя бы один квест карты выполнен
+	var quests: Array = QuestData.get_quests_for_map(map_id)
+	for q: Dictionary in quests:
+		if completed_quest_ids.has(String(q.get("id", ""))):
+			return true
+	return false
+
+func _quest_complete_legacy() -> void:
 	if active_quest.is_empty():
 		return
 	var reward: String = String(active_quest.get("reward_letter", "А"))
 	InventoryManager.add_letter(reward)
 	var map_id: String = current_map_id
 	completed_quests.append(map_id)
-	var msg: String = I18n.t_fmt("quest.done", [reward], "Quest complete! Reward: letter %s")
+	var msg: String = "Quest complete! Reward: letter " + reward
 	recruit_message.emit(msg)
-	toast_requested.emit(I18n.t_fmt("quest.done_toast", [reward], "★ Quest complete! Letter received: %s"))
+	toast_requested.emit("★ Квест выполнен! Получена буква: " + reward)
 	active_quest = {}
-	if OS.has_feature("web"):
-		JavaScriptBridge.eval("window.gameQuest = null; window.gameQuestDone = true;")
+	_sync_quest_js_bridge()
 
-func is_quest_complete(map_id: String) -> bool:
-	return completed_quests.has(map_id)
+# Снимок квестов для JS bridge (Puppeteer/UI).
+func _sync_quest_js_bridge() -> void:
+	if not OS.has_feature("web"):
+		return
+	var snapshot: Dictionary = {
+		"active": [],
+		"completed_count": completed_quest_ids.size(),
+	}
+	for q: Dictionary in active_quests:
+		var qid: String = String(q.get("id", ""))
+		var qcopy: Dictionary = q.duplicate()
+		if String(q.get("type", "")) == "defeat":
+			qcopy["progress"] = int(quest_defeat_progress.get(qid, 0))
+		snapshot["active"].append(qcopy)
+	var json_str: String = JSON.stringify(snapshot)
+	# Escape single quotes для JS
+	json_str = json_str.replace("\\", "\\\\").replace("'", "\\'")
+	JavaScriptBridge.eval("window.gameQuests = '" + json_str + "';")
+	# Legacy: window.gameQuest для HUD
+	if not active_quest.is_empty():
+		var q: Dictionary = active_quest
+		var desc: String = String(q.get("description", ""))
+		desc = desc.replace("\\", "\\\\").replace("'", "\\'")
+		var target: int = int(q.get("requirement", {}).get("count", 0))
+		var prog: int = int(quest_defeat_progress.get(String(q.get("id", "")), 0))
+		JavaScriptBridge.eval("window.gameQuest = {target:" + str(target) + ", progress:" + str(prog) + ", desc:'" + desc + "'};")
+	else:
+		JavaScriptBridge.eval("window.gameQuest = null;")

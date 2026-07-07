@@ -3,6 +3,7 @@ extends Node2D
 const DOT_SCENE: PackedScene = preload("res://scenes/world/dot_item.tscn")
 const BATTLE_SCENE_PATH: String = "res://scenes/combat/battle_scene.tscn"
 const CHAT_OVERLAY_SCENE: PackedScene = preload("res://scenes/ui/chat_overlay.tscn")
+const QUEST_LOG_SCENE: PackedScene = preload("res://scenes/ui/quest_log.tscn")
 const WORLD_MP_SYNC_SCRIPT: Script = preload("res://scripts/multiplayer/world_mp_sync.gd")
 
 const MAP_BOUND_MIN_X: float = 80.0
@@ -65,6 +66,10 @@ func _ready() -> void:
 	GameState.combat_ended.connect(_on_combat_ended)
 	GameState.dialogue_started.connect(_on_dialogue_started)
 	GameState.dialogue_ended.connect(_on_dialogue_ended)
+	# Журнал квестов (Q-key toggle) — всегда доступен в мире
+	var quest_log: CanvasLayer = QUEST_LOG_SCENE.instantiate()
+	quest_log.name = "QuestLog"
+	add_child(quest_log)
 	# Multiplayer: spawn remote players layer + chat overlay (only if connected)
 	if NetworkManager.is_connected_to_server():
 		var mp_sync: Node2D = Node2D.new()
@@ -389,15 +394,17 @@ func _spawn_generic_items(rng: RandomNumberGenerator) -> void:
 		letters = fallback_letters
 	var letter_count: int = 3 + chain_idx
 	var idx: int = 0
+	var spawn_max_x: float = BookwarConst.get_map_bound_max_x(map_id)
+	var spawn_max_y: float = BookwarConst.get_map_bound_max_y(map_id)
 	for i: int in range(dot_count):
-		var x: float = rng.randf_range(BookwarConst.MAP_BOUND_MIN_X + 40, BookwarConst.MAP_BOUND_MAX_X - 40)
-		var y: float = rng.randf_range(BookwarConst.MAP_BOUND_MIN_Y + 40, BookwarConst.MAP_BOUND_MAX_Y - 40)
+		var x: float = rng.randf_range(BookwarConst.MAP_BOUND_MIN_X + 40, spawn_max_x - 40)
+		var y: float = rng.randf_range(BookwarConst.MAP_BOUND_MIN_Y + 40, spawn_max_y - 40)
 		_spawn_item(items, "dot", "", _clamp_pos(Vector2(x, y)), rng, map_id + ":d" + str(i))
 		idx += 1
 	for j: int in range(letter_count):
 		var letter: String = String(letters[rng.randi() % letters.size()])
-		var lx: float = rng.randf_range(BookwarConst.MAP_BOUND_MIN_X + 80, BookwarConst.MAP_BOUND_MAX_X - 80)
-		var ly: float = rng.randf_range(BookwarConst.MAP_BOUND_MIN_Y + 80, BookwarConst.MAP_BOUND_MAX_Y - 80)
+		var lx: float = rng.randf_range(BookwarConst.MAP_BOUND_MIN_X + 80, spawn_max_x - 80)
+		var ly: float = rng.randf_range(BookwarConst.MAP_BOUND_MIN_Y + 80, spawn_max_y - 80)
 		_spawn_item(items, "letter", letter, _clamp_pos(Vector2(lx, ly)), rng, map_id + ":l" + str(j))
 		idx += 1
 
@@ -469,9 +476,12 @@ const CURRENCY_LETTERS: Array[String] = [
 ]
 
 func _clamp_pos(pos: Vector2) -> Vector2:
+	# Q5: bounds динамические — зависят от текущей карты
+	var max_x: float = BookwarConst.get_map_bound_max_x(GameState.current_map_id)
+	var max_y: float = BookwarConst.get_map_bound_max_y(GameState.current_map_id)
 	return Vector2(
-		clampf(pos.x, MAP_BOUND_MIN_X, MAP_BOUND_MAX_X),
-		clampf(pos.y, MAP_BOUND_MIN_Y, MAP_BOUND_MAX_Y)
+		clampf(pos.x, MAP_BOUND_MIN_X, max_x),
+		clampf(pos.y, MAP_BOUND_MIN_Y, max_y)
 	)
 
 func _spawn_item(parent: Node2D, item_type: String, item_id: String, pos: Vector2, rng: RandomNumberGenerator, key: String) -> void:
