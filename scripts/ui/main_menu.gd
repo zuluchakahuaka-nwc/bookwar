@@ -53,6 +53,10 @@ func _ready() -> void:
 	_setup_js_poll()
 	# Build enlarged touch zones after layout has settled.
 	call_deferred("_build_touch_zones")
+	# Atmospheric embers rising from the bottom of the screen — dark-fantasy
+	# mood for the first thing the player sees (audit rec #2, 2026-07-07).
+	# Procedural CPUParticles2D, no asset work.
+	_build_embers()
 	# Web browsers block window.close() — the Quit button is meaningless in a
 	# browser tab, so hide it on HTML5 exports.
 	if _quit_button and OS.has_feature("web"):
@@ -63,6 +67,58 @@ func _ready() -> void:
 	call_deferred("_start_menu_music")
 	# If a saved game exists, show a "Continue" button above "Новая игра".
 	call_deferred("_setup_continue_button")
+
+func _build_embers() -> void:
+	# Rising embers across the bottom of the menu — sells the dark-medieval
+	# mood (audit rec #2). Sits between Vignette and CenterCol so it doesn't
+	# obscure the buttons.
+	var embers: CPUParticles2D = CPUParticles2D.new()
+	embers.name = "MenuEmbers"
+	embers.amount = 28
+	embers.lifetime = 7.0
+	embers.preprocess = 0.0
+	embers.fixed_fps = 30
+	embers.emitting = true
+	embers.local_coords = true
+	# Bottom-center strip — embers rise from along the entire bottom edge.
+	embers.position = Vector2(640.0, 720.0)
+	# Integer enum (2 = EMISSION_SHAPE_BOX) — safer across Godot 4.x builds.
+	embers.emission_shape = 2
+	embers.emission_box_extents = Vector3(640.0, 30.0, 0.0)
+	# Rise upward (negative Y) with slight horizontal spread — like sparks
+	# drifting off a brazier.
+	embers.direction = Vector2(0.0, -1.0)
+	embers.spread = 22.0
+	embers.gravity = Vector2(0.0, -22.0)
+	embers.initial_velocity_min = 40.0
+	embers.initial_velocity_max = 110.0
+	embers.angular_velocity_min = -40.0
+	embers.angular_velocity_max = 40.0
+	embers.scale_amount_min = 3.5
+	embers.scale_amount_max = 7.0
+	# Warm ember orange that fades at end of life.
+	embers.color = Color(1.0, 0.55, 0.18, 1.0)
+	embers.color_ramp = _build_ember_ramp()
+	# Force embers to render ABOVE the dark Background and Vignette overlays.
+	embers.z_index = 5
+	add_child(embers)
+	# Place it between Vignette and CenterCol so buttons stay on top.
+	# Children order in MainMenu: [Background, Vignette, CenterCol, ...].
+	# Move embers to index 2 (after Vignette, before CenterCol).
+	var center_col: Node = get_node_or_null("CenterCol")
+	if center_col:
+		embers.move_before(center_col)
+	else:
+		move_child(embers, 2)
+
+func _build_ember_ramp() -> Gradient:
+	var r: Gradient = Gradient.new()
+	r.clear()
+	r.add_point(0.0, Color(1, 1, 1, 0.0))    # spawn invisible
+	r.add_point(0.12, Color(1, 1, 1, 0.9))   # fade in fast
+	r.add_point(0.65, Color(1, 1, 1, 0.7))   # hold
+	r.add_point(1.0, Color(1, 1, 1, 0.0))    # fade out
+	return r
 
 func _apply_texts() -> void:
 	# Localize every menu label/button for the current locale.

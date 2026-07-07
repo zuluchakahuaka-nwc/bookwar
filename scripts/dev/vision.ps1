@@ -9,10 +9,17 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$mcp = "~\.bun\bin\mcp-cli.exe"
-if (-not (Test-Path $mcp)) {
-    Write-Error "mcp-cli.exe not found at $mcp"
-    exit 2
+# Resolve mcp-cli path without hardcoding personal user paths. Honour the
+# MCP_CLI_PATH env var if set; otherwise look in standard bun bin locations.
+$_mcp_candidates = @(
+	$env:MCP_CLI_PATH,
+	([System.IO.Path]::Combine($env:USERPROFILE, ".bun", "bin", "mcp-cli.exe")),
+	([System.IO.Path]::Combine($env:LOCALAPPDATA, ".bun", "bin", "mcp-cli.exe"))
+) | Where-Object { $_ -and (Test-Path $_) }
+$mcp = if ($_mcp_candidates) { $_mcp_candidates[0] } else { "" }
+if ($mcp -eq "") {
+	Write-Error "mcp-cli.exe not found. Set `$env:MCP_CLI_PATH or install via 'bun install -g mcp-cli'."
+	exit 2
 }
 
 # Refresh PATH for Bun/Node etc.

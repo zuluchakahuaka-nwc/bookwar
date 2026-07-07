@@ -16,8 +16,10 @@ signal trade_accepted(from_name: String)
 signal battle_invited(from_name: String)
 
 var _peer: WebSocketPeer = null
-# Resolved dynamically (see _resolve_ws_url). Direct IP fallback for native clients.
-const DIRECT_FALLBACK_URL: String = "ws://<bookwar-server-ip>:4567"
+# Resolved dynamically (see _resolve_ws_url). Direct fallback for native clients.
+# IMPORTANT: keep this a placeholder — set the real server URL via env var
+# BOOKWAR_WS_URL on the host running the game, or edit locally before building.
+const DIRECT_FALLBACK_URL: String = "ws://localhost:4567"
 var _url: String = ""
 var _my_id: String = ""
 var _my_name: String = "Hero"

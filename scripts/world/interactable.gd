@@ -9,9 +9,40 @@ class_name Interactable
 signal interacted(interactable: Interactable)
 
 var _is_collected: bool = false
+# Visual flourish (audit rec #6, 2026-07-07): items bob + glow-pulse so the
+# world doesn't read as a static screenshot. Phase is randomised per-item so
+# they don't all bob in sync (which would look mechanical).
+var _base_y: float = 0.0
+var _bob_phase: float = 0.0
+var _glow_node: ColorRect = null
+var _base_glow_alpha: float = 0.0
+var _anim_initialized: bool = false
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
+	_bob_phase = randf() * TAU  # GDScript built-in: 2*PI
+	_glow_node = get_node_or_null("GlowBg")
+	if _glow_node:
+		_base_glow_alpha = _glow_node.color.a
+
+func _process(_delta: float) -> void:
+	if _is_collected:
+		return
+	# Lazily capture the spawn Y on the first frame so we don't need a separate
+	# _ready hook (the parent may move the item before _ready runs).
+	if not _anim_initialized:
+		_base_y = global_position.y
+		_anim_initialized = true
+		return
+	var t: float = Time.get_ticks_msec() / 1000.0
+	# Slow vertical bob (~2px amplitude, ~2s period).
+	global_position.y = _base_y + sin(t * 2.0 + _bob_phase) * 2.0
+	# Pulse the glow alpha so pickups shimmer — more visible from afar.
+	if _glow_node and _base_glow_alpha > 0.0:
+		var pulse: float = 0.7 + sin(t * 3.0 + _bob_phase) * 0.3
+		var c: Color = _glow_node.color
+		c.a = _base_glow_alpha * pulse
+		_glow_node.color = c
 
 func _on_body_entered(body: Node2D) -> void:
 	if _is_collected:
