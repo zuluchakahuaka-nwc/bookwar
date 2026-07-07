@@ -6,19 +6,41 @@
       "symbol": "?",
       "hp": 30,
       "behavior": "patrol",
-      "detection_radius": 100.0,
-      "attack_radius": 50.0,
-      "speed": 50.0,
-      "letters": ["Б", "В"],
-      "punctuation": ["?"],
+      "detection_radius": 100,
+      "attack_radius": 50,
+      "speed": 50,
+      "letters": [
+        "Б",
+        "В"
+      ],
+      "punctuation": [
+        "?"
+      ],
       "drop_table": [
-        {"item": "dot", "chance": 0.8, "count": 1},
-        {"item": "dot", "chance": 0.3, "count": 1}
+        {
+          "item": "dot",
+          "chance": 0.8,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.3,
+          "count": 1
+        }
       ],
       "dialogue_options": [
-        {"text": "Ты не знаешь кто я. Но я знаю где спрятаны буквы. Принеси мне 3 точки — и я скажу.", "result": "info"},
-        {"text": "Я охраняю тропу на север. Там леса гуще и твари злее. Будь осторожен.", "result": "info"},
-        {"text": "Зачем тебе буквы? Они запретны. Впрочем... я чувствую в тебе силу. Возьми это.", "result": "give"}
+        {
+          "text": "Ты не знаешь кто я. Но я знаю где спрятаны буквы. Принеси мне 3 точки — и я скажу.",
+          "result": "info"
+        },
+        {
+          "text": "Я охраняю тропу на север. Там леса гуще и твари злее. Будь осторожен.",
+          "result": "info"
+        },
+        {
+          "text": "Зачем тебе буквы? Они запретны. Впрочем... я чувствую в тебе силу. Возьми это.",
+          "result": "give"
+        }
       ]
     },
     {
@@ -27,18 +49,35 @@
       "symbol": "!",
       "hp": 50,
       "behavior": "aggressive",
-      "detection_radius": 150.0,
-      "attack_radius": 60.0,
-      "speed": 80.0,
-      "letters": ["А", "Г"],
+      "detection_radius": 150,
+      "attack_radius": 60,
+      "speed": 80,
+      "letters": [
+        "А",
+        "Г"
+      ],
       "punctuation": [],
       "drop_table": [
-        {"item": "letter", "chance": 0.8, "count": 1},
-        {"item": "dot", "chance": 0.5, "count": 2}
+        {
+          "item": "letter",
+          "chance": 0.8,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.5,
+          "count": 2
+        }
       ],
       "dialogue_options": [
-        {"text": "Стой! Я видел тебя! Ты вор букв!", "result": "slow"},
-        {"text": "Хм... может ты не враг? Ладно. Я подумаю.", "result": "slow"}
+        {
+          "text": "Стой! Я видел тебя! Ты вор букв!",
+          "result": "slow"
+        },
+        {
+          "text": "Хм... может ты не враг? Ладно. Я подумаю.",
+          "result": "slow"
+        }
       ]
     },
     {
@@ -47,17 +86,31 @@
       "symbol": "!",
       "hp": 70,
       "behavior": "aggressive",
-      "detection_radius": 180.0,
-      "attack_radius": 70.0,
-      "speed": 70.0,
-      "letters": ["В", "Г"],
+      "detection_radius": 180,
+      "attack_radius": 70,
+      "speed": 70,
+      "letters": [
+        "В",
+        "Г"
+      ],
       "punctuation": [],
       "drop_table": [
-        {"item": "letter", "chance": 0.8, "count": 1},
-        {"item": "dot", "chance": 0.5, "count": 2}
+        {
+          "item": "letter",
+          "chance": 0.8,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.5,
+          "count": 2
+        }
       ],
       "dialogue_options": [
-        {"text": "Тень не говорит. Но ты... другой. Иди.", "result": "slow"}
+        {
+          "text": "Тень не говорит. Но ты... другой. Иди.",
+          "result": "slow"
+        }
       ]
     },
     {
@@ -66,17 +119,31 @@
       "symbol": "!",
       "hp": 90,
       "behavior": "aggressive",
-      "detection_radius": 200.0,
-      "attack_radius": 80.0,
-      "speed": 100.0,
-      "letters": ["А", "Б"],
+      "detection_radius": 200,
+      "attack_radius": 80,
+      "speed": 100,
+      "letters": [
+        "А",
+        "Б"
+      ],
       "punctuation": [],
       "drop_table": [
-        {"item": "letter", "chance": 1.0, "count": 1},
-        {"item": "letter", "chance": 0.5, "count": 1}
+        {
+          "item": "letter",
+          "chance": 1,
+          "count": 1
+        },
+        {
+          "item": "letter",
+          "chance": 0.5,
+          "count": 1
+        }
       ],
       "dialogue_options": [
-        {"text": "Гррр... Ты пахнешь не врагом. Уходи пока я не передумал.", "result": "slow"}
+        {
+          "text": "Гррр... Ты пахнешь не врагом. Уходи пока я не передумал.",
+          "result": "slow"
+        }
       ]
     },
     {
@@ -85,19 +152,43 @@
       "symbol": "!",
       "hp": 120,
       "behavior": "aggressive",
-      "detection_radius": 250.0,
-      "attack_radius": 80.0,
-      "speed": 90.0,
-      "letters": ["А", "Е", "Б", "В", "Г"],
+      "detection_radius": 250,
+      "attack_radius": 80,
+      "speed": 90,
+      "letters": [
+        "А",
+        "Е",
+        "Б",
+        "В",
+        "Г"
+      ],
       "punctuation": [],
       "drop_table": [
-        {"item": "letter", "chance": 1.0, "count": 1},
-        {"item": "letter", "chance": 1.0, "count": 1},
-        {"item": "letter", "chance": 0.5, "count": 1}
+        {
+          "item": "letter",
+          "chance": 1,
+          "count": 1
+        },
+        {
+          "item": "letter",
+          "chance": 1,
+          "count": 1
+        },
+        {
+          "item": "letter",
+          "chance": 0.5,
+          "count": 1
+        }
       ],
       "dialogue_options": [
-        {"text": "Я — Двуязыкий, язык колдуна в этом лесу. Две гласные на устах, три согласные на щите. Ты не пройдёшь.", "result": "slow"},
-        {"text": "Колдун слышит тебя через мои уста. Каждое твоё слово — ему на ухо. Бойся.", "result": "slow"}
+        {
+          "text": "Я — Двуязыкий, язык колдуна в этом лесу. Две гласные на устах, три согласные на щите. Ты не пройдёшь.",
+          "result": "slow"
+        },
+        {
+          "text": "Колдун слышит тебя через мои уста. Каждое твоё слово — ему на ухо. Бойся.",
+          "result": "slow"
+        }
       ]
     },
     {
@@ -106,21 +197,45 @@
       "symbol": "!",
       "hp": 140,
       "behavior": "aggressive",
-      "detection_radius": 175.0,
-      "attack_radius": 72.0,
-      "speed": 78.0,
-      "letters": ["А", "В", "К"],
+      "detection_radius": 175,
+      "attack_radius": 72,
+      "speed": 78,
+      "letters": [
+        "А",
+        "В",
+        "К"
+      ],
       "punctuation": [],
       "drawn": true,
       "drop_table": [
-        {"item": "letter", "chance": 0.9, "count": 1},
-        {"item": "letter", "chance": 0.4, "count": 1}
+        {
+          "item": "letter",
+          "chance": 0.9,
+          "count": 1
+        },
+        {
+          "item": "letter",
+          "chance": 0.4,
+          "count": 1
+        }
       ],
       "dialogue_options": [
-        {"text": "Гххрр... Лес слышит тебя. Каждый шаг — нашему хозяину на ухо.", "result": "slow"},
-        {"text": "Ты принёс буквы? Глупец. Здесь они обращаются в пепел.", "result": "slow"},
-        {"text": "Я был как ты... пока не услышал голос деревьев. Теперь я — страж чащи.", "result": "slow"},
-        {"text": "Хозяин запретил слова. Только рык. Только когти. Уходи, пока можешь.", "result": "slow"}
+        {
+          "text": "Гххрр... Лес слышит тебя. Каждый шаг — нашему хозяину на ухо.",
+          "result": "slow"
+        },
+        {
+          "text": "Ты принёс буквы? Глупец. Здесь они обращаются в пепел.",
+          "result": "slow"
+        },
+        {
+          "text": "Я был как ты... пока не услышал голос деревьев. Теперь я — страж чащи.",
+          "result": "slow"
+        },
+        {
+          "text": "Хозяин запретил слова. Только рык. Только когти. Уходи, пока можешь.",
+          "result": "slow"
+        }
       ]
     },
     {
@@ -129,23 +244,51 @@
       "symbol": "!",
       "hp": 150,
       "behavior": "aggressive",
-      "detection_radius": 260.0,
-      "attack_radius": 85.0,
-      "speed": 95.0,
-      "letters": ["А", "Б", "В", "Е", "К", "М"],
+      "detection_radius": 260,
+      "attack_radius": 85,
+      "speed": 95,
+      "letters": [
+        "А",
+        "Б",
+        "В",
+        "Е",
+        "К",
+        "М"
+      ],
       "punctuation": [],
       "drawn": true,
       "is_sorcerer_minion": true,
       "draw_type": "znak",
       "drop_table": [
-        {"item": "letter", "chance": 1.0, "count": 1},
-        {"item": "letter", "chance": 1.0, "count": 1},
-        {"item": "letter", "chance": 0.7, "count": 1}
+        {
+          "item": "letter",
+          "chance": 1,
+          "count": 1
+        },
+        {
+          "item": "letter",
+          "chance": 1,
+          "count": 1
+        },
+        {
+          "item": "letter",
+          "chance": 0.7,
+          "count": 1
+        }
       ],
       "dialogue_options": [
-        {"text": "Я — Знак, десница Хранителя Запрета. Знаки — моя сила. Ты не пройдёшь через дубы.", "result": "slow"},
-        {"text": "Колдун дал мне имя. Имя — это власть. А у тебя имени нет.", "result": "slow"},
-        {"text": "Каждый знак препинания — мой слуга. Запятая замедлит тебя. Точка остановит.", "result": "slow"}
+        {
+          "text": "Я — Знак, десница Хранителя Запрета. Знаки — моя сила. Ты не пройдёшь через дубы.",
+          "result": "slow"
+        },
+        {
+          "text": "Колдун дал мне имя. Имя — это власть. А у тебя имени нет.",
+          "result": "slow"
+        },
+        {
+          "text": "Каждый знак препинания — мой слуга. Запятая замедлит тебя. Точка остановит.",
+          "result": "slow"
+        }
       ]
     },
     {
@@ -154,23 +297,51 @@
       "symbol": "!",
       "hp": 140,
       "behavior": "aggressive",
-      "detection_radius": 280.0,
-      "attack_radius": 82.0,
-      "speed": 105.0,
-      "letters": ["О", "А", "Р", "Д", "Т", "Н"],
+      "detection_radius": 280,
+      "attack_radius": 82,
+      "speed": 105,
+      "letters": [
+        "О",
+        "А",
+        "Р",
+        "Д",
+        "Т",
+        "Н"
+      ],
       "punctuation": [],
       "drawn": true,
       "is_sorcerer_minion": true,
       "draw_type": "zvuk",
       "drop_table": [
-        {"item": "letter", "chance": 1.0, "count": 1},
-        {"item": "letter", "chance": 1.0, "count": 1},
-        {"item": "letter", "chance": 0.7, "count": 1}
+        {
+          "item": "letter",
+          "chance": 1,
+          "count": 1
+        },
+        {
+          "item": "letter",
+          "chance": 1,
+          "count": 1
+        },
+        {
+          "item": "letter",
+          "chance": 0.7,
+          "count": 1
+        }
       ],
       "dialogue_options": [
-        {"text": "Я — Звук, шуйца Хранителя Запрета. Звуки — моё оружие. Слова рассыпаются предо мной.", "result": "slow"},
-        {"text": "Колдун украл речь. То, что ты слышишь — лишь эхо. А я — гром.", "result": "slow"},
-        {"text": "Гласные кричат, согласные стонут. Всё это — моя симфония ужаса.", "result": "slow"}
+        {
+          "text": "Я — Звук, шуйца Хранителя Запрета. Звуки — моё оружие. Слова рассыпаются предо мной.",
+          "result": "slow"
+        },
+        {
+          "text": "Колдун украл речь. То, что ты слышишь — лишь эхо. А я — гром.",
+          "result": "slow"
+        },
+        {
+          "text": "Гласные кричат, согласные стонут. Всё это — моя симфония ужаса.",
+          "result": "slow"
+        }
       ]
     },
     {
@@ -179,26 +350,225 @@
       "symbol": "!",
       "hp": 500,
       "behavior": "aggressive",
-      "detection_radius": 420.0,
-      "attack_radius": 120.0,
-      "speed": 80.0,
-      "letters": ["Я", "Ю", "Э", "Ь", "Ы", "Ъ", "Щ", "Ш", "А", "О"],
+      "detection_radius": 420,
+      "attack_radius": 120,
+      "speed": 80,
+      "letters": [
+        "Я",
+        "Ю",
+        "Э",
+        "Ь",
+        "Ы",
+        "Ъ",
+        "Щ",
+        "Ш",
+        "А",
+        "О"
+      ],
       "punctuation": [],
       "drawn": true,
       "is_final_boss": true,
       "draw_type": "znak",
       "drop_table": [
-        {"item": "letter", "chance": 1.0, "count": 1},
-        {"item": "letter", "chance": 1.0, "count": 1},
-        {"item": "letter", "chance": 1.0, "count": 1},
-        {"item": "letter", "chance": 1.0, "count": 1},
-        {"item": "letter", "chance": 1.0, "count": 1}
+        {
+          "item": "letter",
+          "chance": 1,
+          "count": 1
+        },
+        {
+          "item": "letter",
+          "chance": 1,
+          "count": 1
+        },
+        {
+          "item": "letter",
+          "chance": 1,
+          "count": 1
+        },
+        {
+          "item": "letter",
+          "chance": 1,
+          "count": 1
+        },
+        {
+          "item": "letter",
+          "chance": 1,
+          "count": 1
+        }
       ],
       "dialogue_options": [
-        {"text": "Я — Хранитель Запрета. Я разбросал буквы по тёмным землям и наложил проклятье молчания. Ты пришёл вернуть алфавит? Глупец.", "result": "slow"},
-        {"text": "Слова — это власть. Власть — это опасность. Я спас этот мир от речи. А ты хочешь вернуть хаос букв.", "result": "slow"},
-        {"text": "Мои слуги — Знак и Звук, мои десница и шуйца. За мной — колода из всех 33 букв. Ты не пройдёшь.", "result": "slow"},
-        {"text": "В Колодце Букв я черпаю силу алфавита. Каждая твоя буква была моей. И снова станет моей.", "result": "slow"}
+        {
+          "text": "Я — Хранитель Запрета. Я разбросал буквы по тёмным землям и наложил проклятье молчания. Ты пришёл вернуть алфавит? Глупец.",
+          "result": "slow"
+        },
+        {
+          "text": "Слова — это власть. Власть — это опасность. Я спас этот мир от речи. А ты хочешь вернуть хаос букв.",
+          "result": "slow"
+        },
+        {
+          "text": "Мои слуги — Знак и Звук, мои десница и шуйца. За мной — колода из всех 33 букв. Ты не пройдёшь.",
+          "result": "slow"
+        },
+        {
+          "text": "В Колодце Букв я черпаю силу алфавита. Каждая твоя буква была моей. И снова станет моей.",
+          "result": "slow"
+        }
+      ]
+    },
+    {
+      "id": "longtongue",
+      "name": "Длинноязыкий",
+      "symbol": "ling",
+      "hp": 60,
+      "behavior": "aggressive",
+      "detection_radius": 160,
+      "attack_radius": 70,
+      "speed": 75,
+      "letters": [
+        "Е",
+        "О"
+      ],
+      "punctuation": [],
+      "draw_type": "longtongue",
+      "draw": true,
+      "drop_table": [
+        {
+          "item": "letter",
+          "chance": 0.85,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.6,
+          "count": 2
+        }
+      ],
+      "dialogue_options": [
+        {
+          "text": "Длинный язык — длинная ложь. Но ты... ты вкусно пахнешь правдой.",
+          "result": "slow"
+        },
+        {
+          "text": "Сссслушай шшшшёпот моего языка. Он знает твои буквы.",
+          "result": "slow"
+        }
+      ]
+    },
+    {
+      "id": "big_ears",
+      "name": "Слушач",
+      "symbol": "ear",
+      "hp": 90,
+      "behavior": "aggressive",
+      "detection_radius": 320,
+      "attack_radius": 65,
+      "speed": 70,
+      "letters": [
+        "В",
+        "Г"
+      ],
+      "punctuation": [],
+      "draw_type": "big_ears",
+      "draw": true,
+      "drop_table": [
+        {
+          "item": "letter",
+          "chance": 0.85,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.7,
+          "count": 3
+        }
+      ],
+      "dialogue_options": [
+        {
+          "text": "Я слышу твой трепет за сто шагов. Мои уши не знают покоя.",
+          "result": "slow"
+        },
+        {
+          "text": "Каждое твоё слово — мой обед. Молчи, и я не услышу.",
+          "result": "slow"
+        }
+      ]
+    },
+    {
+      "id": "big_eyes",
+      "name": "Зрячий",
+      "symbol": "eye",
+      "hp": 80,
+      "behavior": "aggressive",
+      "detection_radius": 240,
+      "attack_radius": 80,
+      "speed": 60,
+      "letters": [
+        "Ф",
+        "Х"
+      ],
+      "punctuation": [],
+      "draw_type": "big_eyes",
+      "draw": true,
+      "drop_table": [
+        {
+          "item": "letter",
+          "chance": 0.85,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.7,
+          "count": 3
+        }
+      ],
+      "dialogue_options": [
+        {
+          "text": "Глаза... мои глаза видят тебя сквозь мох, тьму и ложь.",
+          "result": "slow"
+        },
+        {
+          "text": "Не прячься. Я всё равно найду. Глазам Запрета нет преград.",
+          "result": "slow"
+        }
+      ]
+    },
+    {
+      "id": "big_mouth",
+      "name": "Жор",
+      "symbol": "maw",
+      "hp": 130,
+      "behavior": "aggressive",
+      "detection_radius": 180,
+      "attack_radius": 95,
+      "speed": 50,
+      "letters": [
+        "Ж",
+        "Ш"
+      ],
+      "punctuation": [],
+      "draw_type": "big_mouth",
+      "draw": true,
+      "drop_table": [
+        {
+          "item": "letter",
+          "chance": 0.9,
+          "count": 2
+        },
+        {
+          "item": "dot",
+          "chance": 0.8,
+          "count": 4
+        }
+      ],
+      "dialogue_options": [
+        {
+          "text": "РОТ. ГОЛОД. БУКВЫ. ДАЙ.",
+          "result": "slow"
+        },
+        {
+          "text": "Я проглочу твой алфавит целиком. А ты — по одной.",
+          "result": "slow"
+        }
       ]
     }
   ]

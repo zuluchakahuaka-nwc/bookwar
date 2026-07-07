@@ -151,7 +151,18 @@ func setup_generic(map_id: String) -> void:
 
 # Monster-id pool for the ! army on a given 0-based level index. Tiers escalate:
 # early = beasts, mid = shadow/dark wolves, late = elite + wizard's minions.
+# §18.5: named creatures per region (longtongue/big_ears/big_eyes/big_mouth)
+# are mixed in for levels 2-5 (idx 1-4) to give each map a unique feel.
 static func _enemy_pool_for_level(idx: int) -> Array[String]:
+	match idx:
+		1:  # Карта 2: Лес Двубуквия — Longtongue
+			return ["longtongue", "forest_creature", "exclamation"]
+		2:  # Карта 3: Дремучие Дубы — Big Ears (Слушач)
+			return ["big_ears", "forest_creature", "dark_wolf"]
+		3:  # Карта 4: Мшистое Низовье — Big Eyes (Зрячий)
+			return ["big_eyes", "shadow_lurker", "dark_wolf"]
+		4:  # Карта 5: Гнилые Болота — Big Mouth (Жор)
+			return ["big_mouth", "shadow_lurker", "forest_creature"]
 	if idx <= 8:
 		return ["forest_creature", "dark_wolf", "exclamation"]
 	if idx <= 15:
