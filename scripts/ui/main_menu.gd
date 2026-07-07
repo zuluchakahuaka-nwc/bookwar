@@ -47,6 +47,7 @@ func _ready() -> void:
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("window.gameLoaded = true; window.gameMenuVisible = true;")
 		JavaScriptBridge.eval("window.gameClickNewGame = function() { window._godotNewGame = true; };")
+		JavaScriptBridge.eval("window.gameClickContinue = function() { window._godotContinue = true; };")
 		JavaScriptBridge.eval("window.gameClickManual = function() { window._godotToggleManual = true; };")
 		JavaScriptBridge.eval("window.gameClickLegend = function() { window._godotLegend = true; };")
 		JavaScriptBridge.eval("window.gameIsManualOpen = function() { return !!(window.gameManualVisible||false); };")
@@ -302,6 +303,9 @@ func _process(_delta: float) -> void:
 	if JavaScriptBridge.eval("typeof window._godotNewGame !== 'undefined' && window._godotNewGame"):
 		JavaScriptBridge.eval("window._godotNewGame = false;")
 		_on_new_game()
+	if JavaScriptBridge.eval("typeof window._godotContinue !== 'undefined' && window._godotContinue"):
+		JavaScriptBridge.eval("window._godotContinue = false;")
+		_on_continue()
 	if JavaScriptBridge.eval("typeof window._godotToggleManual !== 'undefined' && window._godotToggleManual"):
 		JavaScriptBridge.eval("window._godotToggleManual = false;")
 		_toggle_manual()
