@@ -282,9 +282,9 @@ func start_quest_for_map(map_id: String) -> void:
 	if not active_quests.is_empty():
 		active_quest = active_quests[0]
 	_sync_quest_js_bridge()
-	# Toast: показать квесты карты
+	# Toast: показать квесты карты + подсказка про журнал
 	if not active_quests.is_empty():
-		var msg: String = "📜 Квестов на карте: " + str(active_quests.size())
+		var msg: String = "📜 Квестов на карте: " + str(active_quests.size()) + "  [Q — журнал]"
 		toast_requested.emit(msg)
 
 func quest_progress_defeat() -> void:
