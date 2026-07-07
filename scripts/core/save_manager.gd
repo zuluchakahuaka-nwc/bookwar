@@ -94,7 +94,11 @@ func _serialize_game() -> Dictionary:
 		"collected_items": GameState.collected_items,
 		"recruits": GameState.recruits,
 		"selected_hero": GameState.selected_hero,
-		"saved_player_position": { "x": GameState.saved_player_position.x, "y": GameState.saved_player_position.y }
+		"saved_player_position": { "x": GameState.saved_player_position.x, "y": GameState.saved_player_position.y },
+		# Q6 (2026-07-07): persist quest progress so reload doesn't lose completed/half-done quests
+		"completed_quest_ids": GameState.completed_quest_ids,
+		"quest_defeat_progress": GameState.quest_defeat_progress,
+		"completed_quests": GameState.completed_quests  # legacy single-quest map_ids
 	}
 
 func _serialize_inventory() -> Dictionary:
@@ -127,6 +131,23 @@ func _apply_game(g: Dictionary) -> void:
 	if g.has("saved_player_position"):
 		var p: Dictionary = g["saved_player_position"]
 		GameState.saved_player_position = Vector2(float(p.get("x", -1.0)), float(p.get("y", -1.0)))
+	# Q6 (2026-07-07): restore quest progress
+	if g.has("completed_quest_ids"):
+		var ids: Variant = g["completed_quest_ids"]
+		if ids is Array:
+			GameState.completed_quest_ids.clear()
+			for qid: String in ids:
+				GameState.completed_quest_ids.append(String(qid))
+	if g.has("quest_defeat_progress"):
+		var prog: Variant = g["quest_defeat_progress"]
+		if prog is Dictionary:
+			GameState.quest_defeat_progress = prog.duplicate()
+	if g.has("completed_quests"):
+		var cq: Variant = g["completed_quests"]
+		if cq is Array:
+			GameState.completed_quests.clear()
+			for mid: String in cq:
+				GameState.completed_quests.append(String(mid))
 
 func _apply_inventory(i: Dictionary) -> void:
 	# Letters
