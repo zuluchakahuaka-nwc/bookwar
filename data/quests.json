@@ -298,6 +298,291 @@
         "letter": "Ф",
         "count": 1
       }
+    },
+    {
+      "id": "forgotten_ruins_q1",
+      "map_id": "forgotten_ruins",
+      "npc_name": "Архивариус",
+      "type": "collect",
+      "description": "Собери 4 буквы «К» — восстановим слово «Книга» в каталоге.",
+      "requirement": {
+        "letter": "К",
+        "count": 4
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Ш",
+        "count": 1
+      }
+    },
+    {
+      "id": "forgotten_ruins_q2",
+      "map_id": "forgotten_ruins",
+      "npc_name": "Библиотекарь Призрак",
+      "type": "talk",
+      "description": "Передай мой прощальный стих Призрачному Поэту на востоке.",
+      "requirement": {
+        "target_npc": "Призрачный Поэт"
+      },
+      "reward": {
+        "type": "dots",
+        "amount": 40
+      }
+    },
+    {
+      "id": "misty_grove_q1",
+      "map_id": "misty_grove",
+      "npc_name": "Туманная Дева",
+      "type": "defeat",
+      "description": "Туман сводит с ума тварей. Избавь 9 из них от страданий.",
+      "requirement": {
+        "count": 9
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Й",
+        "count": 1
+      }
+    },
+    {
+      "id": "misty_grove_q2",
+      "map_id": "misty_grove",
+      "npc_name": "Древний Дуб",
+      "type": "buy",
+      "description": "30 буквиц — и я поделюсь мудростью корней. Дешевле не найдёшь.",
+      "cost": {
+        "resource": "dots",
+        "amount": 30
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Й",
+        "count": 1
+      }
+    },
+    {
+      "id": "grey_forest_q1",
+      "map_id": "grey_forest",
+      "npc_name": "Серый Страж",
+      "type": "collect",
+      "description": "5 букв «Б» — выкуешь мне щит из крепких согласных.",
+      "requirement": {
+        "letter": "Б",
+        "count": 5
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Ъ",
+        "count": 2
+      }
+    },
+    {
+      "id": "grey_forest_q2",
+      "map_id": "grey_forest",
+      "npc_name": "Дитя Тени",
+      "type": "trade",
+      "description": "Обменяй мою «Щ» на твою «Ъ». Тень становится камнем.",
+      "give": {
+        "letter": "Ъ"
+      },
+      "receive": {
+        "letter": "Щ"
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Щ",
+        "count": 2
+      }
+    },
+    {
+      "id": "wind_pass_q1",
+      "map_id": "wind_pass",
+      "npc_name": "Страж Ветров",
+      "type": "defeat",
+      "description": "Ветер унёс моих братьев. Отомсти — одолей 10 крылатых тварей.",
+      "requirement": {
+        "count": 10
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Ё",
+        "count": 1
+      }
+    },
+    {
+      "id": "wind_pass_q2",
+      "map_id": "wind_pass",
+      "npc_name": "Птицелов",
+      "type": "collect",
+      "description": "3 буквы «У» — и я научу тебя свисту ветра.",
+      "requirement": {
+        "letter": "У",
+        "count": 3
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Ё",
+        "count": 1
+      }
+    },
+    {
+      "id": "ice_pincers_q1",
+      "map_id": "ice_pincers",
+      "npc_name": "Ледяная Ведьма",
+      "type": "buy",
+      "description": "40 буквиц за редчайшую «И». Последняя в моей коллекции.",
+      "cost": {
+        "resource": "dots",
+        "amount": 40
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "И",
+        "count": 1
+      }
+    },
+    {
+      "id": "ice_pincers_q2",
+      "map_id": "ice_pincers",
+      "npc_name": "Морж",
+      "type": "defeat",
+      "description": "Ледяные твари плодятся. Одолей 11 — открою тебе тайну льда.",
+      "requirement": {
+        "count": 11
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "И",
+        "count": 1
+      }
+    },
+    {
+      "id": "mountain_caves_q1",
+      "map_id": "mountain_caves",
+      "npc_name": "Гном-Кузнец",
+      "type": "collect",
+      "description": "4 буквы «У» — выкую тебе ледяной клинок из горных недр.",
+      "requirement": {
+        "letter": "У",
+        "count": 4
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "У",
+        "count": 2
+      }
+    },
+    {
+      "id": "mountain_caves_q2",
+      "map_id": "mountain_caves",
+      "npc_name": "Каменный Жрец",
+      "type": "trade",
+      "description": "Обменяю «У» на твою редкую «Ё». Камень любит редкости.",
+      "give": {
+        "letter": "Ё"
+      },
+      "receive": {
+        "letter": "У"
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "У",
+        "count": 2
+      }
+    },
+    {
+      "id": "deep_mines_q1",
+      "map_id": "deep_mines",
+      "npc_name": "Шахтёр Призрак",
+      "type": "defeat",
+      "description": "Шахты прокляты. Одолей 12 пожирателей руды — и я упокоюсь.",
+      "requirement": {
+        "count": 12
+      },
+      "reward": {
+        "type": "dots",
+        "amount": 60
+      }
+    },
+    {
+      "id": "catacombs_silence_q1",
+      "map_id": "catacombs_silence",
+      "npc_name": "Молчаливый Монах",
+      "type": "talk",
+      "description": "Помолчи со мной у древнего алтаря. Тишина — тоже слово.",
+      "requirement": {
+        "target_npc": "Алтарь Молчания"
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Й",
+        "count": 2
+      }
+    },
+    {
+      "id": "catacombs_silence_q2",
+      "map_id": "catacombs_silence",
+      "npc_name": "Хранитель Эха",
+      "type": "defeat",
+      "description": "Эхо répетï слова Запрета. Одолей 13 тварей — эхо умолкнет.",
+      "requirement": {
+        "count": 13
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Ш",
+        "count": 2
+      }
+    },
+    {
+      "id": "vaults_oblivion_q1",
+      "map_id": "vaults_oblivion",
+      "npc_name": "Призрак Короля",
+      "type": "collect",
+      "description": "Собери 5 букв «Щ» — восстановишь имя моего павшего королевства.",
+      "requirement": {
+        "letter": "Щ",
+        "count": 5
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Ц",
+        "count": 2
+      }
+    },
+    {
+      "id": "vaults_oblivion_q2",
+      "map_id": "vaults_oblivion",
+      "npc_name": "Криптарь",
+      "type": "buy",
+      "description": "50 буквиц за «Ч». Не вопрос — забери всю мою казну.",
+      "cost": {
+        "resource": "dots",
+        "amount": 50
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Ч",
+        "count": 2
+      }
+    },
+    {
+      "id": "underground_river_q1",
+      "map_id": "underground_river",
+      "npc_name": "Чёрный Лодочник",
+      "type": "trade",
+      "description": "Перевезу тебя через реку за букву «Я». Иначе утонешь в забвении.",
+      "give": {
+        "letter": "Я"
+      },
+      "receive": {
+        "letter": "Ч"
+      },
+      "reward": {
+        "type": "letter",
+        "letter": "Ч",
+        "count": 2
+      }
     }
   ],
   "_templates": {
