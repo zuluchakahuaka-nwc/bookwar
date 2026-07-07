@@ -123,7 +123,13 @@ func _build_quest_card(q: Dictionary) -> Control:
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(0.12, 0.10, 0.15, 0.95)
-	sb.border_color = Color(0.45, 0.38, 0.22, 0.8)
+	# Q6: подсветка зелёной рамкой если квест готов к сдаче
+	var can_complete_now: bool = QuestData.can_complete(q)
+	if can_complete_now:
+		sb.border_color = Color(0.40, 0.85, 0.45, 1.0)  # зелёная рамка
+		sb.bg_color = Color(0.10, 0.18, 0.12, 0.96)  # чуть зелёный фон
+	else:
+		sb.border_color = Color(0.45, 0.38, 0.22, 0.8)
 	sb.border_width_left = 2
 	sb.border_width_right = 2
 	sb.border_width_top = 2
@@ -142,8 +148,9 @@ func _build_quest_card(q: Dictionary) -> Control:
 	var type_label := Label.new()
 	var qtype: String = String(q.get("type", ""))
 	var npc: String = String(q.get("npc_name", ""))
+	# Тип квеста текстом — эмодзи в Godot default шрифте не рендерятся в HTML5
 	type_label.text = "[" + qtype.to_upper() + "]  " + npc
-	type_label.add_theme_font_size_override("font_size", 18)
+	type_label.add_theme_font_size_override("font_size", 20)
 	type_label.add_theme_color_override("font_color", Color(0.85, 0.65, 0.30, 1))
 	col.add_child(type_label)
 
@@ -155,7 +162,7 @@ func _build_quest_card(q: Dictionary) -> Control:
 	desc.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	col.add_child(desc)
 
-	# Progress / status
+	# Progress / status — Q6: для collect показываем N/M, для defeat тоже
 	var status := Label.new()
 	status.add_theme_font_size_override("font_size", 16)
 	if qtype == "defeat":
@@ -164,9 +171,15 @@ func _build_quest_card(q: Dictionary) -> Control:
 		var target: int = int(q.get("requirement", {}).get("count", 0))
 		status.text = "Прогресс: " + str(prog) + " / " + str(target)
 		status.add_theme_color_override("font_color", Color(0.6, 0.85, 0.55, 1))
+	elif qtype == "collect":
+		# Q6: для collect показываем сколько букв уже есть
+		var letter: String = String(q.get("requirement", {}).get("letter", ""))
+		var have: int = InventoryManager.get_letter_level(letter)
+		var need: int = int(q.get("requirement", {}).get("count", 0))
+		status.text = "Прогресс: " + str(have) + " / " + str(need) + " букв «" + letter + "»"
+		status.add_theme_color_override("font_color", Color(0.6, 0.85, 0.55, 1))
 	else:
-		var can_now: bool = QuestData.can_complete(q)
-		if can_now:
+		if can_complete_now:
 			status.text = "✓ Можно сдать у NPC"
 			status.add_theme_color_override("font_color", Color(0.55, 0.95, 0.55, 1))
 		else:
