@@ -102,6 +102,11 @@ func open() -> void:
 		JavaScriptBridge.eval("window.gameInventoryVisible = true;")
 	_update_bridge()
 
+# §16 — Кузнец Слов вызывает это чтобы открыть крафт сразу.
+func open_craft_panel() -> void:
+	if _craft_section and not _craft_section.visible:
+		_toggle_craft()
+
 func close() -> void:
 	_is_open = false
 	visible = false

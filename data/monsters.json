@@ -570,6 +570,36 @@
           "result": "slow"
         }
       ]
+    },
+    {
+      "id": "wordsmith",
+      "name": "Кузнец Слов",
+      "symbol": "smith",
+      "hp": 200,
+      "behavior": "patrol",
+      "detection_radius": 0,
+      "attack_radius": 0,
+      "speed": 0,
+      "letters": [],
+      "punctuation": [],
+      "draw_type": "wordsmith",
+      "draw": true,
+      "is_friendly": true,
+      "drop_table": [],
+      "dialogue_options": [
+        {
+          "text": "Приветствую, искатель букв! Я Кузнец Слов. Принеси мне исходную букву и модификатор (Ь или апостроф) — и я выкую тебе новую.",
+          "result": "info"
+        },
+        {
+          "text": "Крафт — основа силы алфавита. Из слабых букв куётся мощь.",
+          "result": "info"
+        },
+        {
+          "text": "Открой инвентарь [I], нажми Craft [+], выбери пару. Удачи!",
+          "result": "info"
+        }
+      ]
     }
   ]
 }

@@ -7,8 +7,10 @@ func setup_light_valley() -> void:
 	var p: Vector2 = BookwarConst.PLAYER_START
 	var q_scene: PackedScene = preload("res://scenes/characters/monsters/question_monster.tscn")
 	var e_scene: PackedScene = preload("res://scenes/characters/monsters/exclamation_monster.tscn")
-	# Ring 1 — near start (300-600px): ? monsters only, safe zone
+	var smith_scene: PackedScene = preload("res://scenes/characters/monsters/question_monster.tscn")
+	# §16: Кузнец Слов — friendly NPC в деревне (карта 1). Стоит у края старта.
 	_spawn_points = [
+		{"scene": smith_scene, "pos": Vector2(p.x - 400, p.y - 300), "monster_id": "wordsmith"},
 		{"scene": q_scene, "pos": Vector2(p.x + 350, p.y)},
 		{"scene": q_scene, "pos": Vector2(p.x - 200, p.y - 250)},
 		{"scene": q_scene, "pos": Vector2(p.x + 450, p.y - 150)},
