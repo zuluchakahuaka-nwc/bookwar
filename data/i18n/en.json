@@ -10,7 +10,6 @@
   "menu.reset_save": "Reset Save",
   "menu.hint": "WASD — move | E — pick up | I — inventory | T — speak",
   "menu.language": "Language",
-
   "prologue.skip": "Skip the legend >>",
   "prologue.back": "← Back",
   "prologue.next": "Next →",
@@ -26,10 +25,8 @@
   "prologue.panel_5": "The sorcerer's minions use only the letters\nthat serve them, giving them their own meanings.\nNo one can check — all books are destroyed.",
   "prologue.panel_6": "The world will drown in lies —\nlest a hero gather the letters,\nthe hypocrites and liars shall prevail.",
   "prologue.panel_7": "You are the hero. You set out to reclaim the alphabet,\nto restore the truth.\n\nLETTERS ARE TRUTH. Gather them all.",
-
   "common.hp": "HP",
   "common.shield": "Shield",
-
   "hud.take": "Take",
   "hud.bag": "Bag",
   "hud.speech": "Speech",
@@ -40,7 +37,6 @@
   "hud.close_move": "[E/T or move] — close",
   "hud.close": "[E/T] — close",
   "hud.paused": "[ PAUSED ]\nSpace — resume",
-
   "battle.title": "BATTLE",
   "battle.player": "Player",
   "battle.enemy": "Enemy:",
@@ -67,10 +63,8 @@
   "battle.spell_unavailable": "Spell %s unavailable!",
   "battle.spell_cast": "Spell %s! Power %s",
   "battle.spell_used": "Spell %s already cast this turn.",
-
   "inv.title": "Inventory",
   "inv.punctuation": "Marks:",
-
   "craft.closed": "Craft [-]",
   "craft.open": "Craft [+]",
   "craft.source": "Source (letter):",
@@ -78,7 +72,6 @@
   "craft.transform": "Transform",
   "craft.no_modifiers": "no modifiers (need Ь)",
   "craft.select_both": "Select a letter and a modifier.",
-
   "region.light_valley": "Bright Valley",
   "region.two_letter_forest": "Two-Letter Forest",
   "region.dark_oaks": "Gloomy Oaks",
@@ -116,7 +109,6 @@
   "quest.defeat": "Defeat %s enemies in the region \"%s\"",
   "quest.done": "Quest complete! Reward: letter %s",
   "quest.done_toast": "★ Quest complete! Letter received: %s",
-
   "dialogue.waits": "%s awaits an answer.",
   "Староста": "Elder",
   "Тихий Странник": "Silent Wanderer",
@@ -134,7 +126,6 @@
   "У меня нет точек.": "I have no dots.",
   "Говорят, к северу от деревни спрятана буква А...": "They say the letter А is hidden north of the village...",
   "У тебя не хватает точек. Приходи позже.": "You don't have enough dots. Come back later.",
-
   "monster.znak": "Sign",
   "monster.zvuk": "Sound",
   "monster.name.question": "Doubt",
@@ -166,5 +157,40 @@
   "dir.close": "very close",
   "dir.near": "not far",
   "dir.far": "far, but I know the place",
-  "dir.hint": "Listen! Seek the letter %s %s — %s. %s."
+  "dir.hint": "Listen! Seek the letter %s %s — %s. %s.",
+  "hud.quests": "Quests",
+  "hud.stats": "Stats",
+  "questlog.title": "QUEST JOURNAL",
+  "questlog.hint": "[Q] close",
+  "questlog.empty": "No active quests on this map.",
+  "questlog.progress": "Progress:",
+  "questlog.can_hand_in": "✓ Ready to hand in",
+  "questlog.not_ready": "Requirement not yet met",
+  "questlog.reward": "Reward:",
+  "questlog.reward_letter": "letter",
+  "questlog.reward_dots": "tokens",
+  "questlog.completed_total": "completed total",
+  "stats.title": "HERO STATS",
+  "stats.hint": "[S] close",
+  "stats.map": "Map:",
+  "stats.maps_passed": "Maps passed:",
+  "stats.letters_collected": "Letters collected:",
+  "stats.quests_done": "Quests completed:",
+  "stats.recruits": "Allies (gang):",
+  "stats.dots": "Tokens (currency):",
+  "stats.letter_power": "Letter power (Σ power×level):",
+  "stats.full_alphabet": "★ Full alphabet collected!",
+  "stats.finale": "★ FINALE REACHED — alphabet restored!",
+  "quest.toast_count": "📜 Quests on map:",
+  "quest.toast_journal_hint": "[Q — journal]",
+  "progress.cleared": "100%  ✓ cleared",
+  "progress.portal_open": "⟶ portal open!",
+  "progress.to_portal": "(to portal",
+  "progress.percent_left": "%)",
+  "monster.wordsmith": "Word Smith",
+  "questtype.defeat": "DEFEAT",
+  "questtype.collect": "COLLECT",
+  "questtype.buy": "BUY",
+  "questtype.trade": "TRADE",
+  "questtype.talk": "TALK"
 }
