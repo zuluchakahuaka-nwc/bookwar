@@ -74,10 +74,39 @@
 - [ ] §16 Кузнец Слов как полноценный NPC (крафт через диалог)
 - [x] **Progress bar % зачистки в HUD** — `hud_ui.gd::_build_progress_bar` (2026-07-08)
 - [x] **Statistics screen** — `stats_screen.gd` + `stats_screen.tscn`, S-key/Tab (2026-07-08)
-- [ ] Decorative terrain (камни/деревья на карте)
+- [x] **Decorative terrain** — programmatically спавн цветы/грибы/камни/кристаллы/руны (2026-07-08)
 - [ ] Мультиплеер (Этап 6 — WebSocket сервер)
 - [ ] Android-версия (ANDROID_VERSION подпроект)
 - [ ] Localisation (en/es/de/ar/zh — AGENTS.md §2.0)
+
+---
+
+## 2026-07-08 (продолжение 3) — Decorative terrain
+
+### Что сделано
+- ✅ **Декоративные элементы окружения** через программный спавн Polygon2D:
+  - meadow (карты 1): цветы (4 лепестка разного цвета), пучки травы, мелкие камни
+  - forest (2-3): грибы (красные/коричневые), пучки травы, камни
+  - dark_forest (4-7): грибы, мёртвые листья, камни
+  - swamp (8-14): болотные пузыри, мёртвые листья
+  - caves (15-21): кристаллы (синие/фиолетовые/зелёные), камни, кости
+  - deep_dark (22-33): руны (горящие красным/синим/жёлтым), кости, кристаллы
+- ✅ `world_map.gd::_spawn_terrain_decor` — спавн 80-176 декоров на карту
+- ✅ `world_map.gd::_build_one_decor(biome, rng)` — выбирает тип по биому
+- ✅ 8 функций `_build_flower/_build_grass_tuft/_build_small_stone/_build_mushroom/_build_dead_leaf/_build_swamp_bubble/_build_crystal/_build_bone/_build_rune`
+
+### Технические детали
+- DecorLayer как Node2D child of world_map, z_index=1 (поверх тайлов)
+- Deterministic RNG: `rng.seed = hash(map_id + "_decor")` — одинаково при reload
+- Случайные rotation/scale для разнообразия
+
+### Bug fix
+- `world_map.gd:360` — сломанный отступ `elif` после `match _:` case (parse error).
+  Восстановил правильный отступ внутри `_:` блока.
+
+### Тесты
+- `snap_decor.js` — сохраняет 2 скриншота с разных точек карты 1
+- regression_smoke: 8/8 (после фикса syntax error)
 
 ---
 
