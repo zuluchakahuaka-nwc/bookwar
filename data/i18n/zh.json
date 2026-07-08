@@ -10,7 +10,6 @@
   "menu.reset_save": "清除存档",
   "menu.hint": "WASD — 移动 | E — 拾取 | I — 背包 | T — 交谈",
   "menu.language": "语言",
-
   "prologue.skip": "跳过传说 >>",
   "prologue.back": "← 上一步",
   "prologue.next": "下一步 →",
@@ -26,10 +25,8 @@
   "prologue.panel_5": "巫师的爪牙只使用\n对他们有利的字母，并赋予其自定的含义。\n无人能加以查证——所有典籍皆已毁坏。",
   "prologue.panel_6": "世界将沉沦于谎言之中——\n除非有英雄集齐字母，\n否则伪善者与说谎者将取得胜利。",
   "prologue.panel_7": "你就是那位英雄。你踏上征途，要夺回字母，\n重建真实。\n\n字母即真理。集齐它们吧。",
-
   "common.hp": "生命",
   "common.shield": "护盾",
-
   "hud.take": "拾取",
   "hud.bag": "背包",
   "hud.speech": "交谈",
@@ -40,7 +37,6 @@
   "hud.close_move": "[E/T 或移动] — 关闭",
   "hud.close": "[E/T] — 关闭",
   "hud.paused": "[ 已暂停 ]\n空格 — 继续",
-
   "battle.title": "战斗",
   "battle.player": "玩家",
   "battle.enemy": "敌人：",
@@ -67,10 +63,8 @@
   "battle.spell_unavailable": "法术 %s 不可用！",
   "battle.spell_cast": "法术 %s！威力 %s",
   "battle.spell_used": "法术 %s 本回合已施展过。",
-
   "inv.title": "背包",
   "inv.punctuation": "符号：",
-
   "craft.closed": "炼造 [-]",
   "craft.open": "炼造 [+]",
   "craft.source": "来源（字母）：",
@@ -78,7 +72,6 @@
   "craft.transform": "转化",
   "craft.no_modifiers": "无修饰符（需要 Ь）",
   "craft.select_both": "请选择字母与修饰符。",
-
   "region.light_valley": "光明谷",
   "region.two_letter_forest": "双字林",
   "region.dark_oaks": "幽暗橡林",
@@ -116,7 +109,6 @@
   "quest.defeat": "在「%s」区域击败 %s 名敌人",
   "quest.done": "任务完成！奖励：字母 %s",
   "quest.done_toast": "★ 任务完成！获得字母：%s",
-
   "dialogue.waits": "%s 等待回应。",
   "Староста": "长老",
   "Тихий Странник": "沉默的旅人",
@@ -134,7 +126,6 @@
   "У меня нет точек.": "我没有点。",
   "Говорят, к северу от деревни спрятана буква А...": "听说字母 А 就藏在村子北边……",
   "У тебя не хватает точек. Приходи позже.": "你的点不够。改日再来吧。",
-
   "monster.znak": "符",
   "monster.zvuk": "音",
   "monster.name.question": "疑影",
@@ -166,5 +157,40 @@
   "dir.close": "就在近旁",
   "dir.near": "不远",
   "dir.far": "很远，但我知道地方",
-  "dir.hint": "听着！去找字母 %s，%s——%s。%s。"
+  "dir.hint": "听着！去找字母 %s，%s——%s。%s。",
+  "hud.quests": "任务",
+  "hud.stats": "统计",
+  "questlog.title": "任务日志",
+  "questlog.hint": "[Q] 关闭",
+  "questlog.empty": "当前地图无活跃任务。",
+  "questlog.progress": "进度:",
+  "questlog.can_hand_in": "✓ 可交付",
+  "questlog.not_ready": "条件未满足",
+  "questlog.reward": "奖励:",
+  "questlog.reward_letter": "字母",
+  "questlog.reward_dots": "代币",
+  "questlog.completed_total": "已完成",
+  "stats.title": "英雄统计",
+  "stats.hint": "[S] 关闭",
+  "stats.map": "地图:",
+  "stats.maps_passed": "已完成地图:",
+  "stats.letters_collected": "字母:",
+  "stats.quests_done": "任务:",
+  "stats.recruits": "盟友:",
+  "stats.dots": "代币:",
+  "stats.letter_power": "字母力量:",
+  "stats.full_alphabet": "★ 完整字母表!",
+  "stats.finale": "★ 终局 — 字母表已恢复",
+  "quest.toast_count": "📜 任务:",
+  "quest.toast_journal_hint": "[Q — 日志]",
+  "progress.cleared": "100% ✓",
+  "progress.portal_open": "⟶ 传送门开启",
+  "progress.to_portal": "(到传送门",
+  "progress.percent_left": "%)",
+  "monster.wordsmith": "文字锻造师",
+  "questtype.defeat": "击败",
+  "questtype.collect": "收集",
+  "questtype.buy": "购买",
+  "questtype.trade": "交易",
+  "questtype.talk": "对话"
 }

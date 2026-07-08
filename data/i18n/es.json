@@ -10,7 +10,6 @@
   "menu.reset_save": "Borrar partida",
   "menu.hint": "WASD — moverse | E — recoger | I — inventario | T — hablar",
   "menu.language": "Idioma",
-
   "prologue.skip": "Saltar leyenda >>",
   "prologue.back": "← Atrás",
   "prologue.next": "Siguiente →",
@@ -26,10 +25,8 @@
   "prologue.panel_5": "Los secuaces del hechicero usan solo\nlas letras que les convienen y les dan su propio significado.\nNo hay forma de comprobarlo: todos los libros están destruidos.",
   "prologue.panel_6": "El mundo se hundirá en la mentira —\nsi un héroe no reúne las letras,\ntriunfarán los hipócritas y los mentirosos.",
   "prologue.panel_7": "Tú eres el héroe. Partes a recuperar el alfabeto,\na restaurar la verdad.\n\nLAS LETRAS SON VERDAD. Reúnelas todas.",
-
   "common.hp": "PV",
   "common.shield": "Escudo",
-
   "hud.take": "Tomar",
   "hud.bag": "Bolsa",
   "hud.speech": "Hablar",
@@ -40,7 +37,6 @@
   "hud.close_move": "[E/T o mover] — cerrar",
   "hud.close": "[E/T] — cerrar",
   "hud.paused": "[ PAUSA ]\nEspacio — continuar",
-
   "battle.title": "COMBATE",
   "battle.player": "Jugador",
   "battle.enemy": "Enemigo:",
@@ -67,10 +63,8 @@
   "battle.spell_unavailable": "¡Hechizo %s no disponible!",
   "battle.spell_cast": "¡Hechizo %s! Fuerza %s",
   "battle.spell_used": "El hechizo %s ya se lanzó este turno.",
-
   "inv.title": "Inventario",
   "inv.punctuation": "Signos:",
-
   "craft.closed": "Crear [-]",
   "craft.open": "Crear [+]",
   "craft.source": "Fuente (letra):",
@@ -78,7 +72,6 @@
   "craft.transform": "Transformar",
   "craft.no_modifiers": "sin modificadores (falta Ь)",
   "craft.select_both": "Elige una letra y un modificador.",
-
   "region.light_valley": "Valle Brillante",
   "region.two_letter_forest": "Bosque de Dos Letras",
   "region.dark_oaks": "Robles Sombríos",
@@ -116,7 +109,6 @@
   "quest.defeat": "Derrota a %s enemigos en la región «%s»",
   "quest.done": "¡Misión completa! Recompensa: letra %s",
   "quest.done_toast": "★ ¡Misión completa! Letra obtenida: %s",
-
   "dialogue.waits": "%s espera una respuesta.",
   "Староста": "Anciano",
   "Тихий Странник": "Viajero Silencioso",
@@ -134,7 +126,6 @@
   "У меня нет точек.": "No tengo puntos.",
   "Говорят, к северу от деревни спрятана буква А...": "Dicen que la letra А está oculta al norte del pueblo...",
   "У тебя не хватает точек. Приходи позже.": "No tienes puntos suficientes. Vuelve más tarde.",
-
   "monster.znak": "Signo",
   "monster.zvuk": "Sonido",
   "monster.name.question": "Duda",
@@ -166,5 +157,40 @@
   "dir.close": "muy cerca",
   "dir.near": "no lejos",
   "dir.far": "lejos, pero conozco el lugar",
-  "dir.hint": "¡Escucha! Busca la letra %s %s — %s. %s."
+  "dir.hint": "¡Escucha! Busca la letra %s %s — %s. %s.",
+  "hud.quests": "Misiones",
+  "hud.stats": "Stats",
+  "questlog.title": "DIARIO DE MISIONES",
+  "questlog.hint": "[Q] cerrar",
+  "questlog.empty": "Sin misiones activas.",
+  "questlog.progress": "Progreso:",
+  "questlog.can_hand_in": "✓ Listo para entregar",
+  "questlog.not_ready": "Requisito no cumplido",
+  "questlog.reward": "Recompensa:",
+  "questlog.reward_letter": "letra",
+  "questlog.reward_dots": "tokens",
+  "questlog.completed_total": "completadas",
+  "stats.title": "ESTADÍSTICAS",
+  "stats.hint": "[S] cerrar",
+  "stats.map": "Mapa:",
+  "stats.maps_passed": "Mapas completados:",
+  "stats.letters_collected": "Letras recogidas:",
+  "stats.quests_done": "Misiones:",
+  "stats.recruits": "Aliados:",
+  "stats.dots": "Tokens:",
+  "stats.letter_power": "Poder de letras:",
+  "stats.full_alphabet": "★ ¡Alfabeto completo!",
+  "stats.finale": "★ ¡FINAL — alfabeto restaurado!",
+  "quest.toast_count": "📜 Misiones:",
+  "quest.toast_journal_hint": "[Q — diario]",
+  "progress.cleared": "100% ✓",
+  "progress.portal_open": "⟶ portal abierto",
+  "progress.to_portal": "(al portal",
+  "progress.percent_left": "%)",
+  "monster.wordsmith": "Herrero de Palabras",
+  "questtype.defeat": "DERROTAR",
+  "questtype.collect": "RECUPERAR",
+  "questtype.buy": "COMPRAR",
+  "questtype.trade": "INTERCAMBIAR",
+  "questtype.talk": "HABLAR"
 }

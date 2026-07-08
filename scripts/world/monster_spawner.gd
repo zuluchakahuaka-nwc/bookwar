@@ -149,6 +149,9 @@ func setup_generic(map_id: String) -> void:
 	# Final boss: the evil wizard (Хранитель Запрета) — deep north of the start.
 	if is_final:
 		_spawn_points.append({"scene": e_scene, "pos": Vector2(p.x, p.y - 1050.0), "monster_id": BookwarConst.get_final_boss_id(), "boss": true, "boss_id": BookwarConst.get_final_boss_id()})
+	# §16: Кузнец Слов в городах/цитаделях (карты 1, 10, 24, 25, 30 — населённые локации)
+	if map_id in [BookwarConst.MAP_DARK_CATHEDRAL, BookwarConst.MAP_ABANDONED_VILLAGE, BookwarConst.MAP_OLD_CITADEL, BookwarConst.MAP_LABYRINTH_FEAR]:
+		_spawn_points.append({"scene": q_scene, "pos": Vector2(p.x - 400, p.y - 300), "monster_id": "wordsmith"})
 	_spawn_all()
 
 # Monster-id pool for the ! army on a given 0-based level index. Tiers escalate:
