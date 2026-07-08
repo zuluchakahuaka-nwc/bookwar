@@ -163,6 +163,14 @@ func setup_generic(map_id: String) -> void:
 # early = beasts, mid = shadow/dark wolves, late = elite + wizard's minions.
 # §18.5: named creatures per region (longtongue/big_ears/big_eyes/big_mouth)
 # are mixed in for levels 2-5 (idx 1-4) to give each map a unique feel.
+# §TODO#2: extended named creatures for maps 11-33.
+# Map N (1-based) corresponds to idx N-1. MAP_CHAIN order (constants.gd):
+#   [10]=forgotten_ruins, [12]=grey_forest, [14]=ice_pincers,
+#   [16]=deep_mines, [17]=catacombs_silence, [18]=vaults_oblivion,
+#   [19]=underground_river, [20]=flooded_temple, [21]=ruined_library,
+#   [22]=broken_bridge, [24]=old_citadel, [26]=black_tower,
+#   [27]=throne_void, [28]=hall_mirrors, [30]=chambers_ban,
+#   [31]=throne_keeper, [32]=well_of_letters.
 static func _enemy_pool_for_level(idx: int) -> Array[String]:
 	match idx:
 		1:  # Карта 2: Лес Двубуквия — Longtongue
@@ -183,6 +191,49 @@ static func _enemy_pool_for_level(idx: int) -> Array[String]:
 			return ["crystaloid", "shadow_lurker", "dark_wolf"]
 		9:  # Карта 10: Тёмный Собор — Dark Monk
 			return ["dark_monk", "shadow_lurker", "znak"]
+		10: # Карта 11: Забытые Руины — Silence Wraith
+			return ["silence_wraith", "shadow_lurker", "dark_wolf"]
+		12: # Карта 13: Серый Лес — Deep Miner (тёмные шахты под лесом)
+			return ["deep_miner", "dark_wolf", "shadow_lurker"]
+		14: # Карта 15: Ледяные Щипцы — River Horror (холодная вода)
+			return ["river_horror", "shadow_lurker", "dark_wolf"]
+		16: # Карта 17: Глубокие Шахты — Deep Miner (правильный биом)
+			return ["deep_miner", "shadow_lurker", "znak"]
+		17: # Карта 18: Катакомбы Молчания — Silence Wraith
+			return ["silence_wraith", "shadow_lurker", "znak"]
+		18: # Карта 19: Склепы Забвения — Drowned Seer
+			return ["drowned_seer", "dark_wolf", "znak"]
+		19: # Карта 20: Подземная Река — River Horror
+			return ["river_horror", "shadow_lurker", "dark_wolf"]
+		20: # Карта 21: Затопленный Храм — Drowned Seer
+			return ["drowned_seer", "shadow_lurker", "znak"]
+		22: # Карта 23: Разрушенный Мост — Bridge Troll
+			return ["bridge_troll", "dark_wolf", "shadow_lurker"]
+		24: # Карта 25: Старая Цитадель — Citadel Warden
+			return ["citadel_warden", "dark_wolf", "znak"]
+		26: # Карта 27: Чёрная Башня — Tower Specter
+			return ["tower_specter", "shadow_lurker", "znak"]
+		27: # Карта 28: Тронный Зал Пустоты — Void Thrall
+			return ["void_thrall", "shadow_lurker", "zvuk"]
+		28: # Карта 29: Зал Отражений — Mirror Shade
+			return ["mirror_shade", "dark_wolf", "znak"]
+		30: # Карта 31: Палаты Запрета — Baneful Sage
+			return ["baneful_sage", "shadow_lurker", "zvuk"]
+		31: # Карта 32: Трон Хранителя Запрета — Curse Knight
+			return ["curse_knight", "dark_wolf", "znak"]
+		32: # Карта 33: Колодец Букв — Alphabet Warden (финал)
+			return ["alphabet_warden", "shadow_lurker", "zvuk"]
+	# In-between even-idx levels (11, 13, 15, 21, 23, 25, 29): use tier-appropriate named
+	if idx == 11 or idx == 13:
+		return ["deep_miner", "shadow_lurker", "dark_wolf"]
+	if idx == 15:
+		return ["river_horror", "shadow_lurker", "dark_wolf"]
+	if idx == 21:
+		return ["drowned_seer", "dark_wolf", "shadow_lurker"]
+	if idx == 23 or idx == 25:
+		return ["citadel_warden", "dark_wolf", "shadow_lurker"]
+	if idx == 29:
+		return ["baneful_sage", "shadow_lurker", "znak"]
 	if idx <= 15:
 		return ["dark_wolf", "shadow_lurker", "forest_creature"]
 	if idx <= 22:
