@@ -77,7 +77,39 @@
 - [x] **Decorative terrain** — программный спавн (2026-07-08)
 - [x] **Локализация** — 8 локалей уже были, добавлены 35 новых ключей в en.json (2026-07-08)
 - [x] **Мультиплеер** — сервер `ANDROID_VERSION/server/server.js` работает (2026-07-08)
-- [ ] Android-версия (ANDROID_VERSION подпроект)
+- [x] **Android** — APK пересобран (152.4 MB) со всеми обновлениями (2026-07-08)
+
+**ВСЕ ЗАДАЧИ ПОЛЬЗОВАТЕЛЯ ЗАКРЫТЫ.**
+
+---
+
+## 2026-07-08 (продолжение 7) — Android APK rebuild
+
+### Что сделано
+- ✅ **Пересборка APK** со всеми обновлениями этой сессии
+- ✅ Pre-flight проверки прошли: android/build template, Android SDK, JDK — все OK
+- ✅ Godot export preset=Android, 105 шагов — все выполнены успешно
+- ✅ APK: `D:\Projects\BOOKWAR\builds\android\bookwar.apk` (152.4 MB)
+
+### Технические детали
+- `ANDROID_VERSION/scripts/dev/build_apk.ps1 -TimeoutSec 600` — exit=0
+- Reimport assets: 140s
+- Total build time: ~3 минуты (incremental)
+- Включает: Q1-Q6 quest system, §20 инверсия, §18.5 named creatures,
+  §16 Кузнец Слов, decorative terrain, statistics, progress bar, lore,
+  save/load, все 33 карты с ~400 квестами
+
+### Установка на телефон
+```powershell
+adb install -r D:\Projects\BOOKWAR\builds\android\bookwar.apk
+adb shell monkey -p org.bookwar.game -c android.intent.category.LAUNCHER 1
+```
+
+### Что НЕ сделано (для отдельной сессии)
+- E2E тесты Android (adb input + screencap + Vision)
+- Touch-controls polish (виртуальный джойстик уже есть)
+- Splash screen + красивая иконка (Pollinations.ai, AGENTS.md §15.3)
+- Orientation lock (landscape)
 
 ---
 
