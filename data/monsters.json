@@ -600,6 +600,181 @@
           "result": "info"
         }
       ]
+    },
+    {
+      "id": "swamp_walker",
+      "name": "Болотоход",
+      "symbol": "sw",
+      "hp": 100,
+      "behavior": "aggressive",
+      "detection_radius": 170,
+      "attack_radius": 75,
+      "speed": 65,
+      "letters": [
+        "Ш",
+        "Щ"
+      ],
+      "punctuation": [],
+      "draw_type": "swamp_walker",
+      "draw": true,
+      "drop_table": [
+        {
+          "item": "letter",
+          "chance": 0.85,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.7,
+          "count": 3
+        }
+      ],
+      "dialogue_options": [
+        {
+          "text": "Хлюп... хлюп... ты тоже утопаешь в言葉?",
+          "result": "slow"
+        }
+      ]
+    },
+    {
+      "id": "stone_chewer",
+      "name": "Камнегрыз",
+      "symbol": "sc",
+      "hp": 120,
+      "behavior": "aggressive",
+      "detection_radius": 180,
+      "attack_radius": 70,
+      "speed": 55,
+      "letters": [
+        "К",
+        "Г"
+      ],
+      "punctuation": [],
+      "draw_type": "stone_chewer",
+      "draw": true,
+      "drop_table": [
+        {
+          "item": "letter",
+          "chance": 0.85,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.75,
+          "count": 3
+        }
+      ],
+      "dialogue_options": [
+        {
+          "text": "Камни — моя пища. Буквы — тоже.",
+          "result": "slow"
+        }
+      ]
+    },
+    {
+      "id": "ash_priest",
+      "name": "Пепельный Жрец",
+      "symbol": "ap",
+      "hp": 110,
+      "behavior": "aggressive",
+      "detection_radius": 200,
+      "attack_radius": 80,
+      "speed": 60,
+      "letters": [
+        "Ф",
+        "Х"
+      ],
+      "punctuation": [],
+      "draw_type": "ash_priest",
+      "draw": true,
+      "drop_table": [
+        {
+          "item": "letter",
+          "chance": 0.85,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.7,
+          "count": 3
+        }
+      ],
+      "dialogue_options": [
+        {
+          "text": "Пепел — прах старых слов. Молись огню.",
+          "result": "slow"
+        }
+      ]
+    },
+    {
+      "id": "crystaloid",
+      "name": "Кристалоид",
+      "symbol": "cr",
+      "hp": 130,
+      "behavior": "aggressive",
+      "detection_radius": 160,
+      "attack_radius": 65,
+      "speed": 60,
+      "letters": [
+        "Ц",
+        "Ч"
+      ],
+      "punctuation": [],
+      "draw_type": "crystaloid",
+      "draw": true,
+      "drop_table": [
+        {
+          "item": "letter",
+          "chance": 0.85,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.8,
+          "count": 4
+        }
+      ],
+      "dialogue_options": [
+        {
+          "text": "Грани кристалла отражают твои буквы. Смотри.",
+          "result": "slow"
+        }
+      ]
+    },
+    {
+      "id": "dark_monk",
+      "name": "Тёмный Монах",
+      "symbol": "dm",
+      "hp": 150,
+      "behavior": "aggressive",
+      "detection_radius": 200,
+      "attack_radius": 85,
+      "speed": 55,
+      "letters": [
+        "Ш",
+        "Ж"
+      ],
+      "punctuation": [],
+      "draw_type": "dark_monk",
+      "draw": true,
+      "drop_table": [
+        {
+          "item": "letter",
+          "chance": 0.9,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.85,
+          "count": 4
+        }
+      ],
+      "dialogue_options": [
+        {
+          "text": "Запрет — благо. Слово — проклятие. Покайся.",
+          "result": "slow"
+        }
+      ]
     }
   ]
 }
