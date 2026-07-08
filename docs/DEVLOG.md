@@ -73,11 +73,33 @@
 ### Что осталось (после 2026-07-08)
 - [ ] §16 Кузнец Слов как полноценный NPC (крафт через диалог)
 - [x] **Progress bar % зачистки в HUD** — `hud_ui.gd::_build_progress_bar` (2026-07-08)
-- [ ] Statistics screen (букв собрано, квестов выполнено)
+- [x] **Statistics screen** — `stats_screen.gd` + `stats_screen.tscn`, S-key/Tab (2026-07-08)
 - [ ] Decorative terrain (камни/деревья на карте)
 - [ ] Мультиплеер (Этап 6 — WebSocket сервер)
 - [ ] Android-версия (ANDROID_VERSION подпроект)
 - [ ] Localisation (en/es/de/ar/zh — AGENTS.md §2.0)
+
+---
+
+## 2026-07-08 (продолжение 2) — Statistics screen
+
+### Что сделано
+- ✅ **Экран статистики** — клавиша S или Tab (или touch кнопка «Статы [S]»)
+  - `scripts/ui/stats_screen.gd` + `scenes/ui/stats_screen.tscn`
+  - Метрики: Карта N/33, Карт пройдено, Букв собрано /33, Квестов выполнено,
+    Союзников, Буквиц, Сила букв (Σ power×level)
+  - Подсветка зелёным когда есть прогресс, надпись «★ ФИНАЛ ДОСТИГНУТ» при
+    прохождении всех 33 карт
+
+### Технические детали
+- `world_map.gd` — инстансы `STATS_SCENE` как child
+- `hud_ui.gd::_make_stats_btn` — touch button [S] в правой колонке
+- Карты пройдено — считается из `completed_quest_ids` (извлекаем map_id из quest_id)
+- Сила букв — Σ base_power × level для каждой собранной буквы (отражает §20 инверсию)
+
+### Тесты
+- `snap_stats.js` — stats visible после toggle
+- Vision подтвердил: «Карта 1/33 — Светлая Долина, Букв собрано 3/33, Сила букв 32»
 
 ---
 

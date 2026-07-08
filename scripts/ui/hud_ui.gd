@@ -227,6 +227,7 @@ func _build_touch_controls() -> void:
 	_make_action_btn(vw * 0.86, vh * 0.74, "I", "open_inventory", I18n.t("hud.bag", "Bag"))
 	_make_action_btn(vw * 0.78, vh * 0.62, "T", "open_dialogue", I18n.t("hud.speech", "Speech"))
 	_make_quest_log_btn(vw * 0.78, vh * 0.50)
+	_make_stats_btn(vw * 0.78, vh * 0.38)
 	_make_manual_btn(vw * 0.86, vh * 0.62)
 	_make_legend_btn(vw * 0.86, vh * 0.50)
 	# Persistent controls hint (top-center)
@@ -372,6 +373,27 @@ func _make_quest_log_btn(x: float, y: float) -> void:
 		# Toggle quest log via the JS bridge (quest_log.gd._process polls this)
 		if OS.has_feature("web"):
 			JavaScriptBridge.eval("if (window.gameToggleQuestLog) window.gameToggleQuestLog();", true))
+
+func _make_stats_btn(x: float, y: float) -> void:
+	# §Polish (2026-07-08): touch-friendly кнопка для экрана статистики.
+	# На desktop — S-key или Tab.
+	var w: float = DPAD_BTN_SIZE * 1.5
+	var h: float = DPAD_BTN_SIZE
+	var btn: Button = Button.new()
+	btn.text = I18n.t("hud.stats", "Статы") + "\n[S]"
+	btn.focus_mode = Control.FOCUS_NONE
+	btn.modulate = Color(0.65, 0.85, 0.95, 0.95)
+	btn.add_theme_font_size_override("font_size", 14)
+	add_child(btn)
+	btn.offset_left = x
+	btn.offset_top = y
+	btn.offset_right = x + w
+	btn.offset_bottom = y + h
+	btn.size = Vector2(w, h)
+	btn.position = Vector2(x, y)
+	btn.pressed.connect(func() -> void:
+		if OS.has_feature("web"):
+			JavaScriptBridge.eval("if (window.gameToggleStats) window.gameToggleStats();", true))
 
 func _focus_canvas() -> void:
 	# HTML5: ensure the game canvas has keyboard focus so WASD works immediately
