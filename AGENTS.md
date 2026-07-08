@@ -403,6 +403,187 @@ test('intro panel advance: 1 tap → +1 panel', async () => {
   `android/build/libs/` — это результат/исходники, не шлак
 - Забывать `-Apply` и думать что почистилось (dry-run только показывает)
 
+### 0.13 ПРИНЦИП «СДЕЛАЛ → ПРОВЕРИЛ → ДВИГАЕШЬСЯ ДАЛЬШЕ» (ЗАЯВЛЕНО ПОЛЬЗОВАТЕЛЕМ 2026-07-08)
+
+> ⚠️ ФУНДАМЕНТАЛЬНОЕ правило рабочего цикла. Касается **КАЖДОГО** пункта в TODO,
+> **КАЖДОЙ** правки кода/сцены/данных, **КАЖДОЙ** фичи или фикса. Не «в конце сессии
+> прогоню тесты», а **после каждого пункта** — немедленно. Без исключений.
+
+**ПРАВИЛО (СТРОГО):**
+
+```
+для КАЖДОГО пункта задачи (TODO #1, #2, ... #N):
+  1. СДЕЛАЛ — код/сцена/данные изменены
+  2. ПРОВЕРИЛ — ОБЯЗАТЕЛЬНО два этапа:
+     a. e2e тесты (Puppeteer + jest или playwright):
+        - regression_smoke + затронутый suite
+        - если есть专门ый walkthrough/playthrough тест для этой фичи — его
+        - 0 падений = продолжать. Любой FAIL = чини ЭТОТ пункт, не двигайся дальше
+     b. Vision MCP (mcp-cli) — анализ скриншота(ов):
+        - сделать скриншот результата (через Puppeteer takeScreenshot)
+        - `& scripts/dev/vision.ps1 -Tool analyze_image -Json '...' -TimeoutSec 90`
+        - Vision подтверждает: кириллица, кнопки, цвета, нет чёрного/пустого экрана
+        - Если Vision видит проблему → чини → повторно проверяй
+  3. ОК? → следующий пункт (return to step 1)
+     НЕ ОК? → чини → goto 2 (не двигаешься к следующему пункту)
+```
+
+**ДВА ОБЯЗАТЕЛЬНЫХ ИНСТРУМЕНТА ПРОВЕРКИ (оба, не один):**
+
+| Этап | Инструмент | Что проверяет | Таймаут |
+|------|-----------|---------------|---------|
+| **Функциональность** | e2e тесты (jest + Puppeteer) | логика работает, состояние меняется, нет errors | 90с/тест |
+| **Визуал** | mcp-cli (Vision GLM-4.6V) | кириллица, UI, цвета, нет regress | 90с |
+
+**Один без другого = НЕДОСТАТОЧНО.**
+- e2e зелёный, но экран чёрный = НЕ работает (проверка Vision провалена)
+- Vision говорит «красиво», но e2e падает = НЕ работает (логика сломана)
+
+**ПРИМЕР правильного цикла для одного пункта:**
+```powershell
+# 1. Код изменения
+# 2. Build + patch shell
+& scripts/dev/build.ps1 -TimeoutSec 300
+node scripts/dev/patch_web_shell.js
+# 3. Restart server
+Get-NetTCPConnection -LocalPort 3000 -State Listen | Stop-Process -Force
+Start-Process cmd.exe -ArgumentList "/c npx http-server builds/html5 -p 3000 -c-1 --silent" -WindowStyle Hidden
+Start-Sleep 6
+# 4. e2e тест (затронутый suite)
+cd tests/e2e; npx jest --runInBand component/regression_smoke.test.js --testTimeout 90000
+# 5. Walkthrough/playthrough (если есть для этой фичи)
+node playthrough/walkthrough_mapXX.js
+# 6. Скриншот ключевого экрана
+# 7. Vision анализ
+& scripts/dev/vision.ps1 -Tool analyze_image -Json '{"image_source":"C:/path/screenshot.png","prompt":"..."}' -TimeoutSec 90
+# 8. ОБА прошли? → коммит + следующий пункт
+```
+
+**ОБЯЗАТЕЛЬНО также для Android задач (когда работаешь с APK/эмулятором):**
+- После правки → пересобрать APK (`build_apk.ps1 -TimeoutSec 600`)
+- Установить на AVD (`install_apk.ps1 -TimeoutSec 120`)
+- Сделать скриншот (`screenshot.ps1`)
+- Vision через mcp-cli (`vision.ps1 -Tool analyze_image`)
+- Только Vision подтвердил корректность → переходить к следующему пункту
+
+**АНТИ-ПАТТЕРН (КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО):**
+- Сделать 3+ правки подряд без проверки каждой
+- Сказать «должно работать» без e2e и без Vision
+- Прогнать только e2e и пропустить Vision (или наоборот)
+- Сказать «проверю в конце одним прогоном» — это НЕ рабочий цикл, это накопление багов
+- Запустить walkthrough, увидеть в логе «не открылось/не сработало», и перейти к следующей
+  задаче «потому что тест не блокирующий» — это нарушение
+- Делать правки в нескольких TODO пунктах «оптом для одного билда» — каждое своё изменение
+
+**ПРИЗНАКИ НАРУШЕНИЯ (увидел → остановись и проверь):**
+- В логе есть `FAIL` или `Ошибка` — а ты уже коммитнул и идёшь дальше
+- Vision ответил «текст не виден / экран пустой» — а ты закрыл задачу
+- Сделал правки в 5+ файлах, но не прогнал ни одного теста
+- В баг-репорте «бот не может открыть X» — а ты перешёл к следующему TODO пункту
+
+**ПЕРЕД СЛОВАМИ «готово» / «задача выполнена» / «работает»:**
+1. e2e regression зелёный (0 падений)
+2. Walkthrough/playthrough проходит без ошибок
+3. Vision подтвердил визуал (кириллица, цвета, нет чёрного экрана)
+4. Скриншоты сохранены для истории
+5. Если всё ОК → коммит + метка в TODO
+
+Если хоть одно не выполнено — задача НЕ завершена.
+
+### 0.14 HEALTH-CHECK ПРОЦЕССОВ > 25 МИНУТ (ЗАЯВЛЕНО ПОЛЬЗОВАТЕЛЕМ 2026-07-08)
+
+> ⚠️ Добавлено после случая 14-минутного зависания regression-сьюта (32 failed/115),
+> которое могло длиться часами без признаков жизни. Был отдельный кейс ранее —
+> Godot/Gradle/adb могут закольцеваться и крутиться бесконечно.
+> **Цель**: ни одна команда не должна идти > 25 минут без проверки статуса.
+
+**ПРАВИЛО «25 МИНУТ» (СТРОГО):**
+
+```
+КАЖДАЯ долгоиграющая команда (build, jest, gradle, adb, Puppeteer) ->
+  1. Запустил с максимальным `-TimeoutSec` (см. §0.7)
+  2. Если команда идёт > 25 минут РЕАЛЬНОГО времени — ОБЯЗАТЕЛЬНО проверить статус:
+     a. Get-Process node/godot/gradle/java — CPU растёт? Working set меняется?
+     b. Get-NetTCPConnection -LocalPort 3000 — сервер жив?
+     c. Last write time лог-файла ($env:TEMP\bookwar_*.log) — обновляется?
+  3. Если процесс ВИСИТ (CPU=0 или не меняется > 5 мин) — KILL + restart
+  4. Если процесс РАБОТАЕТ (CPU растёт) — можно ждать, но записать в лог
+```
+
+**ABORT ПОРОГИ (сек):**
+
+| Команда | MAX таймаут | При достижении |
+|---------|-------------|----------------|
+| `npx jest --runInBand` (full suite) | **1500с (25мин)** | KILL + restart server + rerun flake-only |
+| `npx jest` (single suite) | **300с (5мин)** | KILL + single test |
+| `build.ps1` | 300с | abort (см. §0.7) |
+| `build_apk.ps1` (Android) | 900с (15мин) | abort |
+| `gradle` deps download | 1800с (30мин) | abort |
+| Puppeteer walkthrough | 600с (10мин) | abort |
+| `mcp-cli` Vision | 90с | timeout через vision.ps1 |
+| Любая другая bash-команда | **1500с (25мин) HARDCAP** | KILL при достижении |
+
+**ОБЯЗАТЕЛЬНЫЕ практики:**
+
+1. **ВСЕГДА передавай `-TimeoutSec`** в dev-скрипты, и таймаут в bash tool. Команда без
+   таймаута = потенциальный вечный вис на 3 часа (был случай).
+2. **Если bash tool вернул `terminated after exceeding timeout`** — НЕ перезапускать
+   «в лоб». Сначала:
+   ```powershell
+   Get-Process node,godot,java,gradle -ErrorAction SilentlyContinue | Stop-Process -Force
+   Get-NetTCPConnection -LocalPort 3000 -State Listen | Stop-Process -Force
+   Remove-Item $env:TEMP\bookwar_*.lock -ErrorAction SilentlyContinue
+   ```
+   Только после очистки — restart.
+3. **Полный regression suite** (`npx jest --runInBand` без фильтра) — это **25+ минут**.
+   Не запускать без явной необходимости. Использовать:
+   - `--testPathIgnorePatterns capture.test.js` для быстрого прогона
+   - `--runInBand component/regression_smoke.test.js` для smoke (30с)
+   - Конкретный suite: `component/regression_data.test.js` (точечный)
+4. **Между тестами** — kill processes между запусками:
+   ```powershell
+   Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force
+   Start-Sleep 2
+   ```
+5. **Логи checkpoint'ов**: каждый долгий скрипт пишет прогресс в `$env:TEMP\bookwar_*.log`.
+   Если время модификации лога > 3 минут назад — процесс завис.
+
+**АНТИ-ПАТТЕРН (ЗАПРЕЩЕНО):**
+- Запустить `npx jest` (без --runInBand, без --testPathIgnorePatterns) и уйти в мыслях
+  — suite может идти час если что-то сломалось
+- Видеть что bash tool «крутится» > 5 минут и ничего не делать — проверить статус!
+- Перезапускать зависший процесс «в лоб» не убивая старый — копии процессов копятся
+- Запускать 5+ команд параллельно в одной bash-сессии — они конфликтуют за порт 3000
+- Игнорировать `terminated after exceeding timeout` — это сигнал что процесс ВИСИТ
+
+**ПРИЗНАКИ ЗАВИСАНИЯ (увидел → KILL):**
+- bash-команда крутится > 25 минут без вывода
+- `Get-Process` показывает CPU=0 для процесса который должен работать
+- `LastWriteTime` лог-файла > 3 минут назад
+- `Get-NetTCPConnection :3000` пусто (сервер умер), но bash ждёт
+- Puppeteer-тест в логе показывает «waiting for...» > 30 раз
+- Build script не выводит `[%d]` прогресса > 2 минут
+
+**ПРИМЕР workflow для долгого теста:**
+```powershell
+# 1. Запустил тест в одном окне с таймаутом 1500с
+cd tests/e2e
+npx jest --runInBand component/ --testTimeout 90000
+
+# 2. В ДРУГОМ окне (через 10-15 минут) — health-check:
+Get-Process node | Select-Object Id, CPU, WorkingSet64
+Get-NetTCPConnection -LocalPort 3000 -State Listen
+Get-ChildItem $env:TEMP\bookwar_*.log | Select-Object Name, LastWriteTime
+
+# 3. Если видишь зависание — kill и restart:
+Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force
+Get-NetTCPConnection -LocalPort 3000 -State Listen | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
+# 4. Запустить только конкретный упавший suite, не весь прогон
+```
+
+**ВАЖНО:** правило 25 минут — это **HARDCAP** для любого bash-вызова в этом проекте.
+Даже если задача кажется «ну ещё чуть-чуть и закончится» — после 25 минут STOP и пересмотр.
+
 ---
 
 ## 1. ОБЗОР ПРОЕКТА

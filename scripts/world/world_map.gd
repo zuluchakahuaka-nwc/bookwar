@@ -135,6 +135,18 @@ func _process(_delta: float) -> void:
 		InventoryManager.add_dots(dots_to_add)
 	if _test_bridge.consume_test_dialogue():
 		_force_nearest_dialogue()
+	# §TODO#1: Buffer gameTriggerDialogue() across scenes. When e2e bot calls
+	# window.gameTriggerDialogue() inside battle_scene, the flag stays set until
+	# the player returns to world_map. _force_nearest_dialogue() then fires
+	# reliably on the next _process tick (no physical proximity required, unlike
+	# player.gd _try_dialogue which needs overlap with interaction area).
+	# Use the same (X===true)?1:0 pattern as consume_test_dialogue for reliable
+	# Variant->bool conversion (direct JS && expression returns unreliable type).
+	if OS.has_feature("web"):
+		var _dialogue_flag: int = int(JavaScriptBridge.eval("(window._godotDialogue === true) ? 1 : 0"))
+		if _dialogue_flag == 1:
+			JavaScriptBridge.eval("window._godotDialogue = false;")
+			_force_nearest_dialogue()
 	var recruit_force: int = _test_bridge.consume_recruit_force()
 	if recruit_force != -1:
 		GameState.recruit_force_result = recruit_force

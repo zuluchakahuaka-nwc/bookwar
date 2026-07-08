@@ -375,9 +375,11 @@ func _update_nearest_interactable() -> void:
 func _poll_js_bridge() -> void:
 	if not OS.has_feature("web"):
 		return
-	if JavaScriptBridge.eval("typeof window._godotDialogue !== 'undefined' && window._godotDialogue"):
-		JavaScriptBridge.eval("window._godotDialogue = false;")
-		_try_dialogue()
+	# §TODO#1: window._godotDialogue is now handled authoritatively by
+	# world_map._process (via _force_nearest_dialogue), which works regardless
+	# of physical proximity and survives scene transitions (battle_scene). The
+	# old _try_dialogue() path here required overlap with the interaction area,
+	# which raced against world_map and silently dropped the flag.
 	if JavaScriptBridge.eval("typeof window._godotAdvanceDialogue !== 'undefined' && window._godotAdvanceDialogue"):
 		JavaScriptBridge.eval("window._godotAdvanceDialogue = false;")
 		GameState.dialogue_advance.emit()
