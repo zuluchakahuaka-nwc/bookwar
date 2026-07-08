@@ -17,6 +17,10 @@ var _manual: ManualUI = null
 var _toast_label: Label = null
 var _toast_tween: Tween = null
 var _lore_label: Label = null  # Q6: lore-строка под именем региона
+var _progress_bar_bg: ColorRect = null  # §Polish: progress bar зачистки
+var _progress_bar_fill: ColorRect = null
+var _progress_label: Label = null
+var _progress_poll_timer: float = 0.0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -39,9 +43,53 @@ func _ready() -> void:
 	_build_pause_overlay()
 	_build_status_frame()  # Parchment panel behind the top-left label cluster.
 	_build_lore_label()  # Q6: lore под регионом
+	_build_progress_bar()  # §Polish: progress bar зачистки карты
 	_manual = MANUAL_SCENE.instantiate() as ManualUI
 	add_child(_manual)
 	_focus_canvas()
+	set_process(true)  # для поллинга progress
+
+# §Polish (2026-07-08): progress bar внизу HUD показывает % зачистки карты.
+# Зелёный — идёт зачистка. Жёлтый (>=50%) — портал открыт. Полный → победа.
+func _build_progress_bar() -> void:
+	var bar_w: float = 320.0
+	var bar_h: float = 14.0
+	var bar_x: float = 12.0
+	var bar_y: float = 122.0
+	# Background (тёмная канва)
+	_progress_bar_bg = ColorRect.new()
+	_progress_bar_bg.name = "ProgressBarBg"
+	_progress_bar_bg.color = Color(0.10, 0.08, 0.05, 0.85)
+	_progress_bar_bg.offset_left = bar_x
+	_progress_bar_bg.offset_top = bar_y
+	_progress_bar_bg.offset_right = bar_x + bar_w
+	_progress_bar_bg.offset_bottom = bar_y + bar_h
+	_progress_bar_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_progress_bar_bg)
+	# Fill (заполнение, растёт по мере зачистки)
+	_progress_bar_fill = ColorRect.new()
+	_progress_bar_fill.name = "ProgressBarFill"
+	_progress_bar_fill.color = Color(0.35, 0.80, 0.40, 0.95)  # зелёный по умолчанию
+	_progress_bar_fill.offset_left = bar_x + 2
+	_progress_bar_fill.offset_top = bar_y + 2
+	_progress_bar_fill.offset_right = bar_x + 2  # стартует пустым
+	_progress_bar_fill.offset_bottom = bar_y + bar_h - 2
+	_progress_bar_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_progress_bar_fill)
+	# Label справа от бара: «45%  ⟶ портал при 50%»
+	_progress_label = Label.new()
+	_progress_label.name = "ProgressLabel"
+	_progress_label.text = "0%"
+	_progress_label.add_theme_font_size_override("font_size", 14)
+	_progress_label.add_theme_color_override("font_color", Color(0.95, 0.92, 0.80))
+	_progress_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
+	_progress_label.offset_left = bar_x + bar_w + 8
+	_progress_label.offset_top = bar_y - 2
+	_progress_label.offset_right = bar_x + bar_w + 200
+	_progress_label.offset_bottom = bar_y + bar_h + 2
+	_progress_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_progress_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_progress_label)
 
 # Q6: lore-строка под region label — показывает атмосферное описание карты
 func _build_lore_label() -> void:
@@ -59,6 +107,39 @@ func _build_lore_label() -> void:
 	_lore_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_lore_label.visible = false
 	add_child(_lore_label)
+
+func _process(delta: float) -> void:
+	# §Polish: poll progress bar ~3 times/sec
+	if _progress_bar_fill == null:
+		return
+	_progress_poll_timer += delta
+	if _progress_poll_timer < 0.33:
+		return
+	_progress_poll_timer = 0.0
+	var prog: float = 0.0
+	if OS.has_feature("web"):
+		var v: Variant = JavaScriptBridge.eval("typeof window.gameLevelProgress !== 'undefined' ? window.gameLevelProgress : 0.0")
+		prog = float(v) / 100.0
+	prog = clampf(prog, 0.0, 1.0)
+	# Update fill width
+	var bar_w: float = 320.0 - 4.0
+	_progress_bar_fill.offset_right = _progress_bar_fill.offset_left + bar_w * prog
+	# Update color: green < 50%, yellow 50-99%, blue/cyan at 100%
+	if prog >= 0.99:
+		_progress_bar_fill.color = Color(0.40, 0.85, 0.95, 1.0)
+	elif prog >= 0.50:
+		_progress_bar_fill.color = Color(0.95, 0.80, 0.30, 1.0)
+	else:
+		_progress_bar_fill.color = Color(0.35, 0.80, 0.40, 0.95)
+	# Update label
+	var pct: int = int(round(prog * 100.0))
+	if prog >= 0.99:
+		_progress_label.text = "100%  ✓ зачищено"
+	elif prog >= 0.50:
+		_progress_label.text = str(pct) + "%  ⟶ портал открыт!"
+	else:
+		var need: int = 50 - pct
+		_progress_label.text = str(pct) + "%  (до портала " + str(need) + "%)"
 
 # Transient toast at the top-center: "Получено ОРУЖИЕ — А" / "Получена БРОНЯ — Б".
 func _build_toast_label() -> void:
