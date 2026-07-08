@@ -197,6 +197,18 @@ func _setup_visual() -> void:
 				"ash_priest":    nm = I18n.t("monster.ash_priest", "Пепельный Жрец")
 				"crystaloid":    nm = I18n.t("monster.crystaloid", "Кристалоид")
 				"dark_monk":     nm = I18n.t("monster.dark_monk", "Тёмный Монах")
+				"deep_miner":    nm = I18n.t("monster.deep_miner", "Шахтёр")
+				"silence_wraith": nm = I18n.t("monster.silence_wraith", "Безмолвный")
+				"river_horror":  nm = I18n.t("monster.river_horror", "Речной Ужас")
+				"drowned_seer":  nm = I18n.t("monster.drowned_seer", "Утопленный Провидец")
+				"bridge_troll":  nm = I18n.t("monster.bridge_troll", "Мостовой Тролль")
+				"citadel_warden": nm = I18n.t("monster.citadel_warden", "Цитадельный Страж")
+				"tower_specter": nm = I18n.t("monster.tower_specter", "Башенный Призрак")
+				"void_thrall":   nm = I18n.t("monster.void_thrall", "Раб Пустоты")
+				"mirror_shade":  nm = I18n.t("monster.mirror_shade", "Зеркальная Тень")
+				"baneful_sage":  nm = I18n.t("monster.baneful_sage", "Зловещий Мудрец")
+				"curse_knight":  nm = I18n.t("monster.curse_knight", "Рыцарь Проклятья")
+				"alphabet_warden": nm = I18n.t("monster.alphabet_warden", "Хранитель Алфавита")
 			_label_ref.text = nm
 			_label_ref.add_theme_font_size_override("font_size", 18)
 			_label_ref.add_theme_color_override("font_color", Color(0.95, 0.55, 0.30))
@@ -463,6 +475,42 @@ func _build_named_creature(kind: String) -> void:
 		"dark_monk":
 			body_color = Color(0.15, 0.12, 0.20)
 			accent = Color(0.55, 0.30, 0.85)
+		"deep_miner":
+			body_color = Color(0.32, 0.28, 0.22)
+			accent = Color(0.95, 0.80, 0.30)  # фонарь на каске
+		"silence_wraith":
+			body_color = Color(0.55, 0.55, 0.60)
+			accent = Color(0.85, 0.85, 0.95)
+		"river_horror":
+			body_color = Color(0.18, 0.30, 0.42)
+			accent = Color(0.40, 0.70, 0.95)
+		"drowned_seer":
+			body_color = Color(0.20, 0.32, 0.28)
+			accent = Color(0.50, 0.80, 0.55)
+		"bridge_troll":
+			body_color = Color(0.40, 0.32, 0.22)
+			accent = Color(0.65, 0.40, 0.20)
+		"citadel_warden":
+			body_color = Color(0.45, 0.45, 0.48)
+			accent = Color(0.85, 0.65, 0.30)  # золото на щите
+		"tower_specter":
+			body_color = Color(0.25, 0.18, 0.40)
+			accent = Color(0.70, 0.45, 0.95)
+		"void_thrall":
+			body_color = Color(0.08, 0.06, 0.14)
+			accent = Color(0.50, 0.30, 0.75)
+		"mirror_shade":
+			body_color = Color(0.70, 0.72, 0.78)
+			accent = Color(0.95, 0.98, 1.0)
+		"baneful_sage":
+			body_color = Color(0.30, 0.10, 0.10)
+			accent = Color(0.85, 0.20, 0.15)
+		"curse_knight":
+			body_color = Color(0.25, 0.20, 0.18)
+			accent = Color(0.60, 0.30, 0.10)  # ржавчина
+		"alphabet_warden":
+			body_color = Color(0.50, 0.40, 0.15)
+			accent = Color(1.0, 0.85, 0.20)  # золото финала
 	# Torso
 	var torso: Polygon2D = Polygon2D.new()
 	torso.polygon = PackedVector2Array([Vector2(-16, 25), Vector2(16, 25), Vector2(12, -10), Vector2(-12, -10)])
@@ -635,6 +683,226 @@ func _build_named_creature(kind: String) -> void:
 			sigil.polygon = PackedVector2Array([Vector2(-4, -18), Vector2(4, -18), Vector2(0, -10)])
 			sigil.color = Color(0.70, 0.15, 0.40)
 			_visual_root.add_child(sigil)
+		"deep_miner":
+			# Каска с фонарём
+			var helmet: Polygon2D = Polygon2D.new()
+			helmet.polygon = PackedVector2Array([Vector2(-12, -32), Vector2(12, -32), Vector2(10, -42), Vector2(-10, -42)])
+			helmet.color = Color(0.55, 0.40, 0.20)
+			_visual_root.add_child(helmet)
+			# Светящийся фонарь на каске
+			var lamp: Polygon2D = Polygon2D.new()
+			lamp.polygon = PackedVector2Array([Vector2(-3, -44), Vector2(3, -44), Vector2(2, -50), Vector2(-2, -50)])
+			lamp.color = Color(1.0, 0.90, 0.40)
+			_visual_root.add_child(lamp)
+			# Кирка в руке
+			var pick: Polygon2D = Polygon2D.new()
+			pick.polygon = PackedVector2Array([Vector2(14, 5), Vector2(20, 0), Vector2(22, 8), Vector2(16, 12)])
+			pick.color = Color(0.45, 0.35, 0.20)
+			_visual_root.add_child(pick)
+		"silence_wraith":
+			# Полупрозрачный капюшон-саван
+			var shroud: Polygon2D = Polygon2D.new()
+			shroud.polygon = PackedVector2Array([Vector2(-18, -40), Vector2(18, -40), Vector2(14, 25), Vector2(-14, 25)])
+			shroud.color = Color(0.65, 0.65, 0.72, 0.55)
+			_visual_root.add_child(shroud)
+			# Без глаз — только тёмные провалы
+			for ex: float in [-5.0, 5.0]:
+				var socket: Polygon2D = Polygon2D.new()
+				socket.polygon = PackedVector2Array([Vector2(ex-3, -28), Vector2(ex+3, -28), Vector2(ex+3, -22), Vector2(ex-3, -22)])
+				socket.color = Color(0, 0, 0, 0.85)
+				_visual_root.add_child(socket)
+		"river_horror":
+			# Спинные плавники
+			for i: int in range(3):
+				var fin: Polygon2D = Polygon2D.new()
+				var fx: float = -6.0 + i * 6.0
+				fin.polygon = PackedVector2Array([
+					Vector2(fx-2, -22), Vector2(fx+2, -22),
+					Vector2(fx, -22 - 12 + i * 2)
+				])
+				fin.color = Color(0.30, 0.55, 0.75)
+				_visual_root.add_child(fin)
+			# Жабры на шее
+			for gx: float in [-8.0, 8.0]:
+				var gill: Polygon2D = Polygon2D.new()
+				gill.polygon = PackedVector2Array([Vector2(gx-2, -16), Vector2(gx+2, -16), Vector2(gx, -8)])
+				gill.color = Color(0.55, 0.30, 0.45)
+				_visual_root.add_child(gill)
+		"drowned_seer":
+			# Водоросли на голове
+			for i: int in range(4):
+				var weed: Polygon2D = Polygon2D.new()
+				var wx: float = -9.0 + i * 6.0
+				weed.polygon = PackedVector2Array([
+					Vector2(wx-1, -36), Vector2(wx+1, -36),
+					Vector2(wx+3, -36 - 10 - i * 2), Vector2(wx-3, -36 - 8 - i * 2)
+				])
+				weed.color = Color(0.20, 0.45, 0.30, 0.85)
+				_visual_root.add_child(weed)
+			# Третий глаз (провидец)
+			var third: Polygon2D = Polygon2D.new()
+			third.polygon = PackedVector2Array([Vector2(-2, -32), Vector2(2, -32), Vector2(2, -26), Vector2(-2, -26)])
+			third.color = Color(0.30, 0.95, 0.60)
+			_visual_root.add_child(third)
+		"bridge_troll":
+			# Большая нижняя челюсть с клыками
+			var jaw: Polygon2D = Polygon2D.new()
+			jaw.polygon = PackedVector2Array([Vector2(-14, -22), Vector2(14, -22), Vector2(10, -8), Vector2(-10, -8)])
+			jaw.color = Color(0.30, 0.22, 0.16)
+			_visual_root.add_child(jaw)
+			# Два клыка
+			for tx: float in [-5.0, 5.0]:
+				var tusk: Polygon2D = Polygon2D.new()
+				tusk.polygon = PackedVector2Array([Vector2(tx-1, -20), Vector2(tx+1, -20), Vector2(tx, -10)])
+				tusk.color = Color(0.95, 0.90, 0.70)
+				_visual_root.add_child(tusk)
+			# Маленькие злые глаза
+			for ex: float in [-7.0, 7.0]:
+				var e: Polygon2D = Polygon2D.new()
+				e.polygon = PackedVector2Array([Vector2(ex-2, -30), Vector2(ex+2, -30), Vector2(ex+2, -26), Vector2(ex-2, -26)])
+				e.color = Color(0.95, 0.40, 0.15)
+				_visual_root.add_child(e)
+		"citadel_warden":
+			# Шлем с гребнем
+			var helm: Polygon2D = Polygon2D.new()
+			helm.polygon = PackedVector2Array([Vector2(-12, -32), Vector2(12, -32), Vector2(10, -48), Vector2(-10, -48)])
+			helm.color = Color(0.50, 0.50, 0.55)
+			_visual_root.add_child(helm)
+			# Гребень (красный)
+			var crest: Polygon2D = Polygon2D.new()
+			crest.polygon = PackedVector2Array([Vector2(-2, -48), Vector2(2, -48), Vector2(0, -56)])
+			crest.color = Color(0.75, 0.20, 0.15)
+			_visual_root.add_child(crest)
+			# Щит с золотой каймой
+			var shield: Polygon2D = Polygon2D.new()
+			shield.polygon = PackedVector2Array([Vector2(-22, -10), Vector2(-12, -10), Vector2(-12, 15), Vector2(-22, 15)])
+			shield.color = Color(0.70, 0.55, 0.25)
+			_visual_root.add_child(shield)
+		"tower_specter":
+			# Полупрозрачное тело (летучий)
+			var ecto: Polygon2D = Polygon2D.new()
+			ecto.polygon = PackedVector2Array([Vector2(-14, -30), Vector2(14, -30), Vector2(18, 25), Vector2(-18, 25)])
+			ecto.color = Color(0.45, 0.30, 0.65, 0.55)
+			_visual_root.add_child(ecto)
+			# Светящиеся лиловые глаза
+			for ex: float in [-5.0, 5.0]:
+				var ge: Polygon2D = Polygon2D.new()
+				ge.polygon = PackedVector2Array([Vector2(ex-2, -30), Vector2(ex+2, -30), Vector2(ex+2, -24), Vector2(ex-2, -24)])
+				ge.color = Color(0.85, 0.55, 1.0)
+				_visual_root.add_child(ge)
+			# Хвост вместо ног (призрак)
+			var tail: Polygon2D = Polygon2D.new()
+			tail.polygon = PackedVector2Array([Vector2(-8, 20), Vector2(8, 20), Vector2(4, 35), Vector2(0, 30), Vector2(-4, 35)])
+			tail.color = Color(0.35, 0.20, 0.55, 0.6)
+			_visual_root.add_child(tail)
+		"void_thrall":
+			# Тёмный капюшон с пурпурной каймой
+			var vhood: Polygon2D = Polygon2D.new()
+			vhood.polygon = PackedVector2Array([Vector2(-14, -30), Vector2(14, -30), Vector2(11, -55), Vector2(-11, -55)])
+			vhood.color = Color(0.05, 0.03, 0.10)
+			_visual_root.add_child(vhood)
+			# Пурпурные глаза (2 пары)
+			for ex: float in [-6.0, 6.0]:
+				var ve: Polygon2D = Polygon2D.new()
+				ve.polygon = PackedVector2Array([Vector2(ex-2, -32), Vector2(ex+2, -32), Vector2(ex+2, -26), Vector2(ex-2, -26)])
+				ve.color = Color(0.65, 0.30, 0.95)
+				_visual_root.add_child(ve)
+			# Щупальца из спины
+			for tx: float in [-8.0, 8.0]:
+				var tent: Polygon2D = Polygon2D.new()
+				tent.polygon = PackedVector2Array([Vector2(tx-2, -20), Vector2(tx+2, -20), Vector2(tx+8, -30), Vector2(tx+4, -32)])
+				tent.color = Color(0.15, 0.10, 0.25)
+				_visual_root.add_child(tent)
+		"mirror_shade":
+			# Серебристое тело с зеркальным отблеском
+			var mirror_body: Polygon2D = Polygon2D.new()
+			mirror_body.polygon = PackedVector2Array([Vector2(-15, 25), Vector2(15, 25), Vector2(12, -10), Vector2(-12, -10)])
+			mirror_body.color = Color(0.85, 0.88, 0.95)
+			_visual_root.add_child(mirror_body)
+			# Зеркало на груди
+			var disc: Polygon2D = Polygon2D.new()
+			disc.polygon = PackedVector2Array([Vector2(-6, -8), Vector2(6, -8), Vector2(6, 4), Vector2(-6, 4)])
+			disc.color = Color(1.0, 1.0, 1.0, 0.85)
+			_visual_root.add_child(disc)
+			# Два отражающих глаза
+			for ex: float in [-5.0, 5.0]:
+				var me: Polygon2D = Polygon2D.new()
+				me.polygon = PackedVector2Array([Vector2(ex-2, -28), Vector2(ex+2, -28), Vector2(ex+2, -22), Vector2(ex-2, -22)])
+				me.color = Color(0.95, 0.98, 1.0)
+				_visual_root.add_child(me)
+		"baneful_sage":
+			# Капюшон мудреца (тёмно-красный)
+			var bhood: Polygon2D = Polygon2D.new()
+			bhood.polygon = PackedVector2Array([Vector2(-13, -30), Vector2(13, -30), Vector2(10, -54), Vector2(-10, -54)])
+			bhood.color = Color(0.45, 0.10, 0.08)
+			_visual_root.add_child(bhood)
+			# Длинная седая борода
+			var beard: Polygon2D = Polygon2D.new()
+			beard.polygon = PackedVector2Array([Vector2(-5, -20), Vector2(5, -20), Vector2(3, 0), Vector2(-3, 0)])
+			beard.color = Color(0.85, 0.82, 0.78)
+			_visual_root.add_child(beard)
+			# Светящийся красный глаз (один, циклоп)
+			var beye: Polygon2D = Polygon2D.new()
+			beye.polygon = PackedVector2Array([Vector2(-3, -30), Vector2(3, -30), Vector2(3, -22), Vector2(-3, -22)])
+			beye.color = Color(1.0, 0.15, 0.10)
+			_visual_root.add_child(beye)
+			# Посох
+			var staff: Polygon2D = Polygon2D.new()
+			staff.polygon = PackedVector2Array([Vector2(15, -15), Vector2(17, -15), Vector2(17, 25), Vector2(15, 25)])
+			staff.color = Color(0.30, 0.15, 0.10)
+			_visual_root.add_child(staff)
+		"curse_knight":
+			# Закрытый шлем с прорезью
+			var khelm: Polygon2D = Polygon2D.new()
+			khelm.polygon = PackedVector2Array([Vector2(-12, -32), Vector2(12, -32), Vector2(10, -50), Vector2(-10, -50)])
+			khelm.color = Color(0.30, 0.25, 0.20)
+			_visual_root.add_child(khelm)
+			# Прорезь для глаз
+			var slit: Polygon2D = Polygon2D.new()
+			slit.polygon = PackedVector2Array([Vector2(-6, -38), Vector2(6, -38), Vector2(6, -34), Vector2(-6, -34)])
+			slit.color = Color(0.05, 0.02, 0.02)
+			_visual_root.add_child(slit)
+			# Ржавые пятна
+			for i: int in range(3):
+				var rust: Polygon2D = Polygon2D.new()
+				var rx: float = -10.0 + i * 8.0
+				rust.polygon = PackedVector2Array([Vector2(rx-2, 5), Vector2(rx+2, 5), Vector2(rx+1, 12), Vector2(rx-1, 12)])
+				rust.color = Color(0.50, 0.25, 0.10)
+				_visual_root.add_child(rust)
+			# Меч
+			var sword: Polygon2D = Polygon2D.new()
+			sword.polygon = PackedVector2Array([Vector2(15, -5), Vector2(18, -5), Vector2(18, 30), Vector2(15, 30)])
+			sword.color = Color(0.45, 0.40, 0.35)
+			_visual_root.add_child(sword)
+		"alphabet_warden":
+			# Золотой капюшон-корона
+			var crown: Polygon2D = Polygon2D.new()
+			crown.polygon = PackedVector2Array([Vector2(-14, -32), Vector2(14, -32), Vector2(12, -50), Vector2(-12, -50)])
+			crown.color = Color(0.85, 0.70, 0.20)
+			_visual_root.add_child(crown)
+			# Лучи короны
+			for i: int in range(5):
+				var ray: Polygon2D = Polygon2D.new()
+				var rx: float = -10.0 + i * 5.0
+				ray.polygon = PackedVector2Array([
+					Vector2(rx-2, -50), Vector2(rx+2, -50),
+					Vector2(rx, -50 - 8)
+				])
+				ray.color = Color(1.0, 0.85, 0.30)
+				_visual_root.add_child(ray)
+			# Светящиеся золотые глаза
+			for ex: float in [-5.0, 5.0]:
+				var ae: Polygon2D = Polygon2D.new()
+				ae.polygon = PackedVector2Array([Vector2(ex-2, -28), Vector2(ex+2, -28), Vector2(ex+2, -22), Vector2(ex-2, -22)])
+				ae.color = Color(1.0, 0.95, 0.50)
+				_visual_root.add_child(ae)
+			# Буквы на груди (3 буквы как амулет)
+			for i: int in range(3):
+				var amulet: Polygon2D = Polygon2D.new()
+				var ax2: float = -6.0 + i * 6.0
+				amulet.polygon = PackedVector2Array([Vector2(ax2-2, -8), Vector2(ax2+2, -8), Vector2(ax2+2, -2), Vector2(ax2-2, -2)])
+				amulet.color = Color(1.0, 0.85, 0.20)
+				_visual_root.add_child(amulet)
 	# Arms (руки опущены)
 	for ax: float in [-14.0, 14.0]:
 		var arm: Polygon2D = Polygon2D.new()
