@@ -168,8 +168,16 @@ static func _enemy_pool_for_level(idx: int) -> Array[String]:
 			return ["big_eyes", "shadow_lurker", "dark_wolf"]
 		4:  # Карта 5: Гнилые Болота — Big Mouth (Жор)
 			return ["big_mouth", "shadow_lurker", "forest_creature"]
-	if idx <= 8:
-		return ["forest_creature", "dark_wolf", "exclamation"]
+		5:  # Карта 6: Болотные Огни — Swamp Walker
+			return ["swamp_walker", "shadow_lurker", "forest_creature"]
+		6:  # Карта 7: Каменистая Пустошь — Stone Chewer
+			return ["stone_chewer", "dark_wolf", "shadow_lurker"]
+		7:  # Карта 8: Пепельная Равнина — Ash Priest
+			return ["ash_priest", "shadow_lurker", "dark_wolf"]
+		8:  # Карта 9: Кристальные Гроты — Crystaloid
+			return ["crystaloid", "shadow_lurker", "dark_wolf"]
+		9:  # Карта 10: Тёмный Собор — Dark Monk
+			return ["dark_monk", "shadow_lurker", "znak"]
 	if idx <= 15:
 		return ["dark_wolf", "shadow_lurker", "forest_creature"]
 	if idx <= 22:

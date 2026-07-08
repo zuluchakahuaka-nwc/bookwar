@@ -182,8 +182,8 @@ func _setup_visual() -> void:
 			_label_ref.position = Vector2(-35.0, -95.0)
 			_label_ref.z_index = 50
 			_label_ref.visible = true
-	elif _draw_type in ["longtongue", "big_ears", "big_eyes", "big_mouth"]:
-		# §18.5 — named creatures per region (карта 2-5)
+	elif _draw_type in ["longtongue", "big_ears", "big_eyes", "big_mouth", "swamp_walker", "stone_chewer", "ash_priest", "crystaloid", "dark_monk"]:
+		# §18.5 — named creatures per region (карта 2-10)
 		_build_named_creature(_draw_type)
 		if _label_ref:
 			var nm: String = ""
@@ -192,6 +192,11 @@ func _setup_visual() -> void:
 				"big_ears":   nm = I18n.t("monster.big_ears", "Слушач")
 				"big_eyes":   nm = I18n.t("monster.big_eyes", "Зрячий")
 				"big_mouth":  nm = I18n.t("monster.big_mouth", "Жор")
+				"swamp_walker":  nm = I18n.t("monster.swamp_walker", "Болотоход")
+				"stone_chewer":  nm = I18n.t("monster.stone_chewer", "Камнегрыз")
+				"ash_priest":    nm = I18n.t("monster.ash_priest", "Пепельный Жрец")
+				"crystaloid":    nm = I18n.t("monster.crystaloid", "Кристалоид")
+				"dark_monk":     nm = I18n.t("monster.dark_monk", "Тёмный Монах")
 			_label_ref.text = nm
 			_label_ref.add_theme_font_size_override("font_size", 18)
 			_label_ref.add_theme_color_override("font_color", Color(0.95, 0.55, 0.30))
@@ -369,6 +374,21 @@ func _build_named_creature(kind: String) -> void:
 		"big_mouth":
 			body_color = Color(0.35, 0.18, 0.18)
 			accent = Color(0.30, 0.05, 0.05)
+		"swamp_walker":
+			body_color = Color(0.20, 0.32, 0.22)
+			accent = Color(0.55, 0.75, 0.35)
+		"stone_chewer":
+			body_color = Color(0.40, 0.36, 0.30)
+			accent = Color(0.20, 0.18, 0.16)
+		"ash_priest":
+			body_color = Color(0.32, 0.22, 0.20)
+			accent = Color(0.95, 0.50, 0.20)
+		"crystaloid":
+			body_color = Color(0.30, 0.45, 0.65)
+			accent = Color(0.75, 0.85, 1.0)
+		"dark_monk":
+			body_color = Color(0.15, 0.12, 0.20)
+			accent = Color(0.55, 0.30, 0.85)
 	# Torso
 	var torso: Polygon2D = Polygon2D.new()
 	torso.polygon = PackedVector2Array([Vector2(-16, 25), Vector2(16, 25), Vector2(12, -10), Vector2(-12, -10)])
@@ -457,6 +477,90 @@ func _build_named_creature(kind: String) -> void:
 				e.polygon = PackedVector2Array([Vector2(ex-1.5, -32), Vector2(ex+1.5, -32), Vector2(ex+1.5, -28), Vector2(ex-1.5, -28)])
 				e.color = Color(1.0, 0.20, 0.10)
 				_visual_root.add_child(e)
+		"swamp_walker":
+			# Длинные щупальца-ноги, болотный газ
+			for tx: float in [-12.0, 0.0, 12.0]:
+				var tentacle: Polygon2D = Polygon2D.new()
+				tentacle.polygon = PackedVector2Array([
+					Vector2(tx-2, 10), Vector2(tx+2, 10),
+					Vector2(tx+1, 30), Vector2(tx-1, 30)
+				])
+				tentacle.color = Color(0.30, 0.50, 0.25)
+				_visual_root.add_child(tentacle)
+			# Светящийся газ на голове
+			var gas: Polygon2D = Polygon2D.new()
+			gas.polygon = PackedVector2Array([Vector2(-6, -42), Vector2(6, -42), Vector2(4, -50), Vector2(-4, -50)])
+			gas.color = Color(0.65, 0.95, 0.55, 0.7)
+			_visual_root.add_child(gas)
+		"stone_chewer":
+			# Огромные каменные челюсти (как капитальная арка)
+			var jaw_top: Polygon2D = Polygon2D.new()
+			jaw_top.polygon = PackedVector2Array([Vector2(-12, -32), Vector2(12, -32), Vector2(10, -26), Vector2(-10, -26)])
+			jaw_top.color = Color(0.55, 0.50, 0.42)
+			_visual_root.add_child(jaw_top)
+			var jaw_bot: Polygon2D = Polygon2D.new()
+			jaw_bot.polygon = PackedVector2Array([Vector2(-10, -22), Vector2(10, -22), Vector2(8, -16), Vector2(-8, -16)])
+			jaw_bot.color = Color(0.45, 0.40, 0.32)
+			_visual_root.add_child(jaw_bot)
+			# Каменные зубы
+			for tx: float in [-7.0, -3.0, 1.0, 5.0]:
+				var tooth: Polygon2D = Polygon2D.new()
+				tooth.polygon = PackedVector2Array([Vector2(tx-1, -28), Vector2(tx+1, -28), Vector2(tx, -24)])
+				tooth.color = Color(0.75, 0.70, 0.60)
+				_visual_root.add_child(tooth)
+		"ash_priest":
+			# Капюшон + посох
+			var hood: Polygon2D = Polygon2D.new()
+			hood.polygon = PackedVector2Array([Vector2(-12, -38), Vector2(12, -38), Vector2(8, -52), Vector2(-8, -52), Vector2(-14, -42)])
+			hood.color = Color(0.18, 0.12, 0.10)
+			_visual_root.add_child(hood)
+			# Посох с огнём
+			var staff: Polygon2D = Polygon2D.new()
+			staff.polygon = PackedVector2Array([Vector2(14, -10), Vector2(16, -10), Vector2(16, 25), Vector2(14, 25)])
+			staff.color = Color(0.30, 0.20, 0.10)
+			_visual_root.add_child(staff)
+			var flame: Polygon2D = Polygon2D.new()
+			flame.polygon = PackedVector2Array([Vector2(11, -18), Vector2(19, -18), Vector2(17, -28), Vector2(15, -32), Vector2(13, -28)])
+			flame.color = Color(0.95, 0.50, 0.15)
+			_visual_root.add_child(flame)
+		"crystaloid":
+			# Кристаллы растут из спины
+			for i: int in range(5):
+				var spike: Polygon2D = Polygon2D.new()
+				var sx: float = -10.0 + i * 5.0
+				var sh: float = 8.0 + (i % 2) * 4.0
+				spike.polygon = PackedVector2Array([
+					Vector2(sx-1, -8), Vector2(sx+1, -8),
+					Vector2(sx, -8 - sh)
+				])
+				spike.color = Color(0.55 + (i % 2) * 0.2, 0.75, 0.95, 0.85)
+				_visual_root.add_child(spike)
+			# Светящееся ядро в груди
+			var core: Polygon2D = Polygon2D.new()
+			core.polygon = PackedVector2Array([Vector2(-3, -15), Vector2(3, -15), Vector2(2, -10), Vector2(-2, -10)])
+			core.color = Color(0.80, 0.95, 1.0, 0.9)
+			_visual_root.add_child(core)
+		"dark_monk":
+			# Капюшон + свеча в руке
+			var hood2: Polygon2D = Polygon2D.new()
+			hood2.polygon = PackedVector2Array([Vector2(-13, -30), Vector2(13, -30), Vector2(10, -52), Vector2(-10, -52)])
+			hood2.color = Color(0.08, 0.05, 0.12)
+			_visual_root.add_child(hood2)
+			# Свеча
+			var candle: Polygon2D = Polygon2D.new()
+			candle.polygon = PackedVector2Array([Vector2(13, 0), Vector2(16, 0), Vector2(16, 12), Vector2(13, 12)])
+			candle.color = Color(0.85, 0.80, 0.65)
+			_visual_root.add_child(candle)
+			# Пламя свечи
+			var flame2: Polygon2D = Polygon2D.new()
+			flame2.polygon = PackedVector2Array([Vector2(13, -5), Vector2(16, -5), Vector2(15, -15), Vector2(14, -5)])
+			flame2.color = Color(1.0, 0.75, 0.30)
+			_visual_root.add_child(flame2)
+			# Знак Запрета на груди (багровый)
+			var sigil: Polygon2D = Polygon2D.new()
+			sigil.polygon = PackedVector2Array([Vector2(-4, -18), Vector2(4, -18), Vector2(0, -10)])
+			sigil.color = Color(0.70, 0.15, 0.40)
+			_visual_root.add_child(sigil)
 	# Arms (руки опущены)
 	for ax: float in [-14.0, 14.0]:
 		var arm: Polygon2D = Polygon2D.new()
