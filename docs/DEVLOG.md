@@ -71,13 +71,37 @@
 `a92d2f5` → `39ce0ae` → `66295a6` → `80c6e29` → `10b3d51`
 
 ### Что осталось (после 2026-07-08)
-- [ ] §16 Кузнец Слов как полноценный NPC (крафт через диалог)
+- [x] **§16 Кузнец Слов** — friendly NPC, открывает крафт через диалог (2026-07-08)
 - [x] **Progress bar % зачистки в HUD** — `hud_ui.gd::_build_progress_bar` (2026-07-08)
 - [x] **Statistics screen** — `stats_screen.gd` + `stats_screen.tscn`, S-key/Tab (2026-07-08)
 - [x] **Decorative terrain** — programmatically спавн цветы/грибы/камни/кристаллы/руны (2026-07-08)
 - [ ] Мультиплеер (Этап 6 — WebSocket сервер)
 - [ ] Android-версия (ANDROID_VERSION подпроект)
 - [ ] Localisation (en/es/de/ar/zh — AGENTS.md §2.0)
+
+---
+
+## 2026-07-08 (продолжение 4) — §16 Кузнец Слов
+
+### Что сделано
+- ✅ **Кузнец Слов NPC** — friendly монстр `wordsmith` в деревне (карта 1)
+- ✅ Открывает крафт-UI при диалоге (T рядом с ним)
+- ✅ Рисуется через Polygon2D: фартук, борода, молот, наковальня
+- ✅ Не требует буквиц для разговора (как обычные ? монстры)
+
+### Технические детали
+- `data/monsters.json` — new entry `wordsmith` (hp=200, detection_radius=0, is_friendly=true)
+- `monster_base.gd::_build_wordsmith()` — программная отрисовка (борода+молот+наковальня)
+- `monster_base.gd::start_dialogue` — если `_draw_type == "wordsmith"`, зовёт `_open_craft_via_npc()`
+- `monster_base.gd::_open_craft_via_npc` — ставит `window._bookwarOpenCraft = true`
+- `world_map._process` — слушает флаг, вызывает `_open_inventory_and_craft()`
+- `world_map._open_inventory_and_craft` — `_inventory.open()` + `_inventory.open_craft_panel()`
+- `inventory_ui.gd::open_craft_panel()` — публичный метод открывает крафт-вкладку
+
+### Тесты
+- `snap_wordsmith.js` — verified: телепорт к smith → T → `window.gameCraftVisible = true`
+- Vision подтвердил: «Крафт[+]» вкладка активна, кнопки A/O/M для выбора источника видны
+- regression_smoke: 7/8 (упавший inventory-test — известная флуктуация)
 
 ---
 

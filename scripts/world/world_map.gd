@@ -148,6 +148,11 @@ func _process(_delta: float) -> void:
 		GameState.current_map_id = test_map
 		get_tree().change_scene_to_file("res://scenes/world/world_map.tscn")
 		return
+	# §16 — Кузнец Слов: открыть инвентарь + крафт-вкладку при диалоге
+	if OS.has_feature("web"):
+		if JavaScriptBridge.eval("typeof window._bookwarOpenCraft !== 'undefined' && window._bookwarOpenCraft"):
+			JavaScriptBridge.eval("window._bookwarOpenCraft = false;")
+			_open_inventory_and_craft()
 	if _test_bridge.consume_test_goto_intro():
 		get_tree().change_scene_to_file("res://scenes/ui/intro.tscn")
 		return
@@ -774,6 +779,18 @@ func _push_monster_states() -> void:
 				item_positions.append({"x": (item as Area2D).global_position.x, "y": (item as Area2D).global_position.y})
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("window.gameMonsterStates = " + JSON.stringify(snapshots) + "; window.gameItemCount = " + str(item_count) + "; window.gameTotalMonsters = " + str(_total_monsters) + "; window.gameTotalItems = " + str(_total_items) + "; window.gameItemPositions = " + JSON.stringify(item_positions) + ";")
+
+# §16 — Кузнец Слов: открыть инвентарь + вкладку крафта.
+func _open_inventory_and_craft() -> void:
+	if _inventory == null:
+		return
+	if not _inventory.is_open():
+		_inventory.open()
+	# Открыть вкладку крафта (вызвать внутренний метод)
+	if _inventory.has_method("open_craft_panel"):
+		_inventory.open_craft_panel()
+	elif _inventory.has_method("_toggle_craft"):
+		_inventory._toggle_craft()
 
 func _force_nearest_dialogue() -> void:
 	# Test helper: ensure the player can speak, then start dialogue with the nearest

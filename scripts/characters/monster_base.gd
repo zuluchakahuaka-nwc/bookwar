@@ -200,6 +200,18 @@ func _setup_visual() -> void:
 			_label_ref.position = Vector2(-50.0, -90.0)
 			_label_ref.z_index = 50
 			_label_ref.visible = true
+	elif _draw_type == "wordsmith":
+		# §16 — Кузнец Слов, friendly NPC
+		_build_wordsmith()
+		if _label_ref:
+			_label_ref.text = I18n.t("monster.wordsmith", "Кузнец Слов")
+			_label_ref.add_theme_font_size_override("font_size", 16)
+			_label_ref.add_theme_color_override("font_color", Color(0.90, 0.75, 0.30))
+			_label_ref.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+			_label_ref.add_theme_constant_override("outline_size", 5)
+			_label_ref.position = Vector2(-55.0, -100.0)
+			_label_ref.z_index = 50
+			_label_ref.visible = true
 	elif _drawn or monster_id == "forest_creature":
 		_build_creature_body()
 	elif monster_id == "question" or monster_id == "exclamation":
@@ -285,6 +297,62 @@ func _build_evil_humanoid(kind: String) -> void:
 #   big_ears   (карта 3) — огромные уши
 #   big_eyes   (карта 4) — гигантские глаза
 #   big_mouth  (карта 5) — огромный рот
+# §16 — Кузнец Слов: friendly NPC, открывает крафт-UI при диалоге.
+# Рисуется как гуманоид в фартуке с молотом и наковальней.
+func _build_wordsmith() -> void:
+	var robe_color: Color = Color(0.40, 0.30, 0.20)  # кожаный фартук
+	var body_color: Color = Color(0.65, 0.55, 0.40)  # загорелая кожа
+	# Ноги (видны из-под фартука)
+	for fx: float in [-7.0, 7.0]:
+		var leg: Polygon2D = Polygon2D.new()
+		leg.polygon = PackedVector2Array([Vector2(fx-4, 18), Vector2(fx+4, 18), Vector2(fx+4, 32), Vector2(fx-4, 32)])
+		leg.color = Color(0.25, 0.18, 0.10)
+		_visual_root.add_child(leg)
+	# Фартук (нижняя часть туловища)
+	var apron: Polygon2D = Polygon2D.new()
+	apron.polygon = PackedVector2Array([Vector2(-16, -5), Vector2(16, -5), Vector2(14, 22), Vector2(-14, 22)])
+	apron.color = robe_color
+	_visual_root.add_child(apron)
+	# Торс
+	var torso: Polygon2D = Polygon2D.new()
+	torso.polygon = PackedVector2Array([Vector2(-13, -25), Vector2(13, -25), Vector2(11, -5), Vector2(-11, -5)])
+	torso.color = body_color
+	_visual_root.add_child(torso)
+	# Голова
+	var head: Polygon2D = Polygon2D.new()
+	head.polygon = PackedVector2Array([Vector2(-9, -25), Vector2(9, -25), Vector2(8, -42), Vector2(-8, -42)])
+	head.color = Color(0.80, 0.65, 0.50)
+	_visual_root.add_child(head)
+	# Борода (седая)
+	var beard: Polygon2D = Polygon2D.new()
+	beard.polygon = PackedVector2Array([Vector2(-7, -32), Vector2(7, -32), Vector2(5, -22), Vector2(-5, -22)])
+	beard.color = Color(0.85, 0.85, 0.80)
+	_visual_root.add_child(beard)
+	# Глаза (дружелюбные, синие)
+	for ex: float in [-3.5, 3.5]:
+		var eye: Polygon2D = Polygon2D.new()
+		eye.polygon = PackedVector2Array([Vector2(ex-1, -37), Vector2(ex+1, -37), Vector2(ex+1, -34), Vector2(ex-1, -34)])
+		eye.color = Color(0.30, 0.55, 0.85)
+		_visual_root.add_child(eye)
+	# Молот в правой руке (золотой набалдашник)
+	var hammer_handle: Polygon2D = Polygon2D.new()
+	hammer_handle.polygon = PackedVector2Array([Vector2(13, -22), Vector2(16, -22), Vector2(18, -8), Vector2(15, -8)])
+	hammer_handle.color = Color(0.30, 0.20, 0.10)
+	_visual_root.add_child(hammer_handle)
+	var hammer_head: Polygon2D = Polygon2D.new()
+	hammer_head.polygon = PackedVector2Array([Vector2(11, -25), Vector2(20, -25), Vector2(19, -20), Vector2(12, -20)])
+	hammer_head.color = Color(0.65, 0.55, 0.35)
+	_visual_root.add_child(hammer_head)
+	# Наковальня слева (серая, приземистая)
+	var anvil: Polygon2D = Polygon2D.new()
+	anvil.polygon = PackedVector2Array([Vector2(-22, 18), Vector2(-10, 18), Vector2(-12, 12), Vector2(-20, 12)])
+	anvil.color = Color(0.30, 0.30, 0.32)
+	_visual_root.add_child(anvil)
+	var anvil_top: Polygon2D = Polygon2D.new()
+	anvil_top.polygon = PackedVector2Array([Vector2(-24, 12), Vector2(-8, 12), Vector2(-10, 8), Vector2(-22, 8)])
+	anvil_top.color = Color(0.40, 0.40, 0.42)
+	_visual_root.add_child(anvil_top)
+
 func _build_named_creature(kind: String) -> void:
 	var body_color: Color = Color(0.22, 0.30, 0.20)  # зелёный болотный
 	var accent: Color = Color(0.85, 0.25, 0.20)      # красный акцент
@@ -768,6 +836,11 @@ func start_dialogue() -> void:
 		return
 	if GameState.is_in_dialogue:
 		return
+	# Кузнец Слов — friendly, не требует буквиц для разговора.
+	# При диалоге открывает крафт-UI.
+	if _draw_type == "wordsmith" or monster_id == "wordsmith":
+		_open_craft_via_npc()
+		return
 	# Need at least 3 буквицы to speak (the 3 are consumed on recruit completion in _try_recruit)
 	if not InventoryManager.has_ellipsis():
 		return
@@ -782,6 +855,17 @@ func start_dialogue() -> void:
 
 # Q4: Автоматически сдать первый выполнимый квест из active_quests текущей карты.
 # show_toast=true если квест сдан — для диагностического сообщения в dialogue.
+# §16 — Кузнец Слов открывает крафт через JS bridge.
+# world_map._process слушает флаг и открывает inventory+craft panel.
+func _open_craft_via_npc() -> void:
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window._bookwarOpenCraft = true;")
+	# Также показываем первую реплику как toast
+	if not _dialogue_data.is_empty():
+		var text: String = String(_dialogue_data[0].get("text", ""))
+		if text != "":
+			GameState.toast_requested.emit("⚒ " + text.substr(0, 80))
+
 func _try_hand_in_quest() -> void:
 	if GameState.active_quests.is_empty():
 		return
