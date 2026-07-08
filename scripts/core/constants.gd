@@ -263,7 +263,10 @@ const REGION_LORE: Dictionary = {
 }
 
 static func get_region_lore(map_id: String) -> String:
-	return String(REGION_LORE.get(map_id, ""))
+	# §TODO#3: I18n-aware. Falls back to the embedded RU REGION_LORE if no
+	# translation is found in the current locale (or in en).
+	var ru_default: String = String(REGION_LORE.get(map_id, ""))
+	return I18n.t("lore." + map_id, ru_default)
 
 # Final boss (evil wizard) monster id — spawned on the last level.
 static func get_final_boss_id() -> String:
