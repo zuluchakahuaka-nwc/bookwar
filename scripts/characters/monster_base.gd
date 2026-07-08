@@ -217,6 +217,18 @@ func _setup_visual() -> void:
 			_label_ref.position = Vector2(-55.0, -100.0)
 			_label_ref.z_index = 50
 			_label_ref.visible = true
+	elif _draw_type == "merchant":
+		# §18.4 — Купец, friendly NPC, открывает магазин
+		_build_merchant()
+		if _label_ref:
+			_label_ref.text = I18n.t("monster.merchant", "Купец")
+			_label_ref.add_theme_font_size_override("font_size", 16)
+			_label_ref.add_theme_color_override("font_color", Color(0.70, 0.90, 0.55))
+			_label_ref.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+			_label_ref.add_theme_constant_override("outline_size", 5)
+			_label_ref.position = Vector2(-30.0, -100.0)
+			_label_ref.z_index = 50
+			_label_ref.visible = true
 	elif _drawn or monster_id == "forest_creature":
 		_build_creature_body()
 	elif monster_id == "question" or monster_id == "exclamation":
@@ -357,6 +369,68 @@ func _build_wordsmith() -> void:
 	anvil_top.polygon = PackedVector2Array([Vector2(-24, 12), Vector2(-8, 12), Vector2(-10, 8), Vector2(-22, 8)])
 	anvil_top.color = Color(0.40, 0.40, 0.42)
 	_visual_root.add_child(anvil_top)
+
+# §18.4 — Купец: friendly NPC, открывает shop UI при диалоге.
+# Рисуется как гуманоид в ярком халате с мешком золота и весами.
+func _build_merchant() -> void:
+	var robe_color: Color = Color(0.45, 0.30, 0.55)  # яркий пурпурный халат
+	# Ноги
+	for fx: float in [-7.0, 7.0]:
+		var leg: Polygon2D = Polygon2D.new()
+		leg.polygon = PackedVector2Array([Vector2(fx-4, 18), Vector2(fx+4, 18), Vector2(fx+4, 32), Vector2(fx-4, 32)])
+		leg.color = Color(0.20, 0.15, 0.10)
+		_visual_root.add_child(leg)
+	# Халат (длинный, до земли)
+	var robe: Polygon2D = Polygon2D.new()
+	robe.polygon = PackedVector2Array([Vector2(-15, -8), Vector2(15, -8), Vector2(18, 24), Vector2(-18, 24)])
+	robe.color = robe_color
+	_visual_root.add_child(robe)
+	# Золотая оторочка халата
+	var trim: Polygon2D = Polygon2D.new()
+	trim.polygon = PackedVector2Array([Vector2(-15, -6), Vector2(15, -6), Vector2(15, -3), Vector2(-15, -3)])
+	trim.color = Color(0.95, 0.80, 0.30)
+	_visual_root.add_child(trim)
+	# Торс
+	var torso: Polygon2D = Polygon2D.new()
+	torso.polygon = PackedVector2Array([Vector2(-12, -22), Vector2(12, -22), Vector2(11, -8), Vector2(-11, -8)])
+	torso.color = Color(0.55, 0.40, 0.65)
+	_visual_root.add_child(torso)
+	# Голова
+	var head: Polygon2D = Polygon2D.new()
+	head.polygon = PackedVector2Array([Vector2(-9, -22), Vector2(9, -22), Vector2(8, -40), Vector2(-8, -40)])
+	head.color = Color(0.80, 0.65, 0.50)
+	_visual_root.add_child(head)
+	# Тюрбан (зелёный с золотом)
+	var turban: Polygon2D = Polygon2D.new()
+	turban.polygon = PackedVector2Array([Vector2(-11, -38), Vector2(11, -38), Vector2(10, -46), Vector2(-10, -46)])
+	turban.color = Color(0.30, 0.55, 0.35)
+	_visual_root.add_child(turban)
+	# Золотая капля на тюрбане
+	var gem: Polygon2D = Polygon2D.new()
+	gem.polygon = PackedVector2Array([Vector2(-2, -44), Vector2(2, -44), Vector2(0, -40)])
+	gem.color = Color(1.0, 0.85, 0.20)
+	_visual_root.add_child(gem)
+	# Усы
+	var mustache: Polygon2D = Polygon2D.new()
+	mustache.polygon = PackedVector2Array([Vector2(-5, -30), Vector2(5, -30), Vector2(4, -27), Vector2(-4, -27)])
+	mustache.color = Color(0.20, 0.10, 0.05)
+	_visual_root.add_child(mustache)
+	# Глаза (зелёные — символ торговца)
+	for ex: float in [-3.5, 3.5]:
+		var eye: Polygon2D = Polygon2D.new()
+		eye.polygon = PackedVector2Array([Vector2(ex-1, -34), Vector2(ex+1, -34), Vector2(ex+1, -31), Vector2(ex-1, -31)])
+		eye.color = Color(0.30, 0.65, 0.30)
+		_visual_root.add_child(eye)
+	# Мешок золота в левой руке (коричневый с золотыми краями)
+	var sack: Polygon2D = Polygon2D.new()
+	sack.polygon = PackedVector2Array([Vector2(-19, -5), Vector2(-12, -5), Vector2(-13, 6), Vector2(-18, 6)])
+	sack.color = Color(0.45, 0.30, 0.15)
+	_visual_root.add_child(sack)
+	# Золотая монета сверху мешка
+	var coin: Polygon2D = Polygon2D.new()
+	coin.polygon = PackedVector2Array([Vector2(-18, -8), Vector2(-13, -8), Vector2(-13, -5), Vector2(-18, -5)])
+	coin.color = Color(0.95, 0.80, 0.20)
+	_visual_root.add_child(coin)
 
 func _build_named_creature(kind: String) -> void:
 	var body_color: Color = Color(0.22, 0.30, 0.20)  # зелёный болотный
@@ -945,6 +1019,10 @@ func start_dialogue() -> void:
 	if _draw_type == "wordsmith" or monster_id == "wordsmith":
 		_open_craft_via_npc()
 		return
+	# Купец — friendly, открывает магазин.
+	if _draw_type == "merchant" or monster_id == "merchant":
+		_open_shop_via_npc()
+		return
 	# Need at least 3 буквицы to speak (the 3 are consumed on recruit completion in _try_recruit)
 	if not InventoryManager.has_ellipsis():
 		return
@@ -969,6 +1047,15 @@ func _open_craft_via_npc() -> void:
 		var text: String = String(_dialogue_data[0].get("text", ""))
 		if text != "":
 			GameState.toast_requested.emit("⚒ " + text.substr(0, 80))
+
+# §18.4 — Купец открывает магазин через JS bridge.
+func _open_shop_via_npc() -> void:
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window._godotToggleShop = true;")
+	if not _dialogue_data.is_empty():
+		var text: String = String(_dialogue_data[0].get("text", ""))
+		if text != "":
+			GameState.toast_requested.emit("🛒 " + text.substr(0, 80))
 
 func _try_hand_in_quest() -> void:
 	if GameState.active_quests.is_empty():
