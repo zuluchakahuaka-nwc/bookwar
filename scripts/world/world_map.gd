@@ -49,6 +49,8 @@ func _ready() -> void:
 	# Atmospheric layer: dust motes + warm glow around player (dark-fantasy mood).
 	# Procedural — no assets required. (Audit rec #5, 2026-07-07.)
 	_apply_atmosphere()
+	# §Polish (2026-07-08): decorative terrain — камни/грибы/кристаллы на карте
+	_spawn_terrain_decor()
 	# Start quest for this map (if not already completed)
 	GameState.start_quest_for_map(GameState.current_map_id)
 	# Show quest toast on map entry
@@ -358,9 +360,219 @@ func _setup_monster_spawner() -> void:
 			elif spawner.has_method("setup_light_valley"):
 				spawner.setup_light_valley()
 
+# §Polish (2026-07-08): декоративные элементы окружения.
+# Спавнит мелкие бесколлизионные объекты (камни, грибы, кристаллы) в случайных
+# позициях карты — даёт визуальное разнообразие и атмосферу.
+func _spawn_terrain_decor() -> void:
+	var map_id: String = GameState.current_map_id
+	var chain_idx: int = BookwarConst.MAP_CHAIN.find(map_id)
+	if chain_idx < 0:
+		chain_idx = 0
+	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	rng.seed = hash(map_id + "_decor")
+	# Контейнер для декораций (z_index=1 — поверх тайлов, под предметами/монстрами)
+	var decor_layer: Node2D = Node2D.new()
+	decor_layer.name = "DecorLayer"
+	decor_layer.z_index = 1
+	add_child(decor_layer)
+	# Тип и количество decor зависит от глубины карты
+	var decor_count: int = 80 + chain_idx * 3  # 80 на карте 1, 176 на карте 33
+	var max_x: float = BookwarConst.get_map_bound_max_x(map_id)
+	var max_y: float = BookwarConst.get_map_bound_max_y(map_id)
+	# Палитры декораций по биому
+	var biome: String = "meadow"  # default
+	if chain_idx >= 22:
+		biome = "deep_dark"
+	elif chain_idx >= 15:
+		biome = "caves"
+	elif chain_idx >= 8:
+		biome = "swamp"
+	elif chain_idx >= 4:
+		biome = "dark_forest"
+	elif chain_idx >= 1:
+		biome = "forest"
+	for i: int in range(decor_count):
+		var pos := Vector2(
+			rng.randf_range(BookwarConst.MAP_BOUND_MIN_X + 40, max_x - 40),
+			rng.randf_range(BookwarConst.MAP_BOUND_MIN_Y + 40, max_y - 40)
+		)
+		var decor: Node2D = _build_one_decor(biome, rng)
+		decor.global_position = pos
+		decor_layer.add_child(decor)
+
+func _build_one_decor(biome: String, rng: RandomNumberGenerator) -> Node2D:
+	var parent: Node2D = Node2D.new()
+	# Случайно выбираем тип в зависимости от биома
+	var roll: float = rng.randf()
+	match biome:
+		"meadow":
+			# Цветы +偶尔 stones
+			if roll < 0.55:
+				_build_flower(parent, rng)
+			elif roll < 0.85:
+				_build_grass_tuft(parent, rng)
+			else:
+				_build_small_stone(parent, rng)
+		"forest":
+			if roll < 0.40:
+				_build_mushroom(parent, rng)
+			elif roll < 0.70:
+				_build_grass_tuft(parent, rng)
+			else:
+				_build_small_stone(parent, rng)
+		"dark_forest":
+			if roll < 0.50:
+				_build_mushroom(parent, rng)
+			elif roll < 0.75:
+				_build_dead_leaf(parent, rng)
+			else:
+				_build_small_stone(parent, rng)
+		"swamp":
+			if roll < 0.60:
+				_build_swamp_bubble(parent, rng)
+			else:
+				_build_dead_leaf(parent, rng)
+		"caves":
+			if roll < 0.50:
+				_build_crystal(parent, rng)
+			elif roll < 0.80:
+				_build_small_stone(parent, rng)
+			else:
+				_build_bone(parent, rng)
+		"deep_dark":
+			if roll < 0.45:
+				_build_crystal(parent, rng)
+			elif roll < 0.75:
+				_build_bone(parent, rng)
+			else:
+				_build_rune(parent, rng)
+	parent.rotation = rng.randf_range(-0.3, 0.3)  # лёгкий случайный наклон
+	parent.scale = Vector2(rng.randf_range(5.5, 7.5), rng.randf_range(5.5, 7.5))  # крупные декоры (видны на скриншоте)
+	return parent
+
+# === Конкретные декорации (через Polygon2D) ===
+
+func _build_flower(parent: Node2D, rng: RandomNumberGenerator) -> void:
+	# Стебель
+	var stem: Polygon2D = Polygon2D.new()
+	stem.polygon = PackedVector2Array([Vector2(-1, 6), Vector2(1, 6), Vector2(0, -3)])
+	stem.color = Color(0.25, 0.50, 0.20)
+	parent.add_child(stem)
+	# Цветок (4 лепестка)
+	var colors: Array[Color] = [Color(0.95, 0.65, 0.30), Color(0.95, 0.40, 0.40), Color(0.85, 0.75, 0.30), Color(0.65, 0.55, 0.95)]
+	var pc: Color = colors[rng.randi() % colors.size()]
+	for i: int in range(4):
+		var angle: float = i * TAU / 4.0
+		var petal: Polygon2D = Polygon2D.new()
+		petal.polygon = PackedVector2Array([
+			Vector2(0, -3),
+			Vector2(cos(angle) * 4 - 1, sin(angle) * 4 - 3),
+			Vector2(cos(angle) * 4 + 1, sin(angle) * 4 - 3),
+		])
+		petal.color = pc
+		parent.add_child(petal)
+	# Серединка
+	var center: Polygon2D = Polygon2D.new()
+	center.polygon = PackedVector2Array([Vector2(-1.5, -4), Vector2(1.5, -4), Vector2(1.5, -2), Vector2(-1.5, -2)])
+	center.color = Color(0.95, 0.85, 0.30)
+	parent.add_child(center)
+
+func _build_grass_tuft(parent: Node2D, rng: RandomNumberGenerator) -> void:
+	for i: int in range(3 + rng.randi() % 3):
+		var blade: Polygon2D = Polygon2D.new()
+		var x: float = (i - 1.5) * 2.0
+		blade.polygon = PackedVector2Array([
+			Vector2(x - 0.5, 6), Vector2(x + 0.5, 6),
+			Vector2(x + rng.randf_range(-1, 1), -3 - rng.randf_range(0, 2))
+		])
+		blade.color = Color(0.30 + rng.randf() * 0.15, 0.55 + rng.randf() * 0.15, 0.20)
+		parent.add_child(blade)
+
+func _build_small_stone(parent: Node2D, rng: RandomNumberGenerator) -> void:
+	var stone: Polygon2D = Polygon2D.new()
+	var s: float = 2.5 + rng.randf() * 2.0
+	stone.polygon = PackedVector2Array([
+		Vector2(-s, 2), Vector2(s, 2), Vector2(s * 0.7, -s * 0.5), Vector2(-s * 0.7, -s * 0.5)
+	])
+	stone.color = Color(0.40 + rng.randf() * 0.10, 0.40 + rng.randf() * 0.10, 0.42)
+	parent.add_child(stone)
+
+func _build_mushroom(parent: Node2D, rng: RandomNumberGenerator) -> void:
+	# Ножка
+	var stalk: Polygon2D = Polygon2D.new()
+	stalk.polygon = PackedVector2Array([Vector2(-1.5, 5), Vector2(1.5, 5), Vector2(1.0, -2), Vector2(-1.0, -2)])
+	stalk.color = Color(0.85, 0.78, 0.65)
+	parent.add_child(stalk)
+	# Шляпка
+	var cap: Polygon2D = Polygon2D.new()
+	cap.polygon = PackedVector2Array([Vector2(-4, -2), Vector2(4, -2), Vector2(3, -5), Vector2(-3, -5)])
+	var is_red: bool = rng.randf() < 0.6
+	cap.color = Color(0.80, 0.20, 0.18) if is_red else Color(0.50, 0.40, 0.30)
+	parent.add_child(cap)
+
+func _build_dead_leaf(parent: Node2D, rng: RandomNumberGenerator) -> void:
+	var leaf: Polygon2D = Polygon2D.new()
+	leaf.polygon = PackedVector2Array([
+		Vector2(-3, 2), Vector2(3, 2), Vector2(4, 0), Vector2(3, -2),
+		Vector2(0, -3), Vector2(-3, -2), Vector2(-4, 0)
+	])
+	leaf.color = Color(0.45 + rng.randf() * 0.20, 0.30, 0.15)
+	parent.add_child(leaf)
+
+func _build_swamp_bubble(parent: Node2D, rng: RandomNumberGenerator) -> void:
+	# Зелёный пузырь (болотный газ)
+	var bubble: Polygon2D = Polygon2D.new()
+	var r: float = 1.5 + rng.randf() * 1.5
+	bubble.polygon = PackedVector2Array([
+		Vector2(-r, 0), Vector2(0, -r), Vector2(r, 0), Vector2(0, r)
+	])
+	bubble.color = Color(0.35, 0.55, 0.30, 0.7)
+	parent.add_child(bubble)
+
+func _build_crystal(parent: Node2D, rng: RandomNumberGenerator) -> void:
+	# Кристалл — гранёный
+	var crystal: Polygon2D = Polygon2D.new()
+	var h: float = 5.0 + rng.randf() * 4.0
+	crystal.polygon = PackedVector2Array([
+		Vector2(0, -h), Vector2(2, -2), Vector2(1.5, 3),
+		Vector2(-1.5, 3), Vector2(-2, -2)
+	])
+	var colors: Array[Color] = [Color(0.55, 0.75, 0.95), Color(0.80, 0.55, 0.95), Color(0.55, 0.95, 0.75)]
+	crystal.color = colors[rng.randi() % colors.size()]
+	parent.add_child(crystal)
+
+func _build_bone(parent: Node2D, rng: RandomNumberGenerator) -> void:
+	# Кость (череп или берцо)
+	var bone: Polygon2D = Polygon2D.new()
+	bone.polygon = PackedVector2Array([
+		Vector2(-4, 0), Vector2(4, 0), Vector2(4, 2), Vector2(-4, 2)
+	])
+	bone.color = Color(0.80, 0.78, 0.65)
+	parent.add_child(bone)
+	# Шарообразные концы
+	for ex: float in [-4.0, 4.0]:
+		var cap: Polygon2D = Polygon2D.new()
+		cap.polygon = PackedVector2Array([Vector2(ex-2, -1), Vector2(ex+2, -1), Vector2(ex+2, 3), Vector2(ex-2, 3)])
+		cap.color = Color(0.85, 0.82, 0.70)
+		parent.add_child(cap)
+
+func _build_rune(parent: Node2D, rng: RandomNumberGenerator) -> void:
+	# Каменная плитка с руной
+	var tile: Polygon2D = Polygon2D.new()
+	tile.polygon = PackedVector2Array([Vector2(-4, 2), Vector2(4, 2), Vector2(3, -1), Vector2(-3, -1)])
+	tile.color = Color(0.25, 0.20, 0.30)
+	parent.add_child(tile)
+	# Руна (горящая)
+	var rune: Polygon2D = Polygon2D.new()
+	rune.polygon = PackedVector2Array([
+		Vector2(-1, 0), Vector2(1, 0), Vector2(1, -2),
+		Vector2(0, -3), Vector2(-1, -2)
+	])
+	var rune_colors: Array[Color] = [Color(0.95, 0.30, 0.30), Color(0.30, 0.85, 0.95), Color(0.95, 0.85, 0.30)]
+	rune.color = rune_colors[rng.randi() % rune_colors.size()]
+	parent.add_child(rune)
+
 func _spawn_map_items() -> void:
-	# Deterministic RNG per map: same seed → same random positions/letters/colors across
-	# battle scene reloads, so collected-item keys (map:index) stay stable.
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = hash(GameState.current_map_id)
 	match GameState.current_map_id:
