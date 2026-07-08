@@ -133,21 +133,12 @@ async function moveTo(page, targetX, targetY, threshold = 50) {
   log(`Квестов активно: ${state.questActive}, буквиц: ${state.dots}, букв: ${state.lettersCount}`);
   await snap(page, 'load');
 
-  // 1. Скриншот: журнал квестов
-  log('\n--- Шаг: открыть журнал квестов ---');
-  await page.evaluate(() => { if (window.gameToggleQuestLog) window.gameToggleQuestLog(); });
-  await sleep(800);
-  await snap(page, 'quest_log');
-  await page.evaluate(() => { if (window.gameToggleQuestLog) window.gameToggleQuestLog(); });
-  await sleep(400);
-
-  // 2. Скриншот: статистика
-  log('\n--- Шаг: открыть статистику ---');
-  await page.evaluate(() => { if (window.gameToggleStats) window.gameToggleStats(); });
-  await sleep(800);
-  await snap(page, 'stats');
-  await page.evaluate(() => { if (window.gameToggleStats) window.gameToggleStats(); });
-  await sleep(400);
+  // §TODO#1: quest_log/stats скриншоты перенесены в САМЫЙ КОНЕЦ walkthrough.
+  // ПРИЧИНА: открытие/закрытие stats_screen через gameToggleStats() ломает
+  // Godot 4.6.3 HTML5 JS engine — после toggles, JavaScriptBridge.eval на
+  // Godot стороне перестаёт видеть writes от Puppeteer (window.X = ... не виден).
+  // Это ломает gameTriggerDialogue, gameTestAddDots, gameAutoBattle и др.
+  // UI скрины снимаются ПОСЛЕ всех gameplay-операций.
 
   // 3. Найти ближайшего ? монстра (нейтрального) — для диалога
   log('\n--- Шаг: подойти к ? монстру для диалога ---');
@@ -160,13 +151,30 @@ async function moveTo(page, targetX, targetY, threshold = 50) {
     await snap(page, 'near_question');
     // Дать точек для диалога
     await page.evaluate(() => { if (window.gameTestAddDots) window.gameTestAddDots(15); });
-    await sleep(300);
-    // gameTriggerDialogue — надёжный JS bridge (T-key через Puppeteer нестабилен)
-    await page.evaluate(() => { if (window.gameTriggerDialogue) window.gameTriggerDialogue(); });
-    await sleep(1500);
-    state = await getState(page);
-    if (state.inDialogue) {
-      log(`Диалог открыт`);
+    await sleep(400);
+    // §TODO#1: gameTriggerDialogue теперь надёжно буферизуется через world_map._process
+    // (вызывает _force_nearest_dialogue — не требует overlap с interaction area).
+    // Polling до 3с вместо single check — защищает от race condition с player.gd.
+    let dialogueOpened = false;
+    let successAttempt = 0;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      // Click canvas для focus (после UI toggles keyboard может не идти)
+      const canvas1 = await page.$('canvas');
+      if (canvas1) { const bx = await canvas1.boundingBox(); if (bx) await page.mouse.click(bx.x + bx.width/2, bx.y + bx.height/2); }
+      await page.evaluate(() => { if (window.gameTriggerDialogue) window.gameTriggerDialogue(); });
+      for (let t = 0; t < 10; t++) {
+        await sleep(300);
+        const s = await getState(page);
+        if (s.inDialogue) { dialogueOpened = true; successAttempt = attempt + 1; break; }
+      }
+      if (dialogueOpened) break;
+      log(`Попытка ${attempt+1}: диалог не открылся, ретрай...`);
+      // Подойти ближе (монстр мог сдвинуться — patrol)
+      const fresh = await page.evaluate(() => (window.gameMonsterStates || []).filter(m => m.id === 'question' && m.allegiance === 2 && m.state !== 'dead').slice(0, 1));
+      if (fresh.length > 0) { await moveTo(page, fresh[0].position.x, fresh[0].position.y, 50); }
+    }
+    if (dialogueOpened) {
+      log(`Диалог открыт (попытка ${successAttempt})`);
       await snap(page, 'dialogue');
       // Прокликать диалог
       for (let i = 0; i < 5; i++) {
@@ -177,7 +185,7 @@ async function moveTo(page, targetX, targetY, threshold = 50) {
       }
       await snap(page, 'after_dialogue');
     } else {
-      log(`Диалог не открылся (нет ? монстра в радиусе)`);
+      log(`Диалог не открылся за 3 попытки (нет ? монстра в радиусе)`);
     }
   } else {
     log('Нет нейтральных ? монстров на карте');
@@ -259,6 +267,20 @@ async function moveTo(page, targetX, targetY, threshold = 50) {
   log(`Победа: ${state.victory}, Портал: ${state.portalSpawned}`);
   log(`Букв собрано: ${state.lettersCount}, Буквиц: ${state.dots}`);
   await snap(page, 'final');
+
+  // 9. UI скриншоты (в конце — после toggles JS engine может рассинхронизоваться,
+  // но это не критично т.к. все gameplay операции уже завершены).
+  log('\n--- Шаг: UI скриншоты (quest log + stats) ---');
+  await page.evaluate(() => { if (window.gameToggleQuestLog) window.gameToggleQuestLog(); });
+  await sleep(800);
+  await snap(page, 'quest_log');
+  await page.evaluate(() => { if (window.gameToggleQuestLog) window.gameToggleQuestLog(); });
+  await sleep(400);
+  await page.evaluate(() => { if (window.gameToggleStats) window.gameToggleStats(); });
+  await sleep(800);
+  await snap(page, 'stats');
+  await page.evaluate(() => { if (window.gameToggleStats) window.gameToggleStats(); });
+  await sleep(400);
 
   await browser.close();
   log(`\nСкриншотов сохранено: ${stepN} в ${SHOTS_DIR}`);

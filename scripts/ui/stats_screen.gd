@@ -64,8 +64,8 @@ func _process(_delta: float) -> void:
 		if JavaScriptBridge.eval("typeof window._godotToggleStats !== 'undefined' && window._godotToggleStats"):
 			JavaScriptBridge.eval("window._godotToggleStats = false;")
 			_toggle()
-	if _visible:
-		_refresh()
+	# Stats panel refreshes on _toggle (open) only — calling _refresh() every frame
+	# while visible would rebuild ~25 children per frame and thrash Godot's tree.
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and (event.keycode == KEY_S or event.keycode == KEY_TAB):
