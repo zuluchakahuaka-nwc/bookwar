@@ -398,7 +398,9 @@ func _spawn_terrain_decor() -> void:
 	decor_layer.z_index = 1
 	add_child(decor_layer)
 	# Тип и количество decor зависит от глубины карты
-	var decor_count: int = 80 + chain_idx * 3  # 80 на карте 1, 176 на карте 33
+	# §TODO#4: уменьшено с 80+3N до 50+2N — при увеличенном scale (10-14)
+	# каждый decor занимает больше места, прежняя плотность давала визуальный шум.
+	var decor_count: int = 50 + chain_idx * 2  # 50 на карте 1, 114 на карте 33
 	var max_x: float = BookwarConst.get_map_bound_max_x(map_id)
 	var max_y: float = BookwarConst.get_map_bound_max_y(map_id)
 	# Палитры декораций по биому
@@ -469,7 +471,9 @@ func _build_one_decor(biome: String, rng: RandomNumberGenerator) -> Node2D:
 			else:
 				_build_rune(parent, rng)
 	parent.rotation = rng.randf_range(-0.3, 0.3)  # лёгкий случайный наклон
-	parent.scale = Vector2(rng.randf_range(5.5, 7.5), rng.randf_range(5.5, 7.5))  # крупные декоры (видны на скриншоте)
+	# §TODO#4: увеличен scale (5.5-7.5 -> 15.0-20.0) — Vision MCP всё ещё называл
+	# декоры "relatively small" при 10-14. Делаем заметно крупнее.
+	parent.scale = Vector2(rng.randf_range(15.0, 20.0), rng.randf_range(15.0, 20.0))
 	return parent
 
 # === Конкретные декорации (через Polygon2D) ===
