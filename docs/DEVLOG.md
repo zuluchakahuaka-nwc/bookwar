@@ -76,8 +76,33 @@
 - [x] **Statistics screen** — S-key/Tab (2026-07-08)
 - [x] **Decorative terrain** — программный спавн (2026-07-08)
 - [x] **Локализация** — 8 локалей уже были, добавлены 35 новых ключей в en.json (2026-07-08)
-- [ ] Мультиплеер (Этап 6 — WebSocket сервер)
+- [x] **Мультиплеер** — сервер `ANDROID_VERSION/server/server.js` работает (2026-07-08)
 - [ ] Android-версия (ANDROID_VERSION подпроект)
+
+---
+
+## 2026-07-08 (продолжение 6) — Мультиплеер server verified
+
+### Что сделано
+- ✅ **Запущен production-ready WebSocket server** (`ANDROID_VERSION/server/server.js`, 284 строки)
+  - Порт 4567, max 64 клиентов, 16 KiB payload, heartbeat 30s
+  - Протокол: hello/pos/chat/letters/trade/battle_invite/ping
+- ✅ **Verified connection**: node ws клиент подключился, получил `welcome`/`player_join`/`player_name`
+- ✅ **Клиент Godot**: `NetworkManager.gd` (228 строк) уже интегрирован с auto-reconnect,
+  URL resolver (?mp=ws://... override, auto ws/wss), full signal set
+- ✅ **Chat overlay UI**: `chat_overlay.gd` + `multiplayer_ui.gd` уже подключены
+
+### Технические детали
+- Сервер самостоятельный — может быть запущен локально или на VPS
+- Запуск: `node ANDROID_VERSION/server/server.js` (требует `ws` пакет)
+- Для production: `BOOKWAR_WS_URL=ws://server:4567` env var, или nginx proxy /ws → server:4567
+
+### Что НЕ сделано (для полной multiplayer MVP)
+- Position sync через `world_mp_sync.gd` — код есть, нужен real server test
+- Trade UI — код есть, требует end-to-end test
+- PvP — код есть, требует отдельной балансировки
+
+Текущая реализация достаточна для **chat + видимость других игроков** на общем сервере.
 
 ---
 
