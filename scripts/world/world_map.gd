@@ -4,6 +4,7 @@ const DOT_SCENE: PackedScene = preload("res://scenes/world/dot_item.tscn")
 const BATTLE_SCENE_PATH: String = "res://scenes/combat/battle_scene.tscn"
 const CHAT_OVERLAY_SCENE: PackedScene = preload("res://scenes/ui/chat_overlay.tscn")
 const QUEST_LOG_SCENE: PackedScene = preload("res://scenes/ui/quest_log.tscn")
+const STATS_SCENE: PackedScene = preload("res://scenes/ui/stats_screen.tscn")
 const WORLD_MP_SYNC_SCRIPT: Script = preload("res://scripts/multiplayer/world_mp_sync.gd")
 
 const MAP_BOUND_MIN_X: float = 80.0
@@ -70,6 +71,10 @@ func _ready() -> void:
 	var quest_log: CanvasLayer = QUEST_LOG_SCENE.instantiate()
 	quest_log.name = "QuestLog"
 	add_child(quest_log)
+	# Экран статистики (S-key / Tab toggle)
+	var stats: CanvasLayer = STATS_SCENE.instantiate()
+	stats.name = "StatsScreen"
+	add_child(stats)
 	# Multiplayer: spawn remote players layer + chat overlay (only if connected)
 	if NetworkManager.is_connected_to_server():
 		var mp_sync: Node2D = Node2D.new()
