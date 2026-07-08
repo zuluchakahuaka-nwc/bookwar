@@ -72,12 +72,35 @@
 
 ### Что осталось (после 2026-07-08)
 - [x] **§16 Кузнец Слов** — friendly NPC, открывает крафт через диалог (2026-07-08)
-- [x] **Progress bar % зачистки в HUD** — `hud_ui.gd::_build_progress_bar` (2026-07-08)
-- [x] **Statistics screen** — `stats_screen.gd` + `stats_screen.tscn`, S-key/Tab (2026-07-08)
-- [x] **Decorative terrain** — programmatically спавн цветы/грибы/камни/кристаллы/руны (2026-07-08)
+- [x] **Progress bar % зачистки в HUD** (2026-07-08)
+- [x] **Statistics screen** — S-key/Tab (2026-07-08)
+- [x] **Decorative terrain** — программный спавн (2026-07-08)
+- [x] **Локализация** — 8 локалей уже были, добавлены 35 новых ключей в en.json (2026-07-08)
 - [ ] Мультиплеер (Этап 6 — WebSocket сервер)
 - [ ] Android-версия (ANDROID_VERSION подпроект)
-- [ ] Localisation (en/es/de/ar/zh — AGENTS.md §2.0)
+
+---
+
+## 2026-07-08 (продолжение 5) — Локализация
+
+### Что сделано
+- ✅ **Проверена локализация** — 8 локалей уже были подключены (ru/en/es/de/ar/zh/fr/pt)
+- ✅ **Добавлены 35 новых ключей в en.json** для новых UI элементов:
+  - `hud.quests`, `hud.stats` — для новых touch кнопок
+  - `questlog.title/hint/empty/progress/can_hand_in/not_ready/reward/*` — журнал
+  - `stats.title/map/maps_passed/letters_collected/quests_done/recruits/dots/letter_power/*` — стат экран
+  - `questtype.defeat/collect/buy/trade/talk` — типы квестов
+  - `progress.cleared/portal_open/to_portal/percent_left` — progress bar
+  - `monster.wordsmith` — Кузнец Слов
+
+### Технические детали
+- `I18n.set_locale('en')` через `window.gameSetLocale` bridge — работает
+- Все строки с `I18n.t(key, fallback)` — используют en перевод если есть, иначе fallback
+- Lore описания регионов остаются на русском (контент игры, не UI)
+
+### Тесты
+- `snap_locale_en.js` — verified: menu "New Game", subtitle "War for the Alphabet",
+  HUD region "Bright Valley". Локализация работает корректно.
 
 ---
 
