@@ -775,6 +775,36 @@
           "result": "slow"
         }
       ]
+    },
+    {
+      "id": "merchant",
+      "name": "Купец",
+      "symbol": "merch",
+      "hp": 150,
+      "behavior": "patrol",
+      "detection_radius": 0,
+      "attack_radius": 0,
+      "speed": 0,
+      "letters": [],
+      "punctuation": [],
+      "draw_type": "merchant",
+      "draw": true,
+      "is_friendly": true,
+      "drop_table": [],
+      "dialogue_options": [
+        {
+          "text": "Торговля — основа цивилизации. Даже когда буквы под запретом.",
+          "result": "info"
+        },
+        {
+          "text": "Буквицы — ходовая монета. Буквы — роскошь. Плати и бери.",
+          "result": "info"
+        },
+        {
+          "text": "Купи редкую букву. Продаю только по-friendly цене.",
+          "result": "info"
+        }
+      ]
     }
   ]
 }

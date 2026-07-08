@@ -9,8 +9,10 @@ func setup_light_valley() -> void:
 	var e_scene: PackedScene = preload("res://scenes/characters/monsters/exclamation_monster.tscn")
 	var smith_scene: PackedScene = preload("res://scenes/characters/monsters/question_monster.tscn")
 	# §16: Кузнец Слов — friendly NPC в деревне (карта 1). Стоит у края старта.
+	# §18.4: Купец — рядом с Кузнецом, на торговом месте.
 	_spawn_points = [
 		{"scene": smith_scene, "pos": Vector2(p.x - 400, p.y - 300), "monster_id": "wordsmith"},
+		{"scene": smith_scene, "pos": Vector2(p.x + 400, p.y - 300), "monster_id": "merchant"},
 		{"scene": q_scene, "pos": Vector2(p.x + 350, p.y)},
 		{"scene": q_scene, "pos": Vector2(p.x - 200, p.y - 250)},
 		{"scene": q_scene, "pos": Vector2(p.x + 450, p.y - 150)},
@@ -152,6 +154,9 @@ func setup_generic(map_id: String) -> void:
 	# §16: Кузнец Слов в городах/цитаделях (карты 1, 10, 24, 25, 30 — населённые локации)
 	if map_id in [BookwarConst.MAP_DARK_CATHEDRAL, BookwarConst.MAP_ABANDONED_VILLAGE, BookwarConst.MAP_OLD_CITADEL, BookwarConst.MAP_LABYRINTH_FEAR]:
 		_spawn_points.append({"scene": q_scene, "pos": Vector2(p.x - 400, p.y - 300), "monster_id": "wordsmith"})
+	# §18.4: Купец в торговых точках (карты 4, 12, 19, 26)
+	if map_id in [BookwarConst.MAP_MOSSY_LOWLANDS, BookwarConst.MAP_MISTY_GROVE, BookwarConst.MAP_VAULTS_OBLIVION, BookwarConst.MAP_SHADOW_FORTRESS]:
+		_spawn_points.append({"scene": q_scene, "pos": Vector2(p.x + 400, p.y - 300), "monster_id": "merchant"})
 	_spawn_all()
 
 # Monster-id pool for the ! army on a given 0-based level index. Tiers escalate:

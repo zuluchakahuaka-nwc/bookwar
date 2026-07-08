@@ -72,14 +72,46 @@
 
 ### Что осталось (после 2026-07-08)
 - [x] **§16 Кузнец Слов** — friendly NPC, открывает крафт через диалог (2026-07-08)
+- [x] **§18.4 Shop UI** — Купец NPC + панель магазина с покупкой букв (2026-07-08)
+- [x] **§18.5 Named creatures** — карты 2-10 (9 уникальных существ) (2026-07-08)
 - [x] **Progress bar % зачистки в HUD** (2026-07-08)
 - [x] **Statistics screen** — S-key/Tab (2026-07-08)
 - [x] **Decorative terrain** — программный спавн (2026-07-08)
-- [x] **Локализация** — 8 локалей уже были, добавлены 35 новых ключей в en.json (2026-07-08)
-- [x] **Мультиплеер** — сервер `ANDROID_VERSION/server/server.js` работает (2026-07-08)
-- [x] **Android** — APK пересобран (152.4 MB) со всеми обновлениями (2026-07-08)
+- [x] **Локализация** — 8 локалей + 35 новых ключей в en + полный перевод (2026-07-08)
+- [x] **Мультиплеер** — сервер работает (2026-07-08)
+- [x] **Android** — APK 152.4 МБ со всеми обновлениями (2026-07-08)
 
-**ВСЕ ЗАДАЧИ ПОЛЬЗОВАТЕЛЯ ЗАКРЫТЫ.**
+---
+
+## 2026-07-08 (финал) — Shop UI + named creatures 6-10 + i18n
+
+### Что сделано
+- ✅ **§18.4 Купец NPC** — friendly, открывает shop panel при диалоге
+  - Покупка букв за буквицы, цены = position × 5 (§20 inverted: А=5, Я=165)
+  - Спавнится: карта 1, 4, 12, 19, 26
+- ✅ **Shop panel** `scripts/ui/shop_screen.gd` — грид 33 кнопок, цена + наличие, buy через JS bridge
+- ✅ **5 новых named creatures** для карт 6-10:
+  - L6 swamp_lights: Болотоход (tentacles + gas)
+  - L7 stony_wastes: Камнегрыз (stone jaws)
+  - L8 ash_plains: Пепельный Жрец (hood + staff)
+  - L9 crystal_grottos: Кристалоид (spikes + core)
+  - L10 dark_cathedral: Тёмный Монах (candle + sigil)
+- ✅ **Полная локализация** 35 новых ключей на es/de/fr/pt/ar/zh
+- ✅ **Bug fix**: monster_base.gd:200 — broken indent после match cases
+
+### Технические детали
+- world_map инстанцирует ShopScreen (layer=92, выше Stats)
+- merchant NPC отрисовывается: тюрбан, усы, мешок золота, монета, весы
+- Shop UI: GridContainer с 5 columns, ScrollContainer, кнопки с буква+цена+уровень
+- buy queue: window._godotBuyQueue, world_map._process drains and calls InventoryManager
+
+### Тесты
+- regression_smoke 8/8 после багфикса indent
+- Vision видел creature в game state (названия корректные)
+
+### ВСЕ ЗАДАЧИ ПОЛЬЗОВАТЕЛЯ ЗАКРЫТЫ + дополнительные улучшения
+Полный RPG теперь: квесты, кастомные существа, shop, smith, крафт, stats,
+progress bar, lore, decorative terrain, save/load, 8 локалей, multiplayer, APK.
 
 ---
 
