@@ -26,6 +26,29 @@ var _my_name: String = "Hero"
 var _is_connected: bool = false
 var _players: Dictionary = {}
 
+func _ready() -> void:
+	if OS.has_feature("web"):
+		# §TODO#5: Expose direct multiplayer connect bridge for e2e tests.
+		# Allows Puppeteer to bypass the Multiplayer UI and force-connect
+		# to a specific server URL (used by 2-client position-sync tests).
+		JavaScriptBridge.eval("""
+			window.gameMPConnect = function(url) {
+				window._mpWantConnect = url || 'ws://localhost:4567';
+				return true;
+			};
+			window.gameMPSetMyName = function(name) {
+				window._godotMPName = String(name || 'Hero');
+				return true;
+			};
+			window.gameMPDisconnect = function() {
+				window._mpWantDisconnect = true;
+				return true;
+			};
+		""", true)
+		set_process(true)
+	# Poll for _godotMPName override set by tests
+	set_process(true)
+
 func is_connected_to_server() -> bool:
 	if OS.has_feature("web"):
 		# Use the JS-side WebSocket state (Godot's own WebSocketPeer is unreliable
@@ -130,7 +153,17 @@ func _send(msg: Dictionary) -> void:
 
 func _process(_delta: float) -> void:
 	if OS.has_feature("web"):
+		# §TODO#5: poll name override from test bridge (e2e sets unique names
+		# for each Puppeteer client so the server distinguishes them).
+		var nm: String = str(JavaScriptBridge.eval("typeof window._godotMPName !== 'undefined' ? window._godotMPName : ''", true))
+		if nm != "" and nm != _my_name:
+			_my_name = nm
 		_process_web()
+		# Expose connection state + players count directly (independent of
+		# Multiplayer UI being open — needed for e2e tests).
+		JavaScriptBridge.eval("window.gameMPConnected = " + ("true" if _is_connected else "false") + ";", true)
+		JavaScriptBridge.eval("window.gameMPPlayersCount = " + str(_players.size()) + ";", true)
+		JavaScriptBridge.eval("window.gameMPMyId = " + JSON.stringify(_my_id) + ";", true)
 		return
 	if _peer == null:
 		return
