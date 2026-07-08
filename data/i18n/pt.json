@@ -10,7 +10,6 @@
   "menu.reset_save": "Apagar jogo",
   "menu.hint": "WASD — mover | E — pegar | I — inventário | T — falar",
   "menu.language": "Idioma",
-
   "prologue.skip": "Pular lenda >>",
   "prologue.back": "← Voltar",
   "prologue.next": "Avançar →",
@@ -26,10 +25,8 @@
   "prologue.panel_5": "Os asseclas do feiticeiro usam apenas\nas letras que lhes convêm e lhes dão seus próprios significados.\nNinguém pode conferir — todos os livros estão destruídos.",
   "prologue.panel_6": "O mundo afundará na mentira —\nse um herói não reunir as letras,\nos hipócritas e os mentirosos prevalecerão.",
   "prologue.panel_7": "Você é o herói. Parte para recuperar o alfabeto,\nrestaurar a verdade.\n\nAS LETRAS SÃO VERDADE. Reúna-as todas.",
-
   "common.hp": "PV",
   "common.shield": "Escudo",
-
   "hud.take": "Pegar",
   "hud.bag": "Bolsa",
   "hud.speech": "Falar",
@@ -40,7 +37,6 @@
   "hud.close_move": "[E/T ou mover] — fechar",
   "hud.close": "[E/T] — fechar",
   "hud.paused": "[ PAUSA ]\nEspaço — continuar",
-
   "battle.title": "COMBATE",
   "battle.player": "Jogador",
   "battle.enemy": "Inimigo:",
@@ -67,10 +63,8 @@
   "battle.spell_unavailable": "Feitiço %s indisponível!",
   "battle.spell_cast": "Feitiço %s! Força %s",
   "battle.spell_used": "O feitiço %s já foi lançado neste turno.",
-
   "inv.title": "Inventário",
   "inv.punctuation": "Sinais:",
-
   "craft.closed": "Forjar [-]",
   "craft.open": "Forjar [+]",
   "craft.source": "Fonte (letra):",
@@ -78,7 +72,6 @@
   "craft.transform": "Transformar",
   "craft.no_modifiers": "sem modificadores (precisa de Ь)",
   "craft.select_both": "Escolha uma letra e um modificador.",
-
   "region.light_valley": "Vale Luminoso",
   "region.two_letter_forest": "Floresta das Duas Letras",
   "region.dark_oaks": "Carvalhos Sombrios",
@@ -116,7 +109,6 @@
   "quest.defeat": "Derrote %s inimigos na região «%s»",
   "quest.done": "Missão cumprida! Recompensa: letra %s",
   "quest.done_toast": "★ Missão cumprida! Letra obtida: %s",
-
   "dialogue.waits": "%s aguarda uma resposta.",
   "Староста": "O Ancião",
   "Тихий Странник": "Andarilho Silencioso",
@@ -134,7 +126,6 @@
   "У меня нет точек.": "Não tenho pontos.",
   "Говорят, к северу от деревни спрятана буква А...": "Dizem que a letra А está escondida ao norte da aldeia...",
   "У тебя не хватает точек. Приходи позже.": "Você não tem pontos suficientes. Volte mais tarde.",
-
   "monster.znak": "Sinal",
   "monster.zvuk": "Som",
   "monster.name.question": "Dúvida",
@@ -166,5 +157,40 @@
   "dir.close": "bem perto",
   "dir.near": "perto",
   "dir.far": "longe, mas conheço o lugar",
-  "dir.hint": "Escute! Busque a letra %s %s — %s. %s."
+  "dir.hint": "Escute! Busque a letra %s %s — %s. %s.",
+  "hud.quests": "Missões",
+  "hud.stats": "Stats",
+  "questlog.title": "DIÁRIO DE MISSÕES",
+  "questlog.hint": "[Q] fechar",
+  "questlog.empty": "Sem missões ativas.",
+  "questlog.progress": "Progresso:",
+  "questlog.can_hand_in": "✓ Pronto para entregar",
+  "questlog.not_ready": "Requisito não cumprido",
+  "questlog.reward": "Recompensa:",
+  "questlog.reward_letter": "letra",
+  "questlog.reward_dots": "tokens",
+  "questlog.completed_total": "concluídas",
+  "stats.title": "STATS HERÓI",
+  "stats.hint": "[S] fechar",
+  "stats.map": "Mapa:",
+  "stats.maps_passed": "Mapas concluídos:",
+  "stats.letters_collected": "Letras:",
+  "stats.quests_done": "Missões:",
+  "stats.recruits": "Aliados:",
+  "stats.dots": "Tokens:",
+  "stats.letter_power": "Poder:",
+  "stats.full_alphabet": "★ Alfabeto completo!",
+  "stats.finale": "★ FINAL — alfabeto restaurado",
+  "quest.toast_count": "📜 Missões:",
+  "quest.toast_journal_hint": "[Q — diário]",
+  "progress.cleared": "100% ✓",
+  "progress.portal_open": "⟶ portal aberto",
+  "progress.to_portal": "(ao portal",
+  "progress.percent_left": "%)",
+  "monster.wordsmith": "Ferreiro de Palavras",
+  "questtype.defeat": "DERROTAR",
+  "questtype.collect": "COLETAR",
+  "questtype.buy": "COMPRAR",
+  "questtype.trade": "TROCAR",
+  "questtype.talk": "FALAR"
 }

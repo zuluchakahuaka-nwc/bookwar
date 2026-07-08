@@ -10,7 +10,6 @@
   "menu.reset_save": "Réinitialiser",
   "menu.hint": "WASD — se déplacer | E — ramasser | I — inventaire | T — parler",
   "menu.language": "Langue",
-
   "prologue.skip": "Passer la légende >>",
   "prologue.back": "← Retour",
   "prologue.next": "Suivant →",
@@ -26,10 +25,8 @@
   "prologue.panel_5": "Les sbires du sorcier n'emploient que\nles lettres qui les arrangent et leur donnent leur propre sens.\nImpossible de vérifier : tous les livres sont détruits.",
   "prologue.panel_6": "Le monde s'enfoncera dans le mensonge —\nsi un héros ne rassemble les lettres,\nles hypocrites et les menteurs l'emporteront.",
   "prologue.panel_7": "Tu es le héros. Tu pars reconquérir l'alphabet,\nrestaurer la vérité.\n\nLES LETTRES SONT VÉRITÉ. Rassemble-les toutes.",
-
   "common.hp": "PV",
   "common.shield": "Bouclier",
-
   "hud.take": "Prendre",
   "hud.bag": "Sac",
   "hud.speech": "Parler",
@@ -40,7 +37,6 @@
   "hud.close_move": "[E/T ou bouger] — fermer",
   "hud.close": "[E/T] — fermer",
   "hud.paused": "[ PAUSE ]\nEspace — continuer",
-
   "battle.title": "COMBAT",
   "battle.player": "Joueur",
   "battle.enemy": "Ennemi :",
@@ -67,10 +63,8 @@
   "battle.spell_unavailable": "Sort %s indisponible !",
   "battle.spell_cast": "Sort %s ! Puissance %s",
   "battle.spell_used": "Le sort %s a déjà été lancé ce tour.",
-
   "inv.title": "Inventaire",
   "inv.punctuation": "Signes :",
-
   "craft.closed": "Forger [-]",
   "craft.open": "Forger [+]",
   "craft.source": "Source (lettre) :",
@@ -78,7 +72,6 @@
   "craft.transform": "Transformer",
   "craft.no_modifiers": "aucun modificateur (Ь requis)",
   "craft.select_both": "Choisis une lettre et un modificateur.",
-
   "region.light_valley": "Vallée Lumineuse",
   "region.two_letter_forest": "Forêt des Deux Lettres",
   "region.dark_oaks": "Chênes Sombres",
@@ -116,7 +109,6 @@
   "quest.defeat": "Vaincs %s ennemis dans la région « %s »",
   "quest.done": "Quête accomplie ! Récompense : lettre %s",
   "quest.done_toast": "★ Quête accomplie ! Lettre obtenue : %s",
-
   "dialogue.waits": "%s attend une réponse.",
   "Староста": "L'Ancien",
   "Тихий Странник": "Le Voyageur Silencieux",
@@ -134,7 +126,6 @@
   "У меня нет точек.": "Je n'ai pas de points.",
   "Говорят, к северу от деревни спрятана буква А...": "On dit que la lettre А est cachée au nord du village...",
   "У тебя не хватает точек. Приходи позже.": "Tu n'as pas assez de points. Reviens plus tard.",
-
   "monster.znak": "Signe",
   "monster.zvuk": "Son",
   "monster.name.question": "Doute",
@@ -166,5 +157,40 @@
   "dir.close": "tout près",
   "dir.near": "non loin",
   "dir.far": "loin, mais je connais l'endroit",
-  "dir.hint": "Écoute ! Cherche la lettre %s %s — %s. %s."
+  "dir.hint": "Écoute ! Cherche la lettre %s %s — %s. %s.",
+  "hud.quests": "Quêtes",
+  "hud.stats": "Stats",
+  "questlog.title": "JOURNAL DES QUÊTES",
+  "questlog.hint": "[Q] fermer",
+  "questlog.empty": "Aucune quête active.",
+  "questlog.progress": "Progrès:",
+  "questlog.can_hand_in": "✓ Prêt à rendre",
+  "questlog.not_ready": "Condition non remplie",
+  "questlog.reward": "Récompense:",
+  "questlog.reward_letter": "lettre",
+  "questlog.reward_dots": "jetons",
+  "questlog.completed_total": "terminées",
+  "stats.title": "STATS HÉROS",
+  "stats.hint": "[S] fermer",
+  "stats.map": "Carte:",
+  "stats.maps_passed": "Cartes terminées:",
+  "stats.letters_collected": "Lettres:",
+  "stats.quests_done": "Quêtes:",
+  "stats.recruits": "Alliés:",
+  "stats.dots": "Jetons:",
+  "stats.letter_power": "Puissance:",
+  "stats.full_alphabet": "★ Alphabet complet!",
+  "stats.finale": "★ FINALE — alphabet restauré",
+  "quest.toast_count": "📜 Quêtes:",
+  "quest.toast_journal_hint": "[Q — journal]",
+  "progress.cleared": "100% ✓",
+  "progress.portal_open": "⟶ portail ouvert",
+  "progress.to_portal": "(au portail",
+  "progress.percent_left": "%)",
+  "monster.wordsmith": "Forgeron des Mots",
+  "questtype.defeat": "VAINCRE",
+  "questtype.collect": "COLLECTER",
+  "questtype.buy": "ACHETER",
+  "questtype.trade": "ÉCHANGER",
+  "questtype.talk": "PARLER"
 }

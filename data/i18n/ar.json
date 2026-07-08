@@ -10,7 +10,6 @@
   "menu.reset_save": "مسح الحفظ",
   "menu.hint": "WASD — تحرّك | E — التقط | I — الحقيبة | T — تحدّث",
   "menu.language": "اللغة",
-
   "prologue.skip": "تخطّي الأسطورة >>",
   "prologue.back": "→ السابق",
   "prologue.next": "التالي ←",
@@ -26,10 +25,8 @@
   "prologue.panel_5": "أعوان الساحر لا يستعملون إلا\nالحروف التي تُخدمهم، ويمنحونها معانيَ خاصّة بهم.\nلا سبيل إلى التحقّق — فكلُّ الكتب هُدِّمت.",
   "prologue.panel_6": "سيغرق العالم في الأكاذيب —\nإن لم يجمع بطلٌ الحروف،\nفسيُنتصر للمنافقين والكذّابين.",
   "prologue.panel_7": "أنت البطل. تنطلق لاستعادة الأبجدية،\nوإعادة الحقّ.\n\nالحروف هي الحقيقة. اجمعها كلّها.",
-
   "common.hp": "صحّة",
   "common.shield": "درع",
-
   "hud.take": "التقط",
   "hud.bag": "الحقيبة",
   "hud.speech": "تحدّث",
@@ -40,7 +37,6 @@
   "hud.close_move": "[E/T أو تحرّك] — إغلاق",
   "hud.close": "[E/T] — إغلاق",
   "hud.paused": "[ إيقاف مؤقّت ]\nالمسافة — متابعة",
-
   "battle.title": "معركة",
   "battle.player": "اللاعب",
   "battle.enemy": "العدوّ:",
@@ -67,10 +63,8 @@
   "battle.spell_unavailable": "التعويذة %s غير متاحة!",
   "battle.spell_cast": "التعويذة %s! القوّة %s",
   "battle.spell_used": "التعويذة %s استُعملت في هذا الدور.",
-
   "inv.title": "الحقيبة",
   "inv.punctuation": "العلامات:",
-
   "craft.closed": "صياغة [-]",
   "craft.open": "صياغة [+]",
   "craft.source": "المصدر (حرف):",
@@ -78,7 +72,6 @@
   "craft.transform": "تحويل",
   "craft.no_modifiers": "لا مُعدِّلات (يلزم Ь)",
   "craft.select_both": "اختر حرفاً ومُعدِّلاً.",
-
   "region.light_valley": "الوادي المُشرق",
   "region.two_letter_forest": "غابة الحرفين",
   "region.dark_oaks": "بلوطات كئيبة",
@@ -116,7 +109,6 @@
   "quest.defeat": "اهزم %s عدوّاً في منطقة «%s»",
   "quest.done": "اكتملت المهمّة! المكافأة: الحرف %s",
   "quest.done_toast": "★ اكتملت المهمّة! حصلت على الحرف: %s",
-
   "dialogue.waits": "%s ينتظر جواباً.",
   "Староста": "الشيخ",
   "Тихий Странник": "المسافر الصامت",
@@ -134,7 +126,6 @@
   "У меня нет точек.": "ليس لديَّ نقاط.",
   "Говорят, к северу от деревни спрятана буква А...": "يُقال إنّ الحرف أ مَخفيٌّ شمال القرية...",
   "У тебя не хватает точек. Приходи позже.": "لا تكفيك النقاط. عُد لاحقاً.",
-
   "monster.znak": "علامة",
   "monster.zvuk": "صوت",
   "monster.name.question": "الشكّ",
@@ -166,5 +157,40 @@
   "dir.close": "قريبٌ جداً",
   "dir.near": "غير بعيد",
   "dir.far": "بعيد، لكنّي أعرف المكان",
-  "dir.hint": "أصغِ! ابحث عن الحرف %s %s — %s. %s."
+  "dir.hint": "أصغِ! ابحث عن الحرف %s %s — %s. %s.",
+  "hud.quests": "المهام",
+  "hud.stats": "الإحصاءات",
+  "questlog.title": "سجل المهام",
+  "questlog.hint": "[Q] إغلاق",
+  "questlog.empty": "لا توجد مهام نشطة.",
+  "questlog.progress": "التقدم:",
+  "questlog.can_hand_in": "✓ جاهز للتسليم",
+  "questlog.not_ready": "الشرط لم يتحقق",
+  "questlog.reward": "المكافأة:",
+  "questlog.reward_letter": "حرف",
+  "questlog.reward_dots": "رموز",
+  "questlog.completed_total": "مكتملة",
+  "stats.title": "إحصاءات البطل",
+  "stats.hint": "[S] إغلاق",
+  "stats.map": "الخريطة:",
+  "stats.maps_passed": "خرائط مكتملة:",
+  "stats.letters_collected": "حروف:",
+  "stats.quests_done": "مهام:",
+  "stats.recruits": "حلفاء:",
+  "stats.dots": "رموز:",
+  "stats.letter_power": "قوة الحروف:",
+  "stats.full_alphabet": "★ الأبجدية كاملة!",
+  "stats.finale": "★ النهاية — تم استعادة الأبجدية",
+  "quest.toast_count": "📜 المهام:",
+  "quest.toast_journal_hint": "[Q — السجل]",
+  "progress.cleared": "100% ✓",
+  "progress.portal_open": "⟶ البوابة مفتوحة",
+  "progress.to_portal": "(إلى البوابة",
+  "progress.percent_left": "%)",
+  "monster.wordsmith": "حداد الكلمات",
+  "questtype.defeat": "هزيمة",
+  "questtype.collect": "جمع",
+  "questtype.buy": "شراء",
+  "questtype.trade": "مقايضة",
+  "questtype.talk": "محادثة"
 }
