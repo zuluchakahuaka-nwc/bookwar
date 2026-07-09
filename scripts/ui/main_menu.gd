@@ -85,7 +85,11 @@ func _build_embers() -> void:
 	embers.position = Vector2(640.0, 720.0)
 	# Integer enum (2 = EMISSION_SHAPE_BOX) — safer across Godot 4.x builds.
 	embers.emission_shape = 2
-	embers.emission_box_extents = Vector3(640.0, 30.0, 0.0)
+	# §TODO#6: Android crash fix — CPUParticles2D in Godot 4 uses emission_rect_extents
+	# (Vector2), NOT emission_box_extents (Vector3). The Vector3 assignment crashed
+	# main_menu._ready on Android (HTML5 silently ignored it). Same fix needed
+	# wherever CPUParticles2D is used.
+	embers.emission_rect_extents = Vector2(640.0, 30.0)
 	# Rise upward (negative Y) with slight horizontal spread — like sparks
 	# drifting off a brazier.
 	embers.direction = Vector2(0.0, -1.0)
