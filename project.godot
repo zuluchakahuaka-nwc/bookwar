@@ -23,6 +23,7 @@ QuestData="*res://scripts/core/quest_data.gd"
 Music="*res://scripts/core/music.gd"
 NetworkManager="*res://scripts/multiplayer/network_manager.gd"
 SaveManager="*res://scripts/core/save_manager.gd"
+TacticalCombat="*res://scripts/core/tactical_combat.gd"
 
 [display]
 
