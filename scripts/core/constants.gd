@@ -192,10 +192,25 @@ static func _map_name_fallback(map_id: String) -> String:
 	return "Unknown region"
 
 static func get_next_map(map_id: String) -> String:
-	var idx: int = MAP_CHAIN.find(map_id)
-	if idx < 0 or idx >= MAP_CHAIN.size() - 1:
+	var chain: Array = get_active_map_chain()
+	var idx: int = chain.find(map_id)
+	if idx < 0 or idx >= chain.size() - 1:
 		return ""
-	return MAP_CHAIN[idx + 1]
+	return chain[idx + 1]
+
+# §I18N §2.0: active map chain = first N regions of MAP_CHAIN, where N is the
+# current locale's alphabet length. For ru (33) → all 33 regions.
+# For en (26) → first 26. For it (21) → first 21. The final region
+# (MAP_WELL_OF_LETTERS) is always reachable because N >= 21 for all locales.
+# This is the API to use everywhere instead of MAP_CHAIN directly.
+static func get_active_map_chain() -> Array:
+	var n: int = get_alphabet_count()
+	if n >= MAP_CHAIN.size():
+		return MAP_CHAIN.duplicate()
+	# Slice first N elements — preserves logical progression light_valley → ... → finale.
+	# Note: for short alphabets (it=21) the finale is MAP_CHAIN[20] = MAP_THRONE_VOID
+	# (still a fitting climax — "Throne of Void"). For en=26 finale = MAP_OLD_CITADEL.
+	return MAP_CHAIN.slice(0, n)
 
 # 0-based position of a map in the 33-level chain (0 if unknown).
 static func get_level_index(map_id: String) -> int:
@@ -222,7 +237,12 @@ static func get_map_enemy_count(map_id: String) -> int:
 	return 28 + (idx - 10)  # 28, 29, 30, ... 48
 
 static func is_final_level(map_id: String) -> bool:
-	return map_id == MAP_WELL_OF_LETTERS
+	# §I18N §2.0: final = last map of ACTIVE chain (not always well_of_letters).
+	# For ru (33): well_of_letters. For en (26): old_citadel. Etc.
+	var chain: Array = get_active_map_chain()
+	if chain.is_empty():
+		return map_id == MAP_WELL_OF_LETTERS
+	return map_id == chain[chain.size() - 1]
 
 # --- Region lore (Q6, 2026-07-07) ---
 # Короткие атмосферные описания для каждого региона. Показываются тостом при входе.
