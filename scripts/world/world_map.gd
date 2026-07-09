@@ -296,7 +296,8 @@ func _apply_atmosphere() -> void:
 	# Use the integer enum value (2 = EMISSION_SHAPE_BOX) — direct enum access
 	# differs across Godot 4.x builds and can throw "Cannot find member".
 	dust.emission_shape = 2  # CPUParticles2D.EMISSION_SHAPE_BOX
-	dust.emission_box_extents = Vector3(720.0, 420.0, 0.0)
+	# §TODO#6: Android crash fix — emission_rect_extents (Vector2), not Vector3.
+	dust.emission_rect_extents = Vector2(720.0, 420.0)
 	# Motes drift downward and slightly sideways — looks like falling dust / pollen.
 	dust.direction = Vector2(0.0, 1.0)
 	dust.spread = 18.0
