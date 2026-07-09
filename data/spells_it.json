@@ -1,0 +1,8 @@
+{
+  "spells": [
+    {"word": "SOLE", "letters": ["S","O","L","E"], "type": "attack", "multiplier": 2.0, "effect": "double_damage", "description": "Sole amplificato — danno doppio.", "unlock_cost": 50},
+    {"word": "MARE", "letters": ["M","A","R","E"], "type": "attack_pierce", "multiplier": 1.8, "effect": "ignore_shield", "description": "Mare attraversa lo scudo.", "unlock_cost": 35},
+    {"word": "LUCE", "letters": ["L","U","C","E"], "type": "evade", "multiplier": 1.0, "effect": "evade_next", "description": "Luce schiva il prossimo attacco.", "unlock_cost": 38},
+    {"word": "VITA", "letters": ["V","I","T","A"], "type": "heal", "multiplier": 1.0, "effect": "heal_40", "description": "Vita ripristina 40 PV.", "unlock_cost": 45}
+  ]
+}

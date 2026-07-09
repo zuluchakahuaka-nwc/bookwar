@@ -1,0 +1,9 @@
+{
+  "spells": [
+    {"word": "FEU",  "letters": ["F","E","U"], "type": "attack", "multiplier": 2.0, "effect": "double_damage", "description": "Feu amplifié — double dégât.", "unlock_cost": 21},
+    {"word": "EAU",  "letters": ["E","A","U"], "type": "attack_pierce", "multiplier": 1.8, "effect": "ignore_shield", "description": "Eau traverse le bouclier.", "unlock_cost": 24},
+    {"word": "NUIT", "letters": ["N","U","I","T"], "type": "evade", "multiplier": 1.0, "effect": "evade_next", "description": "La nuit cache — esquive.", "unlock_cost": 47},
+    {"word": "LUMIERE","letters": ["L","U","M","I","E","R","E"], "type": "heal", "multiplier": 1.0, "effect": "heal_40", "description": "Lumière restaure 40 PV.", "unlock_cost": 70},
+    {"word": "MORT", "letters": ["M","O","R","T"], "type": "attack_mass", "multiplier": 2.2, "effect": "triple_strike", "description": "Mort — triple frappe.", "unlock_cost": 52}
+  ]
+}

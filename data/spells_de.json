@@ -1,0 +1,9 @@
+{
+  "spells": [
+    {"word": "BOOM", "letters": ["B","O","O","M"], "type": "attack", "multiplier": 2.0, "effect": "double_damage", "description": "Verstärkter Angriff — doppelter Schaden.", "unlock_cost": 41},
+    {"word": "EIS",  "letters": ["E","I","S"],     "type": "attack_pierce", "multiplier": 1.8, "effect": "ignore_shield", "description": "Eis durchbricht den Schild.", "unlock_cost": 33},
+    {"word": "FEU",  "letters": ["F","E","U"],     "type": "dot", "multiplier": 1.5, "effect": "burn_3_turns", "description": "Feuer entzündet den Feind.", "unlock_cost": 21},
+    {"word": "LICHT","letters": ["L","I","C","H","T"], "type": "heal", "multiplier": 1.0, "effect": "heal_40", "description": "Licht heilt 40 TP.", "unlock_cost": 54},
+    {"word": "KRIEG","letters": ["K","R","I","E","G"], "type": "attack_mass", "multiplier": 2.2, "effect": "triple_strike", "description": "Krieg — dreifacher Schlag.", "unlock_cost": 47}
+  ]
+}

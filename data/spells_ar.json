@@ -1,0 +1,9 @@
+{
+  "spells": [
+    {"word": "نار",   "letters": ["ن","ا","ر"],   "type": "attack", "multiplier": 2.0, "effect": "double_damage", "description": "نار مضاعفة — ضرر مزدوج.", "unlock_cost": 41},
+    {"word": "موت",   "letters": ["م","و","ت"],   "type": "attack_mass", "multiplier": 2.2, "effect": "triple_strike", "description": "موت — ضربة ثلاثية.", "unlock_cost": 27},
+    {"word": "ضوء",   "letters": ["ض","و","ء"],   "type": "attack_pierce", "multiplier": 1.8, "effect": "ignore_shield", "description": "ضوء يخترق الدرع.", "unlock_cost": 95},
+    {"word": "حياة",  "letters": ["ح","ي","ا","ة"], "type": "heal", "multiplier": 1.0, "effect": "heal_40", "description": "حياة تستعيد 40 نقطة.", "unlock_cost": 28},
+    {"word": "ليل",   "letters": ["ل","ي","ل"],   "type": "evade", "multiplier": 1.0, "effect": "evade_next", "description": "ليل يخفي — تفادي.", "unlock_cost": 39}
+  ]
+}

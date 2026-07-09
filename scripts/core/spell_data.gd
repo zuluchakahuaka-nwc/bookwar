@@ -9,15 +9,38 @@ signal spell_unlocked(word: String)
 
 func _ready() -> void:
 	_load_spells()
+	# §I18N: reload spells when locale changes (different alphabet = different words)
+	if I18n != null:
+		I18n.locale_changed.connect(_on_locale_changed)
+
+func _on_locale_changed(_new_locale: String) -> void:
+	# Preserve unlocked state across reloads (player progress)
+	var preserved_unlocks: Dictionary = _unlocked.duplicate()
+	_load_spells()
+	_unlocked = preserved_unlocks
 
 func _load_spells() -> void:
-	var file: FileAccess = FileAccess.open("res://data/spells.json", FileAccess.READ)
+	# §I18N §2.0: load spells_<locale>.json if present, else fallback to spells.json (ru).
+	# Russian spells use Cyrillic words (БАМ, ЩИТ). English uses Latin (BANG, ZAP).
+	var locale: String = ""
+	if I18n != null:
+		locale = I18n.get_locale()
+	var path: String = "res://data/spells.json"
+	if locale != "" and locale != "ru":
+		var localized_path: String = "res://data/spells_" + locale + ".json"
+		var probe: FileAccess = FileAccess.open(localized_path, FileAccess.READ)
+		if probe != null:
+			probe.close()
+			path = localized_path
+	_spells.clear()
+	_is_loaded = false
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	if file == null:
-		push_error("SpellData: spells.json not found")
+		push_error("SpellData: " + path + " not found")
 		return
 	var json: JSON = JSON.new()
 	if json.parse(file.get_as_text()) != OK:
-		push_error("SpellData: parse error: " + json.get_error_message())
+		push_error("SpellData: parse error in " + path + ": " + json.get_error_message())
 		return
 	var data: Dictionary = json.get_data()
 	for spell: Variant in data.get("spells", []):
