@@ -39,6 +39,11 @@ var _enemy_hp_bar: ProgressBar = null
 var _player_hp_bar: ProgressBar = null
 var _auto_battle: bool = false
 var _auto_battle_btn: Button = null
+# §TODO#7 §20.3: Tactical mode toggle. When on, autobattle resolves using
+# TacticalCombat equipment slots (helmet/torso/hands) instead of card-based RNG.
+var _tactical_mode: bool = false
+var _tactical_btn: Button = null
+var _tactical_panel: Panel = null
 var _letter_buttons: Dictionary = {}  # letter_char -> Button (to disable once played per turn)
 var _spell_buttons: Dictionary = {}   # word -> Button
 
@@ -438,6 +443,19 @@ func _build_visual_overlays() -> void:
 	_auto_battle_btn.modulate = Color(0.9, 0.85, 0.5)
 	_auto_battle_btn.pressed.connect(_toggle_auto_battle)
 	add_child(_auto_battle_btn)
+	# §TODO#7 §20.3: Tactical mode button — toggles body-equipment combat.
+	_tactical_btn = Button.new()
+	_tactical_btn.text = I18n.t("battle.tactical", "Tactical")
+	_tactical_btn.offset_left = 700.0
+	_tactical_btn.offset_top = 635.0
+	_tactical_btn.offset_right = 845.0
+	_tactical_btn.offset_bottom = 685.0
+	_tactical_btn.add_theme_font_size_override("font_size", 18)
+	_tactical_btn.toggle_mode = true
+	_tactical_btn.modulate = Color(0.6, 0.85, 0.95)
+	_tactical_btn.pressed.connect(_toggle_tactical_mode)
+	add_child(_tactical_btn)
+	_build_tactical_panel()
 
 func _build_avatar_panel(x: float, y: float, w: float, h: float, bg: Color, silhouette_color: Color) -> Panel:
 	# Parchment-style avatar frame with a tinted background + a Polygon2D
@@ -499,6 +517,97 @@ func _toggle_auto_battle() -> void:
 		_auto_battle_btn.text = I18n.t("battle.autobattle_on", "Auto ON") if _auto_battle else I18n.t("battle.autobattle", "Auto")
 	if _auto_battle and not _combat_resolved and not _resolving:
 		_run_auto_battle_turn()
+
+# §TODO#7 §20.3: Tactical combat mode — body-equipment slots.
+func _toggle_tactical_mode() -> void:
+	_tactical_mode = not _tactical_mode
+	if _tactical_btn:
+		_tactical_btn.text = I18n.t("battle.tactical_on", "Tactical ON") if _tactical_mode else I18n.t("battle.tactical", "Tactical")
+	if _tactical_panel:
+		_tactical_panel.visible = _tactical_mode
+	if _tactical_mode and _auto_battle and not _combat_resolved and not _resolving:
+		_run_auto_battle_turn()
+
+func _build_tactical_panel() -> void:
+	# Side panel showing body slots + current equipment (top-right of battle UI).
+	_tactical_panel = Panel.new()
+	_tactical_panel.offset_left = 1030.0
+	_tactical_panel.offset_top = 110.0
+	_tactical_panel.offset_right = 1270.0
+	_tactical_panel.offset_bottom = 480.0
+	_tactical_panel.visible = false
+	var sty: StyleBoxFlat = StyleBoxFlat.new()
+	sty.bg_color = Color(0.08, 0.07, 0.10, 0.95)
+	sty.border_color = Color(0.55, 0.70, 0.85, 1.0)
+	sty.set_border_width_all(2)
+	sty.set_content_margin_all(10)
+	_tactical_panel.add_theme_stylebox_override("panel", sty)
+	add_child(_tactical_panel)
+	# Title
+	var title := Label.new()
+	title.text = "⚔ ЭКИПИРОВКА"
+	title.add_theme_font_size_override("font_size", 18)
+	title.add_theme_color_override("font_color", Color(0.65, 0.85, 1.0))
+	title.position = Vector2(20, 10)
+	_tactical_panel.add_child(title)
+	# Slot rows: head/torso/right_hand/left_hand
+	var y: float = 50.0
+	for slot: String in TacticalCombat.ALL_SLOTS:
+		var lbl := Label.new()
+		lbl.text = _slot_label(slot)
+		lbl.add_theme_font_size_override("font_size", 16)
+		lbl.add_theme_color_override("font_color", Color(0.85, 0.80, 0.65))
+		lbl.position = Vector2(20, y)
+		lbl.size = Vector2(220, 24)
+		_tactical_panel.add_child(lbl)
+		y += 32.0
+	# Attack/armor totals at bottom
+	y += 10.0
+	var atk_lbl := Label.new()
+	atk_lbl.name = "AttackTotal"
+	atk_lbl.add_theme_font_size_override("font_size", 18)
+	atk_lbl.add_theme_color_override("font_color", Color(0.95, 0.45, 0.40))
+	atk_lbl.position = Vector2(20, y)
+	atk_lbl.size = Vector2(220, 28)
+	_tactical_panel.add_child(atk_lbl)
+	y += 30.0
+	var arm_lbl := Label.new()
+	arm_lbl.name = "ArmorTotal"
+	arm_lbl.add_theme_font_size_override("font_size", 18)
+	arm_lbl.add_theme_color_override("font_color", Color(0.45, 0.65, 0.95))
+	arm_lbl.position = Vector2(20, y)
+	arm_lbl.size = Vector2(220, 28)
+	_tactical_panel.add_child(arm_lbl)
+	TacticalCombat.equipment_changed.connect(_refresh_tactical_panel)
+	_refresh_tactical_panel()
+
+func _slot_label(slot: String) -> String:
+	match slot:
+		TacticalCombat.SLOT_HEAD:       return "Голова (шлем, согласная):"
+		TacticalCombat.SLOT_TORSO:      return "Корпус (кольчуга, согласная):"
+		TacticalCombat.SLOT_RIGHT_HAND: return "Правая рука (оружие, гласная):"
+		TacticalCombat.SLOT_LEFT_HAND:  return "Левая рука (щит/оружие):"
+	return slot
+
+func _refresh_tactical_panel() -> void:
+	if _tactical_panel == null or not _tactical_panel.visible:
+		return
+	var children: Array = _tactical_panel.get_children()
+	var slot_idx: int = 0
+	for c: Node in children:
+		if c is Label and c.name != "AttackTotal" and c.name != "ArmorTotal":
+			var slot_name: String = TacticalCombat.ALL_SLOTS[slot_idx] if slot_idx < TacticalCombat.ALL_SLOTS.size() else ""
+			slot_idx += 1
+			var entry: Variant = TacticalCombat.get_slots_snapshot().get(slot_name, null)
+			if entry == null:
+				(c as Label).text = _slot_label(slot_name) + " —"
+			else:
+				var d: Dictionary = entry
+				(c as Label).text = _slot_label(slot_name) + " " + String(d.get("letter", "")) + " (ур." + str(d.get("level", 1)) + ")"
+		elif c is Label and c.name == "AttackTotal":
+			(c as Label).text = "⚔ Атака: " + str(TacticalCombat.get_attack_power())
+		elif c is Label and c.name == "ArmorTotal":
+			(c as Label).text = "🛡 Броня: " + str(TacticalCombat.get_armor_power())
 
 func _run_auto_battle_turn() -> void:
 	var reason: String = ""
