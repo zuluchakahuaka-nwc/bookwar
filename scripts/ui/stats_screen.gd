@@ -102,7 +102,7 @@ func _refresh() -> void:
 	for mid_legacy: String in GameState.completed_quests:
 		maps_done[mid_legacy] = true
 	var maps_passed: int = maps_done.size()
-	var maps_total: int = BookwarConst.MAP_CHAIN.size()
+	var maps_total: int = BookwarConst.get_active_map_chain().size()
 	var recruit_count: int = GameState.recruits.size()
 	var dots: int = InventoryManager.get_dots()
 	var current_level: int = BookwarConst.get_level_number(GameState.current_map_id)
