@@ -1,0 +1,1931 @@
+{
+  "locale": "zh",
+  "letters": [
+    {
+      "char": "一",
+      "position": 1,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 1,
+      "speed": 1,
+      "description": "簡單部首 #1 (yī), 1 畫. 弱攻."
+    },
+    {
+      "char": "丨",
+      "position": 2,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 2,
+      "speed": 2,
+      "description": "簡單部首 #2 (gǔn), 1 畫. 弱攻."
+    },
+    {
+      "char": "丶",
+      "position": 3,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 3,
+      "speed": 3,
+      "description": "簡單部首 #3 (zhǔ), 1 畫. 弱攻."
+    },
+    {
+      "char": "丿",
+      "position": 4,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 4,
+      "speed": 4,
+      "description": "簡單部首 #4 (piě), 1 畫. 弱攻."
+    },
+    {
+      "char": "乙",
+      "position": 5,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 5,
+      "speed": 5,
+      "description": "簡單部首 #5 (yǐ), 1 畫. 弱攻."
+    },
+    {
+      "char": "亅",
+      "position": 6,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 6,
+      "speed": 6,
+      "description": "簡單部首 #6 (jué), 1 畫. 弱攻."
+    },
+    {
+      "char": "二",
+      "position": 7,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 7,
+      "speed": 7,
+      "description": "簡單部首 #7 (èr), 2 畫. 弱攻."
+    },
+    {
+      "char": "亠",
+      "position": 8,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 8,
+      "speed": 8,
+      "description": "簡單部首 #8 (tóu), 2 畫. 弱攻."
+    },
+    {
+      "char": "人",
+      "position": 9,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 9,
+      "speed": 9,
+      "description": "簡單部首 #9 (rén), 2 畫. 弱攻."
+    },
+    {
+      "char": "儿",
+      "position": 10,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 10,
+      "speed": 10,
+      "description": "簡單部首 #10 (ér), 2 畫. 弱攻."
+    },
+    {
+      "char": "入",
+      "position": 11,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 11,
+      "speed": 11,
+      "description": "簡單部首 #11 (rù), 2 畫. 弱攻."
+    },
+    {
+      "char": "八",
+      "position": 12,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 12,
+      "speed": 12,
+      "description": "簡單部首 #12 (bā), 2 畫. 弱攻."
+    },
+    {
+      "char": "冂",
+      "position": 13,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 13,
+      "speed": 13,
+      "description": "簡單部首 #13 (jiōng), 2 畫. 弱攻."
+    },
+    {
+      "char": "冖",
+      "position": 14,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 14,
+      "speed": 14,
+      "description": "簡單部首 #14 (mì), 2 畫. 弱攻."
+    },
+    {
+      "char": "冫",
+      "position": 15,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 15,
+      "speed": 15,
+      "description": "簡單部首 #15 (bīng), 2 畫. 弱攻."
+    },
+    {
+      "char": "几",
+      "position": 16,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 16,
+      "speed": 16,
+      "description": "簡單部首 #16 (jī), 2 畫. 弱攻."
+    },
+    {
+      "char": "凵",
+      "position": 17,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 17,
+      "speed": 17,
+      "description": "簡單部首 #17 (qiǎn), 2 畫. 弱攻."
+    },
+    {
+      "char": "刀",
+      "position": 18,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 18,
+      "speed": 18,
+      "description": "簡單部首 #18 (dāo), 2 畫. 弱攻."
+    },
+    {
+      "char": "力",
+      "position": 19,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 19,
+      "speed": 19,
+      "description": "簡單部首 #19 (lì), 2 畫. 弱攻."
+    },
+    {
+      "char": "勹",
+      "position": 20,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 20,
+      "speed": 20,
+      "description": "簡單部首 #20 (bāo), 2 畫. 弱攻."
+    },
+    {
+      "char": "匕",
+      "position": 21,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 21,
+      "speed": 21,
+      "description": "簡單部首 #21 (bǐ), 2 畫. 弱攻."
+    },
+    {
+      "char": "匚",
+      "position": 22,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 22,
+      "speed": 22,
+      "description": "簡單部首 #22 (fāng), 2 畫. 弱攻."
+    },
+    {
+      "char": "匸",
+      "position": 23,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 23,
+      "speed": 23,
+      "description": "簡單部首 #23 (xì), 2 畫. 弱攻."
+    },
+    {
+      "char": "十",
+      "position": 24,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 24,
+      "speed": 24,
+      "description": "簡單部首 #24 (shí), 2 畫. 弱攻."
+    },
+    {
+      "char": "卜",
+      "position": 25,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 25,
+      "speed": 25,
+      "description": "簡單部首 #25 (bǔ), 2 畫. 弱攻."
+    },
+    {
+      "char": "卩",
+      "position": 26,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 26,
+      "speed": 26,
+      "description": "簡單部首 #26 (jié), 2 畫. 弱攻."
+    },
+    {
+      "char": "厂",
+      "position": 27,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 27,
+      "speed": 27,
+      "description": "簡單部首 #27 (chǎng), 2 畫. 弱攻."
+    },
+    {
+      "char": "厶",
+      "position": 28,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 28,
+      "speed": 28,
+      "description": "簡單部首 #28 (sī), 2 畫. 弱攻."
+    },
+    {
+      "char": "又",
+      "position": 29,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 29,
+      "speed": 29,
+      "description": "簡單部首 #29 (yòu), 2 畫. 弱攻."
+    },
+    {
+      "char": "口",
+      "position": 30,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 30,
+      "speed": 30,
+      "description": "簡單部首 #30 (kǒu), 3 畫. 弱攻."
+    },
+    {
+      "char": "囗",
+      "position": 31,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 31,
+      "speed": 31,
+      "description": "簡單部首 #31 (wéi), 3 畫. 弱攻."
+    },
+    {
+      "char": "土",
+      "position": 32,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 32,
+      "speed": 32,
+      "description": "簡單部首 #32 (tǔ), 3 畫. 弱攻."
+    },
+    {
+      "char": "士",
+      "position": 33,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 33,
+      "speed": 33,
+      "description": "簡單部首 #33 (shì), 3 畫. 弱攻."
+    },
+    {
+      "char": "夂",
+      "position": 34,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 34,
+      "speed": 34,
+      "description": "簡單部首 #34 (zhǐ), 3 畫. 弱攻."
+    },
+    {
+      "char": "夊",
+      "position": 35,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 35,
+      "speed": 35,
+      "description": "簡單部首 #35 (suī), 3 畫. 弱攻."
+    },
+    {
+      "char": "夕",
+      "position": 36,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 36,
+      "speed": 36,
+      "description": "簡單部首 #36 (xī), 3 畫. 弱攻."
+    },
+    {
+      "char": "大",
+      "position": 37,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 37,
+      "speed": 37,
+      "description": "簡單部首 #37 (dà), 3 畫. 弱攻."
+    },
+    {
+      "char": "女",
+      "position": 38,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 38,
+      "speed": 38,
+      "description": "簡單部首 #38 (nǚ), 3 畫. 弱攻."
+    },
+    {
+      "char": "子",
+      "position": 39,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 39,
+      "speed": 39,
+      "description": "簡單部首 #39 (zǐ), 3 畫. 弱攻."
+    },
+    {
+      "char": "宀",
+      "position": 40,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 40,
+      "speed": 40,
+      "description": "簡單部首 #40 (mián), 3 畫. 弱攻."
+    },
+    {
+      "char": "寸",
+      "position": 41,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 41,
+      "speed": 41,
+      "description": "簡單部首 #41 (cùn), 3 畫. 弱攻."
+    },
+    {
+      "char": "小",
+      "position": 42,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 42,
+      "speed": 42,
+      "description": "簡單部首 #42 (xiǎo), 3 畫. 弱攻."
+    },
+    {
+      "char": "尢",
+      "position": 43,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 43,
+      "speed": 43,
+      "description": "簡單部首 #43 (wāng), 3 畫. 弱攻."
+    },
+    {
+      "char": "尸",
+      "position": 44,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 44,
+      "speed": 44,
+      "description": "簡單部首 #44 (shī), 3 畫. 弱攻."
+    },
+    {
+      "char": "屮",
+      "position": 45,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 45,
+      "speed": 45,
+      "description": "簡單部首 #45 (chè), 3 畫. 弱攻."
+    },
+    {
+      "char": "山",
+      "position": 46,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 46,
+      "speed": 46,
+      "description": "簡單部首 #46 (shān), 3 畫. 弱攻."
+    },
+    {
+      "char": "巛",
+      "position": 47,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 47,
+      "speed": 47,
+      "description": "簡單部首 #47 (chuān), 3 畫. 弱攻."
+    },
+    {
+      "char": "工",
+      "position": 48,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 48,
+      "speed": 48,
+      "description": "簡單部首 #48 (gōng), 3 畫. 弱攻."
+    },
+    {
+      "char": "己",
+      "position": 49,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 49,
+      "speed": 49,
+      "description": "簡單部首 #49 (jǐ), 3 畫. 弱攻."
+    },
+    {
+      "char": "巾",
+      "position": 50,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 50,
+      "speed": 50,
+      "description": "簡單部首 #50 (jīn), 3 畫. 弱攻."
+    },
+    {
+      "char": "干",
+      "position": 51,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 51,
+      "speed": 51,
+      "description": "簡單部首 #51 (gān), 3 畫. 弱攻."
+    },
+    {
+      "char": "幺",
+      "position": 52,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 52,
+      "speed": 52,
+      "description": "簡單部首 #52 (yāo), 3 畫. 弱攻."
+    },
+    {
+      "char": "广",
+      "position": 53,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 53,
+      "speed": 53,
+      "description": "簡單部首 #53 (guǎng), 3 畫. 弱攻."
+    },
+    {
+      "char": "廴",
+      "position": 54,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 54,
+      "speed": 54,
+      "description": "簡單部首 #54 (yǐn), 3 畫. 弱攻."
+    },
+    {
+      "char": "廾",
+      "position": 55,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 55,
+      "speed": 55,
+      "description": "簡單部首 #55 (gǒng), 3 畫. 弱攻."
+    },
+    {
+      "char": "弋",
+      "position": 56,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 56,
+      "speed": 56,
+      "description": "簡單部首 #56 (yì), 3 畫. 弱攻."
+    },
+    {
+      "char": "弓",
+      "position": 57,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 57,
+      "speed": 57,
+      "description": "簡單部首 #57 (gōng), 3 畫. 弱攻."
+    },
+    {
+      "char": "彐",
+      "position": 58,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 58,
+      "speed": 58,
+      "description": "簡單部首 #58 (jì), 3 畫. 弱攻."
+    },
+    {
+      "char": "彡",
+      "position": 59,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 59,
+      "speed": 59,
+      "description": "簡單部首 #59 (shān), 3 畫. 弱攻."
+    },
+    {
+      "char": "彳",
+      "position": 60,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 60,
+      "speed": 60,
+      "description": "簡單部首 #60 (chì), 3 畫. 弱攻."
+    },
+    {
+      "char": "心",
+      "position": 61,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 61,
+      "speed": 61,
+      "description": "基礎部首 #61 (xīn), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "戈",
+      "position": 62,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 62,
+      "speed": 62,
+      "description": "基礎部首 #62 (gē), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "户",
+      "position": 63,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 63,
+      "speed": 63,
+      "description": "基礎部首 #63 (hù), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "手",
+      "position": 64,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 64,
+      "speed": 64,
+      "description": "基礎部首 #64 (shǒu), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "支",
+      "position": 65,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 65,
+      "speed": 65,
+      "description": "基礎部首 #65 (zhī), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "攴",
+      "position": 66,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 66,
+      "speed": 66,
+      "description": "基礎部首 #66 (pū), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "文",
+      "position": 67,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 67,
+      "speed": 67,
+      "description": "基礎部首 #67 (wén), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "斗",
+      "position": 68,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 68,
+      "speed": 68,
+      "description": "基礎部首 #68 (dǒu), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "斤",
+      "position": 69,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 69,
+      "speed": 69,
+      "description": "基礎部首 #69 (jīn), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "方",
+      "position": 70,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 70,
+      "speed": 70,
+      "description": "基礎部首 #70 (fāng), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "无",
+      "position": 71,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 71,
+      "speed": 71,
+      "description": "基礎部首 #71 (wú), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "日",
+      "position": 72,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 72,
+      "speed": 72,
+      "description": "基礎部首 #72 (rì), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "曰",
+      "position": 73,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 73,
+      "speed": 73,
+      "description": "基礎部首 #73 (yuē), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "月",
+      "position": 74,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 74,
+      "speed": 74,
+      "description": "基礎部首 #74 (yuè), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "木",
+      "position": 75,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 75,
+      "speed": 75,
+      "description": "基礎部首 #75 (mù), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "欠",
+      "position": 76,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 76,
+      "speed": 76,
+      "description": "基礎部首 #76 (qiàn), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "止",
+      "position": 77,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 77,
+      "speed": 77,
+      "description": "基礎部首 #77 (zhǐ), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "歹",
+      "position": 78,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 78,
+      "speed": 78,
+      "description": "基礎部首 #78 (dǎi), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "殳",
+      "position": 79,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 79,
+      "speed": 79,
+      "description": "基礎部首 #79 (shū), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "毋",
+      "position": 80,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 80,
+      "speed": 80,
+      "description": "基礎部首 #80 (wú), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "比",
+      "position": 81,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 81,
+      "speed": 81,
+      "description": "基礎部首 #81 (bǐ), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "毛",
+      "position": 82,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 82,
+      "speed": 82,
+      "description": "基礎部首 #82 (máo), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "氏",
+      "position": 83,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 83,
+      "speed": 83,
+      "description": "基礎部首 #83 (shì), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "气",
+      "position": 84,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 84,
+      "speed": 84,
+      "description": "基礎部首 #84 (qì), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "水",
+      "position": 85,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 85,
+      "speed": 85,
+      "description": "基礎部首 #85 (shuǐ), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "火",
+      "position": 86,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 86,
+      "speed": 86,
+      "description": "基礎部首 #86 (huǒ), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "爪",
+      "position": 87,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 87,
+      "speed": 87,
+      "description": "基礎部首 #87 (zhǎo), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "父",
+      "position": 88,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 88,
+      "speed": 88,
+      "description": "基礎部首 #88 (fù), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "爻",
+      "position": 89,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 89,
+      "speed": 89,
+      "description": "基礎部首 #89 (yáo), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "爿",
+      "position": 90,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 90,
+      "speed": 90,
+      "description": "基礎部首 #90 (pán), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "片",
+      "position": 91,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 91,
+      "speed": 91,
+      "description": "基礎部首 #91 (piàn), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "牙",
+      "position": 92,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 92,
+      "speed": 92,
+      "description": "基礎部首 #92 (yá), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "牛",
+      "position": 93,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 93,
+      "speed": 93,
+      "description": "基礎部首 #93 (niú), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "犬",
+      "position": 94,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 94,
+      "speed": 94,
+      "description": "基礎部首 #94 (quǎn), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "玄",
+      "position": 95,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 95,
+      "speed": 95,
+      "description": "基礎部首 #95 (xuán), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "玉",
+      "position": 96,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 96,
+      "speed": 96,
+      "description": "基礎部首 #96 (yù), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "瓜",
+      "position": 97,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 97,
+      "speed": 97,
+      "description": "基礎部首 #97 (guā), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "瓦",
+      "position": 98,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 98,
+      "speed": 98,
+      "description": "基礎部首 #98 (wǎ), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "甘",
+      "position": 99,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 99,
+      "speed": 99,
+      "description": "基礎部首 #99 (gān), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "生",
+      "position": 100,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 100,
+      "speed": 100,
+      "description": "基礎部首 #100 (shēng), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "用",
+      "position": 101,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 101,
+      "speed": 101,
+      "description": "基礎部首 #101 (yòng), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "田",
+      "position": 102,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 102,
+      "speed": 102,
+      "description": "基礎部首 #102 (tián), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "疋",
+      "position": 103,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 103,
+      "speed": 103,
+      "description": "基礎部首 #103 (pǐ), 4 畫. 中等攻擊."
+    },
+    {
+      "char": "疒",
+      "position": 104,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 104,
+      "speed": 104,
+      "description": "基礎部首 #104 (nè), 5 畫. 中等攻擊."
+    },
+    {
+      "char": "癶",
+      "position": 105,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 105,
+      "speed": 105,
+      "description": "基礎部首 #105 (bō), 5 畫. 中等攻擊."
+    },
+    {
+      "char": "白",
+      "position": 106,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 106,
+      "speed": 106,
+      "description": "基礎部首 #106 (bái), 5 畫. 中等攻擊."
+    },
+    {
+      "char": "皮",
+      "position": 107,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 107,
+      "speed": 107,
+      "description": "基礎部首 #107 (pí), 5 畫. 中等攻擊."
+    },
+    {
+      "char": "皿",
+      "position": 108,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 108,
+      "speed": 108,
+      "description": "基礎部首 #108 (mǐn), 5 畫. 中等攻擊."
+    },
+    {
+      "char": "目",
+      "position": 109,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 109,
+      "speed": 109,
+      "description": "基礎部首 #109 (mù), 5 畫. 中等攻擊."
+    },
+    {
+      "char": "矛",
+      "position": 110,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 110,
+      "speed": 110,
+      "description": "基礎部首 #110 (máo), 5 畫. 中等攻擊."
+    },
+    {
+      "char": "矢",
+      "position": 111,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 111,
+      "speed": 111,
+      "description": "基礎部首 #111 (shǐ), 5 畫. 中等攻擊."
+    },
+    {
+      "char": "石",
+      "position": 112,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 112,
+      "speed": 112,
+      "description": "基礎部首 #112 (shí), 5 畫. 中等攻擊."
+    },
+    {
+      "char": "示",
+      "position": 113,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 113,
+      "speed": 113,
+      "description": "基礎部首 #113 (shì), 5 畫. 中等攻擊."
+    },
+    {
+      "char": "禸",
+      "position": 114,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 114,
+      "speed": 114,
+      "description": "基礎部首 #114 (róu), 5 畫. 中等攻擊."
+    },
+    {
+      "char": "禾",
+      "position": 115,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 115,
+      "speed": 115,
+      "description": "基礎部首 #115 (hé), 5 畫. 中等攻擊."
+    },
+    {
+      "char": "穴",
+      "position": 116,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 116,
+      "speed": 116,
+      "description": "基礎部首 #116 (xué), 5 畫. 中等攻擊."
+    },
+    {
+      "char": "立",
+      "position": 117,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 117,
+      "speed": 117,
+      "description": "基礎部首 #117 (lì), 5 畫. 中等攻擊."
+    },
+    {
+      "char": "竹",
+      "position": 118,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 118,
+      "speed": 118,
+      "description": "基礎部首 #118 (zhú), 5 畫. 中等攻擊."
+    },
+    {
+      "char": "米",
+      "position": 119,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 119,
+      "speed": 119,
+      "description": "基礎部首 #119 (mǐ), 5 畫. 中等攻擊."
+    },
+    {
+      "char": "糸",
+      "position": 120,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 120,
+      "speed": 120,
+      "description": "基礎部首 #120 (mì), 5 畫. 中等攻擊."
+    },
+    {
+      "char": "缶",
+      "position": 121,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 121,
+      "speed": 121,
+      "description": "基礎部首 #121 (fǒu), 5 畫. 中等攻擊."
+    },
+    {
+      "char": "网",
+      "position": 122,
+      "type": "vowel",
+      "role": "attack",
+      "base_power": 122,
+      "speed": 122,
+      "description": "基礎部首 #122 (wǎng), 5 畫. 中等攻擊."
+    },
+    {
+      "char": "羊",
+      "position": 123,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 123,
+      "speed": 123,
+      "description": "複雜部首 #123 (yáng), 6 畫. 強防禦."
+    },
+    {
+      "char": "羽",
+      "position": 124,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 124,
+      "speed": 124,
+      "description": "複雜部首 #124 (yǔ), 6 畫. 強防禦."
+    },
+    {
+      "char": "老",
+      "position": 125,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 125,
+      "speed": 125,
+      "description": "複雜部首 #125 (lǎo), 6 畫. 強防禦."
+    },
+    {
+      "char": "而",
+      "position": 126,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 126,
+      "speed": 126,
+      "description": "複雜部首 #126 (ér), 6 畫. 強防禦."
+    },
+    {
+      "char": "耒",
+      "position": 127,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 127,
+      "speed": 127,
+      "description": "複雜部首 #127 (lěi), 6 畫. 強防禦."
+    },
+    {
+      "char": "耳",
+      "position": 128,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 128,
+      "speed": 128,
+      "description": "複雜部首 #128 (ěr), 6 畫. 強防禦."
+    },
+    {
+      "char": "聿",
+      "position": 129,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 129,
+      "speed": 129,
+      "description": "複雜部首 #129 (yù), 6 畫. 強防禦."
+    },
+    {
+      "char": "肉",
+      "position": 130,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 130,
+      "speed": 130,
+      "description": "複雜部首 #130 (ròu), 6 畫. 強防禦."
+    },
+    {
+      "char": "臣",
+      "position": 131,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 131,
+      "speed": 131,
+      "description": "複雜部首 #131 (chén), 6 畫. 強防禦."
+    },
+    {
+      "char": "自",
+      "position": 132,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 132,
+      "speed": 132,
+      "description": "複雜部首 #132 (zì), 6 畫. 強防禦."
+    },
+    {
+      "char": "至",
+      "position": 133,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 133,
+      "speed": 133,
+      "description": "複雜部首 #133 (zhì), 6 畫. 強防禦."
+    },
+    {
+      "char": "臼",
+      "position": 134,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 134,
+      "speed": 134,
+      "description": "複雜部首 #134 (jiù), 6 畫. 強防禦."
+    },
+    {
+      "char": "舌",
+      "position": 135,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 135,
+      "speed": 135,
+      "description": "複雜部首 #135 (shé), 6 畫. 強防禦."
+    },
+    {
+      "char": "舛",
+      "position": 136,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 136,
+      "speed": 136,
+      "description": "複雜部首 #136 (chuǎn), 6 畫. 強防禦."
+    },
+    {
+      "char": "舟",
+      "position": 137,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 137,
+      "speed": 137,
+      "description": "複雜部首 #137 (zhōu), 6 畫. 強防禦."
+    },
+    {
+      "char": "艮",
+      "position": 138,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 138,
+      "speed": 138,
+      "description": "複雜部首 #138 (gěn), 6 畫. 強防禦."
+    },
+    {
+      "char": "色",
+      "position": 139,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 139,
+      "speed": 139,
+      "description": "複雜部首 #139 (sè), 6 畫. 強防禦."
+    },
+    {
+      "char": "艸",
+      "position": 140,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 140,
+      "speed": 140,
+      "description": "複雜部首 #140 (cǎo), 6 畫. 強防禦."
+    },
+    {
+      "char": "虍",
+      "position": 141,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 141,
+      "speed": 141,
+      "description": "複雜部首 #141 (hū), 6 畫. 強防禦."
+    },
+    {
+      "char": "虫",
+      "position": 142,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 142,
+      "speed": 142,
+      "description": "複雜部首 #142 (chóng), 6 畫. 強防禦."
+    },
+    {
+      "char": "血",
+      "position": 143,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 143,
+      "speed": 143,
+      "description": "複雜部首 #143 (xuè), 6 畫. 強防禦."
+    },
+    {
+      "char": "行",
+      "position": 144,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 144,
+      "speed": 144,
+      "description": "複雜部首 #144 (xíng), 6 畫. 強防禦."
+    },
+    {
+      "char": "衣",
+      "position": 145,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 145,
+      "speed": 145,
+      "description": "複雜部首 #145 (yī), 6 畫. 強防禦."
+    },
+    {
+      "char": "襾",
+      "position": 146,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 146,
+      "speed": 146,
+      "description": "複雜部首 #146 (yà), 6 畫. 強防禦."
+    },
+    {
+      "char": "見",
+      "position": 147,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 147,
+      "speed": 147,
+      "description": "複雜部首 #147 (jiàn), 7 畫. 強防禦."
+    },
+    {
+      "char": "角",
+      "position": 148,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 148,
+      "speed": 148,
+      "description": "複雜部首 #148 (jiǎo), 7 畫. 強防禦."
+    },
+    {
+      "char": "言",
+      "position": 149,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 149,
+      "speed": 149,
+      "description": "複雜部首 #149 (yán), 7 畫. 強防禦."
+    },
+    {
+      "char": "谷",
+      "position": 150,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 150,
+      "speed": 150,
+      "description": "複雜部首 #150 (gǔ), 7 畫. 強防禦."
+    },
+    {
+      "char": "豆",
+      "position": 151,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 151,
+      "speed": 151,
+      "description": "複雜部首 #151 (dòu), 7 畫. 強防禦."
+    },
+    {
+      "char": "豕",
+      "position": 152,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 152,
+      "speed": 152,
+      "description": "複雜部首 #152 (shǐ), 7 畫. 強防禦."
+    },
+    {
+      "char": "豸",
+      "position": 153,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 153,
+      "speed": 153,
+      "description": "複雜部首 #153 (zhì), 7 畫. 強防禦."
+    },
+    {
+      "char": "貝",
+      "position": 154,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 154,
+      "speed": 154,
+      "description": "複雜部首 #154 (bèi), 7 畫. 強防禦."
+    },
+    {
+      "char": "赤",
+      "position": 155,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 155,
+      "speed": 155,
+      "description": "複雜部首 #155 (chì), 7 畫. 強防禦."
+    },
+    {
+      "char": "走",
+      "position": 156,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 156,
+      "speed": 156,
+      "description": "複雜部首 #156 (zǒu), 7 畫. 強防禦."
+    },
+    {
+      "char": "足",
+      "position": 157,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 157,
+      "speed": 157,
+      "description": "複雜部首 #157 (zú), 7 畫. 強防禦."
+    },
+    {
+      "char": "身",
+      "position": 158,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 158,
+      "speed": 158,
+      "description": "複雜部首 #158 (shēn), 7 畫. 強防禦."
+    },
+    {
+      "char": "車",
+      "position": 159,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 159,
+      "speed": 159,
+      "description": "複雜部首 #159 (chē), 7 畫. 強防禦."
+    },
+    {
+      "char": "辛",
+      "position": 160,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 160,
+      "speed": 160,
+      "description": "複雜部首 #160 (xīn), 7 畫. 強防禦."
+    },
+    {
+      "char": "辰",
+      "position": 161,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 161,
+      "speed": 161,
+      "description": "複雜部首 #161 (chén), 7 畫. 強防禦."
+    },
+    {
+      "char": "辵",
+      "position": 162,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 162,
+      "speed": 162,
+      "description": "複雜部首 #162 (chuò), 7 畫. 強防禦."
+    },
+    {
+      "char": "邑",
+      "position": 163,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 163,
+      "speed": 163,
+      "description": "複雜部首 #163 (yì), 7 畫. 強防禦."
+    },
+    {
+      "char": "酉",
+      "position": 164,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 164,
+      "speed": 164,
+      "description": "複雜部首 #164 (yǒu), 7 畫. 強防禦."
+    },
+    {
+      "char": "釆",
+      "position": 165,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 165,
+      "speed": 165,
+      "description": "複雜部首 #165 (biàn), 7 畫. 強防禦."
+    },
+    {
+      "char": "里",
+      "position": 166,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 166,
+      "speed": 166,
+      "description": "複雜部首 #166 (lǐ), 7 畫. 強防禦."
+    },
+    {
+      "char": "金",
+      "position": 167,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 167,
+      "speed": 167,
+      "description": "複雜部首 #167 (jīn), 8 畫. 強防禦."
+    },
+    {
+      "char": "長",
+      "position": 168,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 168,
+      "speed": 168,
+      "description": "複雜部首 #168 (cháng), 8 畫. 強防禦."
+    },
+    {
+      "char": "門",
+      "position": 169,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 169,
+      "speed": 169,
+      "description": "複雜部首 #169 (mén), 8 畫. 強防禦."
+    },
+    {
+      "char": "阜",
+      "position": 170,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 170,
+      "speed": 170,
+      "description": "複雜部首 #170 (fù), 8 畫. 強防禦."
+    },
+    {
+      "char": "隶",
+      "position": 171,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 171,
+      "speed": 171,
+      "description": "複雜部首 #171 (dài), 8 畫. 強防禦."
+    },
+    {
+      "char": "隹",
+      "position": 172,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 172,
+      "speed": 172,
+      "description": "複雜部首 #172 (zhuī), 8 畫. 強防禦."
+    },
+    {
+      "char": "雨",
+      "position": 173,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 173,
+      "speed": 173,
+      "description": "複雜部首 #173 (yǔ), 8 畫. 強防禦."
+    },
+    {
+      "char": "靑",
+      "position": 174,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 174,
+      "speed": 174,
+      "description": "複雜部首 #174 (qīng), 8 畫. 強防禦."
+    },
+    {
+      "char": "非",
+      "position": 175,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 175,
+      "speed": 175,
+      "description": "複雜部首 #175 (fēi), 8 畫. 強防禦."
+    },
+    {
+      "char": "面",
+      "position": 176,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 176,
+      "speed": 176,
+      "description": "高級部首 #176 (miàn), 9 畫. 重型護盾."
+    },
+    {
+      "char": "革",
+      "position": 177,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 177,
+      "speed": 177,
+      "description": "高級部首 #177 (gé), 9 畫. 重型護盾."
+    },
+    {
+      "char": "韋",
+      "position": 178,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 178,
+      "speed": 178,
+      "description": "高級部首 #178 (wéi), 9 畫. 重型護盾."
+    },
+    {
+      "char": "韭",
+      "position": 179,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 179,
+      "speed": 179,
+      "description": "高級部首 #179 (jiǔ), 9 畫. 重型護盾."
+    },
+    {
+      "char": "音",
+      "position": 180,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 180,
+      "speed": 180,
+      "description": "高級部首 #180 (yīn), 9 畫. 重型護盾."
+    },
+    {
+      "char": "頁",
+      "position": 181,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 181,
+      "speed": 181,
+      "description": "高級部首 #181 (yè), 9 畫. 重型護盾."
+    },
+    {
+      "char": "風",
+      "position": 182,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 182,
+      "speed": 182,
+      "description": "高級部首 #182 (fēng), 9 畫. 重型護盾."
+    },
+    {
+      "char": "飛",
+      "position": 183,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 183,
+      "speed": 183,
+      "description": "高級部首 #183 (fēi), 9 畫. 重型護盾."
+    },
+    {
+      "char": "食",
+      "position": 184,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 184,
+      "speed": 184,
+      "description": "高級部首 #184 (shí), 9 畫. 重型護盾."
+    },
+    {
+      "char": "首",
+      "position": 185,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 185,
+      "speed": 185,
+      "description": "高級部首 #185 (shǒu), 9 畫. 重型護盾."
+    },
+    {
+      "char": "香",
+      "position": 186,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 186,
+      "speed": 186,
+      "description": "高級部首 #186 (xiāng), 9 畫. 重型護盾."
+    },
+    {
+      "char": "馬",
+      "position": 187,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 187,
+      "speed": 187,
+      "description": "高級部首 #187 (mǎ), 10 畫. 重型護盾."
+    },
+    {
+      "char": "骨",
+      "position": 188,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 188,
+      "speed": 188,
+      "description": "高級部首 #188 (gǔ), 10 畫. 重型護盾."
+    },
+    {
+      "char": "高",
+      "position": 189,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 189,
+      "speed": 189,
+      "description": "高級部首 #189 (gāo), 10 畫. 重型護盾."
+    },
+    {
+      "char": "髟",
+      "position": 190,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 190,
+      "speed": 190,
+      "description": "高級部首 #190 (biāo), 10 畫. 重型護盾."
+    },
+    {
+      "char": "鬥",
+      "position": 191,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 191,
+      "speed": 191,
+      "description": "高級部首 #191 (dòu), 10 畫. 重型護盾."
+    },
+    {
+      "char": "鬯",
+      "position": 192,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 192,
+      "speed": 192,
+      "description": "高級部首 #192 (chàng), 10 畫. 重型護盾."
+    },
+    {
+      "char": "鬲",
+      "position": 193,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 193,
+      "speed": 193,
+      "description": "高級部首 #193 (lì), 10 畫. 重型護盾."
+    },
+    {
+      "char": "鬼",
+      "position": 194,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 194,
+      "speed": 194,
+      "description": "高級部首 #194 (guǐ), 10 畫. 重型護盾."
+    },
+    {
+      "char": "魚",
+      "position": 195,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 195,
+      "speed": 195,
+      "description": "高級部首 #195 (yú), 11 畫. 重型護盾."
+    },
+    {
+      "char": "鳥",
+      "position": 196,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 196,
+      "speed": 196,
+      "description": "高級部首 #196 (niǎo), 11 畫. 重型護盾."
+    },
+    {
+      "char": "鹵",
+      "position": 197,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 197,
+      "speed": 197,
+      "description": "高級部首 #197 (lǔ), 11 畫. 重型護盾."
+    },
+    {
+      "char": "鹿",
+      "position": 198,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 198,
+      "speed": 198,
+      "description": "高級部首 #198 (lù), 11 畫. 重型護盾."
+    },
+    {
+      "char": "麥",
+      "position": 199,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 199,
+      "speed": 199,
+      "description": "高級部首 #199 (mài), 11 畫. 重型護盾."
+    },
+    {
+      "char": "麻",
+      "position": 200,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 200,
+      "speed": 200,
+      "description": "高級部首 #200 (má), 11 畫. 重型護盾."
+    },
+    {
+      "char": "黃",
+      "position": 201,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 201,
+      "speed": 201,
+      "description": "高級部首 #201 (huáng), 12 畫. 重型護盾."
+    },
+    {
+      "char": "黍",
+      "position": 202,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 202,
+      "speed": 202,
+      "description": "高級部首 #202 (shǔ), 12 畫. 重型護盾."
+    },
+    {
+      "char": "黑",
+      "position": 203,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 203,
+      "speed": 203,
+      "description": "高級部首 #203 (hēi), 12 畫. 重型護盾."
+    },
+    {
+      "char": "黹",
+      "position": 204,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 204,
+      "speed": 204,
+      "description": "高級部首 #204 (zhǐ), 12 畫. 重型護盾."
+    },
+    {
+      "char": "黽",
+      "position": 205,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 205,
+      "speed": 205,
+      "description": "終極部首 #205 (mǐn), 13 畫. 最強護盾."
+    },
+    {
+      "char": "鼎",
+      "position": 206,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 206,
+      "speed": 206,
+      "description": "終極部首 #206 (dǐng), 13 畫. 最強護盾."
+    },
+    {
+      "char": "鼓",
+      "position": 207,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 207,
+      "speed": 207,
+      "description": "終極部首 #207 (gǔ), 13 畫. 最強護盾."
+    },
+    {
+      "char": "鼠",
+      "position": 208,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 208,
+      "speed": 208,
+      "description": "終極部首 #208 (shǔ), 13 畫. 最強護盾."
+    },
+    {
+      "char": "鼻",
+      "position": 209,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 209,
+      "speed": 209,
+      "description": "終極部首 #209 (bí), 14 畫. 最強護盾."
+    },
+    {
+      "char": "齊",
+      "position": 210,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 210,
+      "speed": 210,
+      "description": "終極部首 #210 (qí), 14 畫. 最強護盾."
+    },
+    {
+      "char": "齒",
+      "position": 211,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 211,
+      "speed": 211,
+      "description": "終極部首 #211 (chǐ), 15 畫. 最強護盾."
+    },
+    {
+      "char": "龍",
+      "position": 212,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 212,
+      "speed": 212,
+      "description": "終極部首 #212 (lóng), 16 畫. 最強護盾."
+    },
+    {
+      "char": "龜",
+      "position": 213,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 213,
+      "speed": 213,
+      "description": "終極部首 #213 (guī), 16 畫. 最強護盾."
+    },
+    {
+      "char": "龠",
+      "position": 214,
+      "type": "consonant",
+      "role": "defense",
+      "base_power": 214,
+      "speed": 214,
+      "description": "終極部首 #214 (yuè), 17 畫. 最強護盾."
+    }
+  ]
+}
