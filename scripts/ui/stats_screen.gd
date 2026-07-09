@@ -119,6 +119,8 @@ func _refresh() -> void:
 	_add_metric("Союзников (банда):", str(recruit_count), Color(0.7, 0.85, 0.95))
 	_add_metric("Буквиц (валюта):", str(dots), Color(0.95, 0.85, 0.40))
 	_add_metric("Сила букв (Σ power×level):", str(letter_power), Color(0.95, 0.55, 0.40))
+	# §TODO#8: Bestiary — список виденных named creatures (по текущему уровню).
+	_add_bestiary_section(current_level)
 	# Подсказка про финал
 	if maps_passed >= maps_total:
 		var fin := Label.new()
@@ -135,8 +137,65 @@ func _refresh() -> void:
 		full.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		_content.add_child(full)
 
+# §TODO#8: Bestiary — показывает список named creatures которых игрок мог
+# встретить на текущем уровне прогресса. ✓ = доступно на этой карте,
+# ? = ещё не доступно (нужно дойти до соответствующего региона).
+const BESTIARY_CREATURES: Array = [
+	{map_level = 2, name = "Длинноязыкий", draw = "longtongue"},
+	{map_level = 3, name = "Слушач (Большие Уши)", draw = "big_ears"},
+	{map_level = 4, name = "Зрячий (Большие Глаза)", draw = "big_eyes"},
+	{map_level = 5, name = "Жор (Большой Рот)", draw = "big_mouth"},
+	{map_level = 6, name = "Болотоход", draw = "swamp_walker"},
+	{map_level = 7, name = "Камнегрыз", draw = "stone_chewer"},
+	{map_level = 8, name = "Пепельный Жрец", draw = "ash_priest"},
+	{map_level = 9, name = "Кристалоид", draw = "crystaloid"},
+	{map_level = 10, name = "Тёмный Монах", draw = "dark_monk"},
+	{map_level = 11, name = "Безмолвный", draw = "silence_wraith"},
+	{map_level = 13, name = "Шахтёр", draw = "deep_miner"},
+	{map_level = 15, name = "Речной Ужас", draw = "river_horror"},
+	{map_level = 17, name = "Утопленный Провидец", draw = "drowned_seer"},
+	{map_level = 19, name = "Мостовой Тролль", draw = "bridge_troll"},
+	{map_level = 21, name = "Цитадельный Страж", draw = "citadel_warden"},
+	{map_level = 23, name = "Башенный Призрак", draw = "tower_specter"},
+	{map_level = 25, name = "Раб Пустоты", draw = "void_thrall"},
+	{map_level = 27, name = "Зеркальная Тень", draw = "mirror_shade"},
+	{map_level = 29, name = "Зловещий Мудрец", draw = "baneful_sage"},
+	{map_level = 31, name = "Рыцарь Проклятья", draw = "curse_knight"},
+	{map_level = 33, name = "Хранитель Алфавита", draw = "alphabet_warden"},
+]
+
+func _add_bestiary_section(current_level: int) -> void:
+	var header := Label.new()
+	header.text = "── БЕСТИАРИЙ ──"
+	header.add_theme_font_size_override("font_size", 22)
+	header.add_theme_color_override("font_color", Color(0.85, 0.55, 0.30))
+	header.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	header.add_theme_constant_override("outline_size", 3)
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_content.add_child(header)
+	var seen_count: int = 0
+	for entry: Dictionary in BESTIARY_CREATURES:
+		var lvl: int = int(entry.get("map_level", 0))
+		var is_seen: bool = current_level >= lvl
+		if is_seen:
+			seen_count += 1
+		var mark: String = "✓" if is_seen else "?"
+		var color: Color = Color(0.55, 0.95, 0.55) if is_seen else Color(0.45, 0.42, 0.35)
+		var row_text: String = mark + "  [кар." + str(lvl) + "]  " + String(entry.get("name", ""))
+		var lbl := Label.new()
+		lbl.text = row_text
+		lbl.add_theme_font_size_override("font_size", 16)
+		lbl.add_theme_color_override("font_color", color)
+		_content.add_child(lbl)
+	# Summary
+	var sum := Label.new()
+	sum.text = "Видено: " + str(seen_count) + " / " + str(BESTIARY_CREATURES.size())
+	sum.add_theme_font_size_override("font_size", 18)
+	sum.add_theme_color_override("font_color", Color(0.95, 0.85, 0.40))
+	sum.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_content.add_child(sum)
+
 func _add_metric(label_text: String, value_text: String, value_color: Color) -> void:
-	var row := HBoxContainer.new()
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_theme_constant_override("separation", 12)
 	var lbl := Label.new()
