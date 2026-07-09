@@ -1,0 +1,20 @@
+{
+  "menu.title": "BOOKWAR",
+  "menu.subtitle": "La Guerra dell'Alfabeto",
+  "menu.new_game": "Nuova Partita",
+  "menu.legend": "Leggenda",
+  "menu.quit": "Esci",
+  "menu.language": "Lingua",
+  "hud.hp": "Salute",
+  "hud.dots": "Punti",
+  "hud.region": "Regione",
+  "battle.autobattle": "Auto",
+  "battle.autobattle_on": "Auto ON",
+  "battle.tactical": "Tattico",
+  "battle.tactical_on": "Tattico ON",
+  "questtype.defeat": "SGOMINA",
+  "questtype.collect": "RACCOGLI",
+  "questtype.buy": "COMPRA",
+  "questtype.trade": "SCAMBIA",
+  "questtype.talk": "PARLA"
+}

@@ -89,7 +89,7 @@ func _refresh() -> void:
 		c.queue_free()
 	# Считаем метрики
 	var letters_collected: int = InventoryManager.get_all_letters().size()
-	var letters_total: int = 33
+	var letters_total: int = BookwarConst.get_alphabet_count()
 	var completed_quests: int = GameState.completed_quest_ids.size()
 	# Карт пройдено: считаем уникальные map_ids из completed_quest_ids + completed_quests
 	var maps_done: Dictionary = {}

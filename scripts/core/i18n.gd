@@ -20,7 +20,7 @@ const SAVE_KEY: String = "bookwar_locale"
 const I18N_DIR: String = "res://data/i18n/"
 
 # Supported locales (BCP-47-ish codes). Order = menu order.
-const LOCALES: Array = ["ru", "en", "zh", "es", "fr", "de", "pt", "ar"]
+const LOCALES: Array = ["ru", "en", "zh", "es", "fr", "de", "pt", "it", "ar"]
 
 # Native self-names shown in the language selector (each in its own script).
 const LOCALE_NATIVE_NAMES: Dictionary = {
@@ -31,6 +31,7 @@ const LOCALE_NATIVE_NAMES: Dictionary = {
 	"fr": "Français",
 	"de": "Deutsch",
 	"pt": "Português",
+	"it": "Italiano",
 	"ar": "العربية",
 }
 

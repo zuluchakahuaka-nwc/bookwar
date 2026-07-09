@@ -1,0 +1,33 @@
+{
+  "locale": "ar",
+  "letters": [
+    {"char": "ا", "position": 1, "type": "vowel", "role": "attack", "base_power": 1, "speed": 1, "description": "الألف — أول حرف. هجوم ضعيف لكن بطيء."},
+    {"char": "ب", "position": 2, "type": "consonant", "role": "defense", "base_power": 2, "speed": 2, "description": "الباء — درع ضعيف، بطيء."},
+    {"char": "ت", "position": 3, "type": "consonant", "role": "defense", "base_power": 3, "speed": 3, "description": "التاء — درع خفيف، دور مبكر."},
+    {"char": "ث", "position": 4, "type": "consonant", "role": "defense", "base_power": 4, "speed": 4, "description": "الثاء — درع صلب، سرعة منخفضة."},
+    {"char": "ج", "position": 5, "type": "consonant", "role": "defense", "base_power": 5, "speed": 5, "description": "الجيم — درع الحارس."},
+    {"char": "ح", "position": 6, "type": "consonant", "role": "defense", "base_power": 6, "speed": 6, "description": "الحاء — درع ثقيل، سرعة متوسطة."},
+    {"char": "خ", "position": 7, "type": "consonant", "role": "defense", "base_power": 7, "speed": 7, "description": "الخاء — درع قوي."},
+    {"char": "د", "position": 8, "type": "consonant", "role": "defense", "base_power": 8, "speed": 8, "description": "الدال — درع ثابت."},
+    {"char": "ذ", "position": 9, "type": "consonant", "role": "defense", "base_power": 9, "speed": 9, "description": "الذال — درع متوسط."},
+    {"char": "ر", "position": 10, "type": "consonant", "role": "defense", "base_power": 10, "speed": 10, "description": "الراء — درع ملكي."},
+    {"char": "ز", "position": 11, "type": "consonant", "role": "defense", "base_power": 11, "speed": 11, "description": "الزاي — درع سريع."},
+    {"char": "س", "position": 12, "type": "consonant", "role": "defense", "base_power": 12, "speed": 12, "description": "السين — حارس النهر."},
+    {"char": "ش", "position": 13, "type": "consonant", "role": "defense", "base_power": 13, "speed": 13, "description": "الشين — درع شجاع."},
+    {"char": "ص", "position": 14, "type": "consonant", "role": "defense", "base_power": 14, "speed": 14, "description": "الصاد — درع صلب."},
+    {"char": "ض", "position": 15, "type": "consonant", "role": "defense", "base_power": 15, "speed": 15, "description": "الضاد — حرف عربي فريد."},
+    {"char": "ط", "position": 16, "type": "consonant", "role": "defense", "base_power": 16, "speed": 16, "description": "الطاء — درع القوة."},
+    {"char": "ظ", "position": 17, "type": "consonant", "role": "defense", "base_power": 17, "speed": 17, "description": "الظاء — درع مظلم."},
+    {"char": "ع", "position": 18, "type": "consonant", "role": "defense", "base_power": 18, "speed": 18, "description": "العين — درع اليقظة."},
+    {"char": "غ", "position": 19, "type": "consonant", "role": "defense", "base_power": 19, "speed": 19, "description": "الغين — درع الغابة."},
+    {"char": "ف", "position": 20, "type": "consonant", "role": "defense", "base_power": 20, "speed": 20, "description": "الفاء — درع الفجر."},
+    {"char": "ق", "position": 21, "type": "consonant", "role": "defense", "base_power": 21, "speed": 21, "description": "القاف — درع قوي."},
+    {"char": "ك", "position": 22, "type": "consonant", "role": "defense", "base_power": 22, "speed": 22, "description": "الكاف — درع الكرامة."},
+    {"char": "ل", "position": 23, "type": "consonant", "role": "defense", "base_power": 23, "speed": 23, "description": "اللام — درع الليل."},
+    {"char": "م", "position": 24, "type": "consonant", "role": "defense", "base_power": 24, "speed": 24, "description": "الميم — درع الموت."},
+    {"char": "ن", "position": 25, "type": "consonant", "role": "defense", "base_power": 25, "speed": 25, "description": "النون — درع النور."},
+    {"char": "ه", "position": 26, "type": "consonant", "role": "defense", "base_power": 26, "speed": 26, "description": "الهاء — درع الهواء."},
+    {"char": "و", "position": 27, "type": "vowel", "role": "attack", "base_power": 27, "speed": 27, "description": "الواو — حركة طويلة، هجوم قوي."},
+    {"char": "ي", "position": 28, "type": "vowel", "role": "attack", "base_power": 28, "speed": 28, "description": "الياء — أقوى هجوم عربي."}
+  ]
+}

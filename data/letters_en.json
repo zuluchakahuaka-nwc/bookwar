@@ -1,0 +1,31 @@
+{
+  "locale": "en",
+  "letters": [
+    {"char": "A", "position": 1, "type": "vowel", "role": "attack", "base_power": 1, "speed": 1, "description": "First letter. Weak attack but slow."},
+    {"char": "B", "position": 2, "type": "consonant", "role": "defense", "base_power": 2, "speed": 2, "description": "Weak shield, slow."},
+    {"char": "C", "position": 3, "type": "consonant", "role": "defense", "base_power": 3, "speed": 3, "description": "Light shield, early turn."},
+    {"char": "D", "position": 4, "type": "consonant", "role": "defense", "base_power": 4, "speed": 4, "description": "Solid shield, low speed."},
+    {"char": "E", "position": 5, "type": "vowel", "role": "attack", "base_power": 5, "speed": 5, "description": "Common vowel, balanced attack."},
+    {"char": "F", "position": 6, "type": "consonant", "role": "defense", "base_power": 6, "speed": 6, "description": "Steady defense."},
+    {"char": "G", "position": 7, "type": "consonant", "role": "defense", "base_power": 7, "speed": 7, "description": "Guardian shield."},
+    {"char": "H", "position": 8, "type": "consonant", "role": "defense", "base_power": 8, "speed": 8, "description": "Heavy shield, mid speed."},
+    {"char": "I", "position": 9, "type": "vowel", "role": "attack", "base_power": 9, "speed": 9, "description": "Sharp vowel strike."},
+    {"char": "J", "position": 10, "type": "consonant", "role": "defense", "base_power": 10, "speed": 10, "description": "Jab shield, mid tier."},
+    {"char": "K", "position": 11, "type": "consonant", "role": "defense", "base_power": 11, "speed": 11, "description": "Knight's guard."},
+    {"char": "L", "position": 12, "type": "consonant", "role": "defense", "base_power": 12, "speed": 12, "description": "Loyal defense, mid game."},
+    {"char": "M", "position": 13, "type": "consonant", "role": "defense", "base_power": 13, "speed": 13, "description": "Mountain shield."},
+    {"char": "N", "position": 14, "type": "consonant", "role": "defense", "base_power": 14, "speed": 14, "description": "Noble guard, mid tier."},
+    {"char": "O", "position": 15, "type": "vowel", "role": "attack", "base_power": 15, "speed": 15, "description": "Open vowel, strong strike."},
+    {"char": "P", "position": 16, "type": "consonant", "role": "defense", "base_power": 16, "speed": 16, "description": "Paladin's protection."},
+    {"char": "Q", "position": 17, "type": "consonant", "role": "defense", "base_power": 17, "speed": 17, "description": "Rare and regal shield."},
+    {"char": "R", "position": 18, "type": "consonant", "role": "defense", "base_power": 18, "speed": 18, "description": "Resilient rune guard."},
+    {"char": "S", "position": 19, "type": "consonant", "role": "defense", "base_power": 19, "speed": 19, "description": "Steadfast sentinel."},
+    {"char": "T", "position": 20, "type": "consonant", "role": "defense", "base_power": 20, "speed": 20, "description": "Tower shield, late game."},
+    {"char": "U", "position": 21, "type": "vowel", "role": "attack", "base_power": 21, "speed": 21, "description": "Uncommon vowel, potent strike."},
+    {"char": "V", "position": 22, "type": "consonant", "role": "defense", "base_power": 22, "speed": 22, "description": "Vanguard's vow."},
+    {"char": "W", "position": 23, "type": "consonant", "role": "defense", "base_power": 23, "speed": 23, "description": "Warden's wall."},
+    {"char": "X", "position": 24, "type": "consonant", "role": "defense", "base_power": 24, "speed": 24, "description": "X-mark of the unknown."},
+    {"char": "Y", "position": 25, "type": "consonant", "role": "defense", "base_power": 25, "speed": 25, "description": "Yearning warden."},
+    {"char": "Z", "position": 26, "type": "consonant", "role": "defense", "base_power": 26, "speed": 26, "description": "Final letter, mightiest shield."}
+  ]
+}

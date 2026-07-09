@@ -2,29 +2,58 @@ extends Node
 
 var _letters: Dictionary = {}
 var _is_loaded: bool = false
+var _loaded_locale: String = ""
 
 signal data_loaded
 
 func _ready() -> void:
 	_load_letters()
+	# §I18N: reload when locale changes so MAP_CHAIN etc. reflect new alphabet
+	if I18n != null:
+		I18n.locale_changed.connect(_on_locale_changed)
+
+func _on_locale_changed(_new_locale: String) -> void:
+	_load_letters()
 
 func _load_letters() -> void:
-	var file: FileAccess = FileAccess.open("res://data/letters.json", FileAccess.READ)
+	# §I18N alphabet-dependence (AGENTS.md §2.0):
+	# Default = letters.json (russian, 33 letters).
+	# Other locales = letters_<locale>.json (e.g. letters_en.json = 26 letters).
+	# Number of letters N → drives MAP_CHAIN length, balance, etc.
+	var locale: String = ""
+	if I18n != null:
+		locale = I18n.get_locale()
+	var path: String = "res://data/letters.json"
+	if locale != "" and locale != "ru":
+		var localized_path: String = "res://data/letters_" + locale + ".json"
+		# §I18N: try open directly — ResourceLoader.exists() is unreliable for
+		# .json on HTML5 export (only resources used in code are packed).
+		var probe: FileAccess = FileAccess.open(localized_path, FileAccess.READ)
+		if probe != null:
+			probe.close()
+			path = localized_path
+		else:
+			push_warning("AlphabetData: no letters_" + locale + ".json (FileAccess), falling back to letters.json (ru)")
+	# Reset state
+	_letters.clear()
+	_is_loaded = false
+	_loaded_locale = locale if locale != "" else "ru"
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	if file == null:
-		push_error("AlphabetData: Failed to open letters.json")
+		push_error("AlphabetData: Failed to open " + path)
 		return
 	var json: JSON = JSON.new()
 	var err: Error = json.parse(file.get_as_text())
 	if err != OK:
-		push_error("AlphabetData: Failed to parse letters.json: " + json.get_error_message())
+		push_error("AlphabetData: Failed to parse " + path + ": " + json.get_error_message())
 		return
 	var data: Variant = json.get_data()
 	if not data is Dictionary:
-		push_error("AlphabetData: letters.json root is not a Dictionary")
+		push_error("AlphabetData: " + path + " root is not a Dictionary")
 		return
 	var data_dict: Dictionary = data
 	if not data_dict.has("letters"):
-		push_error("AlphabetData: missing 'letters' key")
+		push_error("AlphabetData: missing 'letters' key in " + path)
 		return
 	for letter_data: Variant in data_dict["letters"]:
 		var letter_dict: Dictionary = letter_data
@@ -33,6 +62,21 @@ func _load_letters() -> void:
 			_letters[letter_char] = letter_dict
 	_is_loaded = true
 	data_loaded.emit()
+	# §I18N: push fresh snapshot to JS bridge so tests/UI can read new alphabet
+	# immediately after locale switch (not waiting for next world_map._ready).
+	if OS.has_feature("web"):
+		# AlphabetData loads before TestBridge in autoload order; check null.
+		var tb = get_tree().get_root().get_node_or_null("/root/TestBridge")
+		# TestBridge is not an autoload — it's instantiated per scene. Use a
+		# direct eval to expose the count + a sample char.
+		JavaScriptBridge.eval("window.gameAlphabetCount = " + str(_letters.size()) + ";", true)
+		# Push full snapshot (replaces the one world_map sets).
+		var snapshot: Array = get_alphabet_snapshot()
+		JavaScriptBridge.eval("window.gameAlphabet = " + JSON.stringify(snapshot) + ";", true)
+	print("[alphabet] loaded locale=" + _loaded_locale + " count=" + str(_letters.size()))
+
+func get_loaded_locale() -> String:
+	return _loaded_locale
 
 func is_loaded() -> bool:
 	return _is_loaded
