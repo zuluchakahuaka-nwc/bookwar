@@ -123,7 +123,9 @@ func calculate_damage(letter_char: String, level: int) -> float:
 	var base_power: int = letter.get("base_power", 0)
 	match letter.get("type", ""):
 		"vowel":
-			return float(base_power) * float(level) * BookwarConst.VOWEL_MULTIPLIER
+			# §I18N §2.0: use per-locale vowel multiplier (compensates defense-heavy
+			# locales like en/fr/pt with only 5 vowels vs 21 consonants).
+			return float(base_power) * float(level) * BookwarConst.get_vowel_multiplier()
 		"sign":
 			if letter.get("role", "") == "attack_buff":
 				return float(base_power) * float(level) * BookwarConst.SIGN_MULTIPLIER
