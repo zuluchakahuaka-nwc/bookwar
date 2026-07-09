@@ -315,6 +315,32 @@ const VOWEL_MULTIPLIER: float = 1.0
 const CONSONANT_MULTIPLIER: float = 1.0
 const SIGN_MULTIPLIER: float = 1.5
 
+# §I18N §2.0: per-locale balance. Locales with fewer vowels (relative to
+# consonants) need a higher vowel multiplier — otherwise attacks are too weak
+# vs defense. Russian has 10 vowels / 21 consonants (balanced, mult=1.0).
+# English has only 5 vowels / 21 consonants → mult 1.4 to compensate.
+# Sign multiplier (Ъ, Ь, ß, etc.) stays 1.5 universally.
+const LOCALE_VOWEL_MULTIPLIERS: Dictionary = {
+	"ru": 1.0,   # 10 vowels / 21 consonants — balanced
+	"en": 1.4,   # 5 / 21 — defense-heavy, compensate
+	"es": 1.3,   # 5 / 22 — similar to en
+	"de": 1.2,   # 8 / 22 — better balance, mild compensation
+	"fr": 1.3,   # 6 / 20 — Y as vowel helps
+	"pt": 1.4,   # 5 / 21 — like en
+	"it": 1.4,   # 5 / 16 — short alphabet
+	"ar": 1.8,   # 3 / 25 — extreme defense-heavy (only alif/waw/ya)
+	"zh": 1.0,   # TBD — depends on Kanxi strategy
+}
+
+static func get_vowel_multiplier() -> float:
+	# §I18N: per-locale vowel multiplier for combat balance (§2.0).
+	var locale: String = ""
+	if I18n != null:
+		locale = I18n.get_locale()
+	if LOCALE_VOWEL_MULTIPLIERS.has(locale):
+		return float(LOCALE_VOWEL_MULTIPLIERS[locale])
+	return VOWEL_MULTIPLIER
+
 # --- Monster / combat tuning (AGENTS.md §5.3) ---
 const COMBAT_COOLDOWN_SEC: float = 2.0
 const MAX_LOOT_DROP: int = 3
