@@ -1,0 +1,102 @@
+# CI for BOOKWAR — runs regression e2e tests on every push/PR.
+# Caveats:
+# - Godot 4.6.3 export is Windows-only in our setup (chocolatey install).
+#   For Linux runners, Godot is downloaded via official Linux binary.
+# - The HTML5 build is served via http-server and tested through Puppeteer.
+# - Full suite ~6-8 min. Smoke only on PRs (faster).
+#
+# §TODO#9: initial workflow. May need adjustment for Linux Godot path.
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  smoke:
+    name: Regression Smoke (HTML5)
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Puppeteer deps
+        working-directory: tests/e2e
+        run: npm install
+
+      - name: Install Godot 4.6.3 (Windows)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $url = "https://github.com/godotengine/godot/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip"
+          Invoke-WebRequest -Uri $url -OutFile godot.zip
+          Expand-Archive -Path godot.zip -DestinationPath D:\godot -Force
+          $godot = (Get-ChildItem D:\godot\Godot_v4.6.3*.exe | Select-Object -First 1).FullName
+          Write-Host "Godot binary: $godot"
+          "GODOT_BIN=$godot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Build HTML5
+        shell: pwsh
+        run: |
+          $env:Path = "D:\godot;" + $env:Path
+          & scripts/dev/build.ps1 -TimeoutSec 300
+
+      - name: Patch web shell
+        shell: pwsh
+        run: node scripts/dev/patch_web_shell.js
+
+      - name: Run smoke tests
+        shell: pwsh
+        run: |
+          $proc = Start-Process -FilePath "cmd.exe" -ArgumentList "/c npx http-server builds/html5 -p 3000 -c-1 --silent" -PassThru -WindowStyle Hidden
+          Start-Sleep 8
+          try {
+            Push-Location tests/e2e
+            npx jest --forceExit --runInBand component/regression_smoke.test.js --testTimeout 60000
+            $exit = $LASTEXITCODE
+          } finally {
+            Pop-Location
+            Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+          }
+          exit $exit
+
+  full-regression:
+    name: Full Regression (HTML5)
+    runs-on: windows-latest
+    timeout-minutes: 25
+    if: github.event_name == 'push'
+    needs: smoke
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Puppeteer deps
+        working-directory: tests/e2e
+        run: npm install
+
+      - name: Install Godot 4.6.3 (Windows)
+        shell: pwsh
+        run: |
+          $url = "https://github.com/godotengine/godot/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip"
+          Invoke-WebRequest -Uri $url -OutFile godot.zip
+          Expand-Archive -Path godot.zip -DestinationPath D:\godot -Force
+          $godot = (Get-ChildItem D:\godot\Godot_v4.6.3*.exe | Select-Object -First 1).FullName
+          "GODOT_BIN=$godot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Build + patch + test
+        shell: pwsh
+        run: |
+          $env:Path = "D:\godot;" + $env:Path
+          & scripts/dev/ci.ps1 -Full
+          exit $LASTEXITCODE
