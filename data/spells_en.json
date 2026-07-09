@@ -1,0 +1,12 @@
+{
+  "spells": [
+    {"word": "BANG", "letters": ["B","A","N","G"], "type": "attack", "multiplier": 2.0, "effect": "double_damage", "description": "Amplified attack — double damage.", "unlock_cost": 41},
+    {"word": "ZAP",  "letters": ["Z","A","P"],     "type": "attack_pierce", "multiplier": 1.8, "effect": "ignore_shield", "description": "Lightning pierces enemy shield.", "unlock_cost": 51},
+    {"word": "BOW",  "letters": ["B","O","W"],     "type": "attack", "multiplier": 1.7, "effect": "ranged_no_retaliate", "description": "Ranged shot — enemy cannot retaliate.", "unlock_cost": 45},
+    {"word": "HEAL", "letters": ["H","E","A","L"], "type": "heal", "multiplier": 1.0, "effect": "heal_40", "description": "Restore 40 HP.", "unlock_cost": 34},
+    {"word": "RUN",  "letters": ["R","U","N"],     "type": "evade", "multiplier": 1.0, "effect": "evade_next", "description": "Dodge the next attack.", "unlock_cost": 42},
+    {"word": "BURN", "letters": ["B","U","R","N"], "type": "dot", "multiplier": 1.5, "effect": "burn_3_turns", "description": "Set the enemy on fire for 3 turns.", "unlock_cost": 47},
+    {"word": "OATH", "letters": ["O","A","T","H"], "type": "buff", "multiplier": 2.0, "effect": "buff_next_turn", "description": "Sworn vow — next turn deals double.", "unlock_cost": 44},
+    {"word": "WAR",  "letters": ["W","A","R"],     "type": "attack_mass", "multiplier": 2.2, "effect": "triple_strike", "description": "Threefold strike — massive damage.", "unlock_cost": 56}
+  ]
+}

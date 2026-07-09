@@ -1,0 +1,9 @@
+{
+  "spells": [
+    {"word": "SOL",  "letters": ["S","O","L"], "type": "attack", "multiplier": 2.0, "effect": "double_damage", "description": "Sol amplificado — dano duplo.", "unlock_cost": 41},
+    {"word": "MAR",  "letters": ["M","A","R"], "type": "attack_pierce", "multiplier": 1.8, "effect": "ignore_shield", "description": "Mar atravessa o escudo.", "unlock_cost": 33},
+    {"word": "LUZ",  "letters": ["L","U","Z"], "type": "evade", "multiplier": 1.0, "effect": "evade_next", "description": "Luz esquiva do próximo ataque.", "unlock_cost": 47},
+    {"word": "VIDA", "letters": ["V","I","D","A"], "type": "heal", "multiplier": 1.0, "effect": "heal_40", "description": "Vida restaura 40 PV.", "unlock_cost": 35},
+    {"word": "GUERRA","letters": ["G","U","E","R","R","A"], "type": "attack_mass", "multiplier": 2.2, "effect": "triple_strike", "description": "Guerra — golpe triplo.", "unlock_cost": 60}
+  ]
+}

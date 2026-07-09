@@ -1,0 +1,9 @@
+{
+  "spells": [
+    {"word": "BOOM", "letters": ["B","O","O","M"], "type": "attack", "multiplier": 2.0, "effect": "double_damage", "description": "¡Explosión amplificada — daño doble!", "unlock_cost": 41},
+    {"word": "LUZ",  "letters": ["L","U","Z"],     "type": "attack_pierce", "multiplier": 1.8, "effect": "ignore_shield", "description": "Luz que atraviesa escudos.", "unlock_cost": 33},
+    {"word": "SOL",  "letters": ["S","O","L"],     "type": "heal", "multiplier": 1.0, "effect": "heal_40", "description": "Luz del sol restaura 40 PV.", "unlock_cost": 23},
+    {"word": "MAR",  "letters": ["M","A","R"],     "type": "attack_mass", "multiplier": 2.2, "effect": "triple_strike", "description": "Furia del mar — golpe triple.", "unlock_cost": 38},
+    {"word": "LEY",  "letters": ["L","E","Y"],     "type": "buff", "multiplier": 2.0, "effect": "buff_next_turn", "description": "La ley ordena — próximo turno doble.", "unlock_cost": 40}
+  ]
+}
