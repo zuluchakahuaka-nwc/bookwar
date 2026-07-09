@@ -1,0 +1,26 @@
+{
+  "locale": "it",
+  "letters": [
+    {"char": "A", "position": 1, "type": "vowel", "role": "attack", "base_power": 1, "speed": 1, "description": "Prima lettera. Attacco debole ma lento."},
+    {"char": "B", "position": 2, "type": "consonant", "role": "defense", "base_power": 2, "speed": 2, "description": "Scudo debole, lento."},
+    {"char": "C", "position": 3, "type": "consonant", "role": "defense", "base_power": 3, "speed": 3, "description": "Scudo leggero, turno presto."},
+    {"char": "D", "position": 4, "type": "consonant", "role": "defense", "base_power": 4, "speed": 4, "description": "Scudo solido, bassa velocità."},
+    {"char": "E", "position": 5, "type": "vowel", "role": "attack", "base_power": 5, "speed": 5, "description": "Vocale comune, attacco equilibrato."},
+    {"char": "F", "position": 6, "type": "consonant", "role": "defense", "base_power": 6, "speed": 6, "description": "Difesa ferma."},
+    {"char": "G", "position": 7, "type": "consonant", "role": "defense", "base_power": 7, "speed": 7, "description": "Scudo guardiano."},
+    {"char": "H", "position": 8, "type": "consonant", "role": "defense", "base_power": 8, "speed": 8, "description": "Scudo pesante, velocità media."},
+    {"char": "I", "position": 9, "type": "vowel", "role": "attack", "base_power": 9, "speed": 9, "description": "Colpo acuto di vocale."},
+    {"char": "L", "position": 10, "type": "consonant", "role": "defense", "base_power": 10, "speed": 10, "description": "Difesa leale, metà gioco."},
+    {"char": "M", "position": 11, "type": "consonant", "role": "defense", "base_power": 11, "speed": 11, "description": "Scudo di montagna."},
+    {"char": "N", "position": 12, "type": "consonant", "role": "defense", "base_power": 12, "speed": 12, "description": "Guardia nobile, livello medio."},
+    {"char": "O", "position": 13, "type": "vowel", "role": "attack", "base_power": 13, "speed": 13, "description": "Vocale aperta, colpo forte."},
+    {"char": "P", "position": 14, "type": "consonant", "role": "defense", "base_power": 14, "speed": 14, "description": "Protezione del paladino."},
+    {"char": "Q", "position": 15, "type": "consonant", "role": "defense", "base_power": 15, "speed": 15, "description": "Scudo raro e regale."},
+    {"char": "R", "position": 16, "type": "consonant", "role": "defense", "base_power": 16, "speed": 16, "description": "Runa resiliente."},
+    {"char": "S", "position": 17, "type": "consonant", "role": "defense", "base_power": 17, "speed": 17, "description": "Sentinella stabile."},
+    {"char": "T", "position": 18, "type": "consonant", "role": "defense", "base_power": 18, "speed": 18, "description": "Scudo torre, fine gioco."},
+    {"char": "U", "position": 19, "type": "vowel", "role": "attack", "base_power": 19, "speed": 19, "description": "Vocale rara, colpo potente."},
+    {"char": "V", "position": 20, "type": "consonant", "role": "defense", "base_power": 20, "speed": 20, "description": "Voto dell'avanguardia."},
+    {"char": "Z", "position": 21, "type": "consonant", "role": "defense", "base_power": 21, "speed": 21, "description": "Ultima lettera italiana, lo scudo più forte."}
+  ]
+}

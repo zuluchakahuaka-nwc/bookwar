@@ -301,8 +301,17 @@ const MAX_LOOT_DROP: int = 3
 const ENEMY_DEFAULT_HP: int = 30
 const ENEMY_DEFAULT_LEVEL: int = 1
 
-# --- Alphabet (AGENTS.md §2.1) ---
+# --- Alphabet (AGENTS.md §2.1, §2.0 I18N) ---
+# §I18N: legacy constant kept for backwards-compat. Real alphabet length
+# comes from AlphabetData.get_count() which loads letters_<locale>.json.
+# Use AlphabetData.get_count() in NEW code; this is a fallback default for ru.
 const EXPECTED_LETTER_COUNT: int = 33
+
+static func get_alphabet_count() -> int:
+	# Dynamic alphabet length per current locale (§2.0).
+	if AlphabetData != null and AlphabetData.is_loaded():
+		return AlphabetData.get_count()
+	return EXPECTED_LETTER_COUNT
 
 # --- Monster allegiance & recruitment (§5, §17) ---
 const MONSTER_LABEL_SIZE: int = 36

@@ -1,0 +1,31 @@
+{
+  "locale": "fr",
+  "letters": [
+    {"char": "A", "position": 1, "type": "vowel", "role": "attack", "base_power": 1, "speed": 1, "description": "Première lettre. Attaque faible mais lente."},
+    {"char": "B", "position": 2, "type": "consonant", "role": "defense", "base_power": 2, "speed": 2, "description": "Bouclier faible, lent."},
+    {"char": "C", "position": 3, "type": "consonant", "role": "defense", "base_power": 3, "speed": 3, "description": "Bouclier léger, tour tôt."},
+    {"char": "D", "position": 4, "type": "consonant", "role": "defense", "base_power": 4, "speed": 4, "description": "Bouclier solide, vitesse basse."},
+    {"char": "E", "position": 5, "type": "vowel", "role": "attack", "base_power": 5, "speed": 5, "description": "Voyelle fréquente, attaque équilibrée."},
+    {"char": "F", "position": 6, "type": "consonant", "role": "defense", "base_power": 6, "speed": 6, "description": "Ferme défense."},
+    {"char": "G", "position": 7, "type": "consonant", "role": "defense", "base_power": 7, "speed": 7, "description": "Garde vigilante."},
+    {"char": "H", "position": 8, "type": "consonant", "role": "defense", "base_power": 8, "speed": 8, "description": "Lourd bouclier, vitesse moyenne."},
+    {"char": "I", "position": 9, "type": "vowel", "role": "attack", "base_power": 9, "speed": 9, "description": "Coup vif de voyelle."},
+    {"char": "J", "position": 10, "type": "consonant", "role": "defense", "base_power": 10, "speed": 10, "description": "Juste gardien, tier moyen."},
+    {"char": "K", "position": 11, "type": "consonant", "role": "defense", "base_power": 11, "speed": 11, "description": "Garde du chevalier."},
+    {"char": "L", "position": 12, "type": "consonant", "role": "defense", "base_power": 12, "speed": 12, "description": "Loyale défense, mi-chemin."},
+    {"char": "M", "position": 13, "type": "consonant", "role": "defense", "base_power": 13, "speed": 13, "description": "Mont bouclier."},
+    {"char": "N", "position": 14, "type": "consonant", "role": "defense", "base_power": 14, "speed": 14, "description": "Noble garde, tier moyen."},
+    {"char": "O", "position": 15, "type": "vowel", "role": "attack", "base_power": 15, "speed": 15, "description": "Voyelle ouverte, coup fort."},
+    {"char": "P", "position": 16, "type": "consonant", "role": "defense", "base_power": 16, "speed": 16, "description": "Protection du paladin."},
+    {"char": "Q", "position": 17, "type": "consonant", "role": "defense", "base_power": 17, "speed": 17, "description": "Rare bouclier royal."},
+    {"char": "R", "position": 18, "type": "consonant", "role": "defense", "base_power": 18, "speed": 18, "description": "Rune résiliente."},
+    {"char": "S", "position": 19, "type": "consonant", "role": "defense", "base_power": 19, "speed": 19, "description": "Sentinelle stable."},
+    {"char": "T", "position": 20, "type": "consonant", "role": "defense", "base_power": 20, "speed": 20, "description": "Tour bouclier, fin de jeu."},
+    {"char": "U", "position": 21, "type": "vowel", "role": "attack", "base_power": 21, "speed": 21, "description": "Voyelle rare, coup puissant."},
+    {"char": "V", "position": 22, "type": "consonant", "role": "defense", "base_power": 22, "speed": 22, "description": "Vœu de l'avant-garde."},
+    {"char": "W", "position": 23, "type": "consonant", "role": "defense", "base_power": 23, "speed": 23, "description": "Mur du gardien."},
+    {"char": "X", "position": 24, "type": "consonant", "role": "defense", "base_power": 24, "speed": 24, "description": "Marque de l'inconnu."},
+    {"char": "Y", "position": 25, "type": "vowel", "role": "attack", "base_power": 25, "speed": 25, "description": "Y — voyelle rare en français."},
+    {"char": "Z", "position": 26, "type": "consonant", "role": "defense", "base_power": 26, "speed": 26, "description": "Dernière lettre, le bouclier le plus fort."}
+  ]
+}

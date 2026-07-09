@@ -1,0 +1,32 @@
+{
+  "locale": "es",
+  "letters": [
+    {"char": "A", "position": 1, "type": "vowel", "role": "attack", "base_power": 1, "speed": 1, "description": "Primera letra. Ataque débil pero lento."},
+    {"char": "B", "position": 2, "type": "consonant", "role": "defense", "base_power": 2, "speed": 2, "description": "Escudo débil, lento."},
+    {"char": "C", "position": 3, "type": "consonant", "role": "defense", "base_power": 3, "speed": 3, "description": "Escudo ligero, turno temprano."},
+    {"char": "D", "position": 4, "type": "consonant", "role": "defense", "base_power": 4, "speed": 4, "description": "Escudo sólido, baja velocidad."},
+    {"char": "E", "position": 5, "type": "vowel", "role": "attack", "base_power": 5, "speed": 5, "description": "Vocal común, ataque equilibrado."},
+    {"char": "F", "position": 6, "type": "consonant", "role": "defense", "base_power": 6, "speed": 6, "description": "Defensa firme."},
+    {"char": "G", "position": 7, "type": "consonant", "role": "defense", "base_power": 7, "speed": 7, "description": "Escudo guardián."},
+    {"char": "H", "position": 8, "type": "consonant", "role": "defense", "base_power": 8, "speed": 8, "description": "Escudo pesado, velocidad media."},
+    {"char": "I", "position": 9, "type": "vowel", "role": "attack", "base_power": 9, "speed": 9, "description": "Golpe agudo de vocal."},
+    {"char": "J", "position": 10, "type": "consonant", "role": "defense", "base_power": 10, "speed": 10, "description": "Escudo rápido, nivel medio."},
+    {"char": "K", "position": 11, "type": "consonant", "role": "defense", "base_power": 11, "speed": 11, "description": "Guardia del caballero."},
+    {"char": "L", "position": 12, "type": "consonant", "role": "defense", "base_power": 12, "speed": 12, "description": "Defensa leal, mediados."},
+    {"char": "M", "position": 13, "type": "consonant", "role": "defense", "base_power": 13, "speed": 13, "description": "Escudo de montaña."},
+    {"char": "N", "position": 14, "type": "consonant", "role": "defense", "base_power": 14, "speed": 14, "description": "Guardia noble, nivel medio."},
+    {"char": "Ñ", "position": 15, "type": "consonant", "role": "defense", "base_power": 15, "speed": 15, "description": "Letra única del español. Escudo característico."},
+    {"char": "O", "position": 16, "type": "vowel", "role": "attack", "base_power": 16, "speed": 16, "description": "Vocal abierta, golpe fuerte."},
+    {"char": "P", "position": 17, "type": "consonant", "role": "defense", "base_power": 17, "speed": 17, "description": "Protección del paladín."},
+    {"char": "Q", "position": 18, "type": "consonant", "role": "defense", "base_power": 18, "speed": 18, "description": "Escudo raro y regio."},
+    {"char": "R", "position": 19, "type": "consonant", "role": "defense", "base_power": 19, "speed": 19, "description": "Guardia resistente."},
+    {"char": "S", "position": 20, "type": "consonant", "role": "defense", "base_power": 20, "speed": 20, "description": "Centinela firme."},
+    {"char": "T", "position": 21, "type": "consonant", "role": "defense", "base_power": 21, "speed": 21, "description": "Escudo torre, fase tardía."},
+    {"char": "U", "position": 22, "type": "vowel", "role": "attack", "base_power": 22, "speed": 22, "description": "Vocal rara, golpe potente."},
+    {"char": "V", "position": 23, "type": "consonant", "role": "defense", "base_power": 23, "speed": 23, "description": "Juramento de vanguardia."},
+    {"char": "W", "position": 24, "type": "consonant", "role": "defense", "base_power": 24, "speed": 24, "description": "Muro del guardián."},
+    {"char": "X", "position": 25, "type": "consonant", "role": "defense", "base_power": 25, "speed": 25, "description": "Marca de lo desconocido."},
+    {"char": "Y", "position": 26, "type": "consonant", "role": "defense", "base_power": 26, "speed": 26, "description": "Guardián anhelante."},
+    {"char": "Z", "position": 27, "type": "consonant", "role": "defense", "base_power": 27, "speed": 27, "description": "Letra final, el escudo más fuerte."}
+  ]
+}

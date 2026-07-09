@@ -92,6 +92,85 @@
 
 ---
 
+## 🔴 I18N — АЛФАВИТ-ЗАВИСИМЫЕ ВЕРСИИ ИГРЫ (большая задача)
+
+> Согласно AGENTS.md §2.0, локализация = НЕ перевод строк, а ПЕРЕСТРОЕНИЕ
+> игры под алфавит локали. На русском игра готова — теперь делаем версии
+> для других языков. **Число уровней = число букв в алфавите локали.**
+
+**Принцип (AGENTS.md §2.0):**
+
+| Локаль | Букв (N) | Уровней | Гласные / Согласные | Особенность |
+|--------|----------|---------|---------------------|-------------|
+| ru | 33 | 33 | 10 / 21 + 2 знака | ГОТОВО |
+| en | 26 | 26 | 5 / 21 | defense-heavy → vowel mult ↑ |
+| es | 27 | 27 | 5 / 22 | +ñ |
+| de | 30 | 30 | varies | +ä, ö, ü, ß |
+| fr | 26 | 26 | 6 / 20 | как en, +accents optional |
+| pt | 26 | 26 | 5 / 21 | как en |
+| it | 21 | 21 | 5 / 16 | короткий алфавит |
+| ar | 28 | 28 | 3 краткие+3 долгие / остальное | RTL |
+| zh | 214 | 214 | нет алфавита | ключи Канси (финальная) |
+
+**Этапы:**
+
+1. **Создать `data/letters_{locale}.json`** — N букв с type/position/base_power/speed/description
+   - en, es, de, fr, pt, it, ar (zh отдельно)
+   - Vowel/consonant классификация per-язык
+   - Drop weight (rare/common per §20.2): rare = последние 11 позиций, common = первые 10
+
+2. **AlphabetData (`scripts/core/alphabet_data.gd`)** — загружать `letters_{locale}.json`
+   - `_load_letters()` меняет путь в зависимости от `I18n.get_locale()`
+   - При смене локали — `_reload()` (перезагрузить alphabet)
+
+3. **Убрать хардкод «33»** (constants.gd, monster_spawner.gd, world_map.gd)
+   - Заменить на `AlphabetData.get_count()`
+   - Letters_total в stats_screen
+   - Bestiary thresholds
+   - Уровни доступных букв (MAP_LETTERS)
+
+4. **MAP_CHAIN динамический** — N регионов вместо 33
+   - В `constants.gd` оставить `_base_chain` (минимальные: light_valley)
+   - `_get_chain_for_locale(locale)` генерирует N регионов с тематическими именами
+   - Region lore — тоже per-locale (уменьшенный/расширенный)
+
+5. **Per-locale баланс** (`VOWEL_MULTIPLIER`, `CONSONANT_MULTIPLIER`)
+   - en/fr/pt: vowel_mult=1.4 (defense-heavy)
+   - es: vowel_mult=1.3
+   - de: vowel_mult=1.2 (30 букв)
+   - ar: separate (RTL, разные множители)
+
+6. **Spells per-locale** (`data/spells_{locale}.json`)
+   - en: BANG, ZAP, BOOM (3-4 буквы)
+   - es: SOL, MAR, LUZ
+   - de: EIS, FEU, LICHT
+   - fr: FEU, EAU, NUIT
+   - pt: SOL, MAR, LUZ
+   - it: SOLE, MARE, LUCE
+   - ar: слова из арабских корней
+
+7. **E2E тесты** для каждой локали
+   - `tmp_locale_<xx>.js`: switch locale, check `gameAlphabet.length == N`
+   - Vision MCP: confirm alphabet renders correctly (Cyrillic/Latin/Arabic)
+
+8. **Chinese (zh)** — отдельная подзадача
+   - Выбрать стратегию: 214 ключей Канси (самая длинная версия)
+   - Или: пиньинь (26 латинских, как en)
+   - Решение зафиксировать в `data/letters_zh.json`
+
+**Файлы (основные):**
+- `data/letters_{en,es,de,fr,pt,it,ar,zh}.json` (новые)
+- `data/spells_{locale}.json` (новые)
+- `scripts/core/alphabet_data.gd` (load per-locale)
+- `scripts/core/constants.gd` (dynamic MAP_CHAIN, no hardcoded 33)
+- `scripts/core/i18n.gd` (emit signal on locale change -> AlphabetData reload)
+- `scripts/world/monster_spawner.gd` (use AlphabetData.get_count())
+- `scripts/ui/stats_screen.gd` (letters_total dynamic)
+
+**Приоритет:** en → es → de → fr → pt → it → ar → zh
+
+---
+
 ## 📋 БЫСТРЫЙ СТАРТ СЛЕДУЮЩЕЙ СЕССИИ
 
 ```powershell
