@@ -21,6 +21,12 @@ var _progress_bar_bg: ColorRect = null  # §Polish: progress bar зачистк�
 var _progress_bar_fill: ColorRect = null
 var _progress_label: Label = null
 var _progress_poll_timer: float = 0.0
+# §0.11 Android tap-zones: registry of interactive action buttons for direct
+# _input hit-test dispatch (mirrors main_menu.gd pattern). Each entry:
+#   { "btn": Button, "kind": String, "action": StringName }
+# kind ∈ {"action", "manual", "legend", "quest_log", "stats"}
+var _action_btn_registry: Array = []
+var _last_hud_tap_time: float = 0.0  # debounce guard (touch+emulate double-fire)
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -299,17 +305,10 @@ func _make_action_btn(x: float, y: float, key: String, action: String, label: St
 	btn.size = Vector2(w, h)
 	btn.position = Vector2(x, y)
 	var act: StringName = StringName(action)
-	# Emit a real press+release InputEvent so _unhandled_input handlers (player, inventory) react.
-	btn.pressed.connect(func() -> void:
-		var press: InputEventAction = InputEventAction.new()
-		press.action = act
-		press.pressed = true
-		Input.parse_input_event(press)
-		await get_tree().create_timer(0.05).timeout
-		var rel: InputEventAction = InputEventAction.new()
-		rel.action = act
-		rel.pressed = false
-		Input.parse_input_event(rel))
+	# §0.11: NO btn.pressed.connect — would cause double-firing with _input hit-test.
+	# Touch/click is handled centrally by _input() -> _dispatch_btn_entry -> _dispatch_action.
+	# §0.11 Android tap-zone: register for direct _input hit-test dispatch.
+	_action_btn_registry.append({"btn": btn, "kind": "action", "action": act})
 
 func _make_manual_btn(x: float, y: float) -> void:
 	var w: float = DPAD_BTN_SIZE * 1.5
@@ -326,12 +325,9 @@ func _make_manual_btn(x: float, y: float) -> void:
 	btn.offset_bottom = y + h
 	btn.size = Vector2(w, h)
 	btn.position = Vector2(x, y)
-	btn.pressed.connect(func() -> void:
-		if _manual:
-			if _manual.is_open():
-				_manual.hide_manual()
-			else:
-				_manual.show_manual())
+	# §0.11: NO btn.pressed — handled by _input hit-test only.
+	# §0.11 Android tap-zone
+	_action_btn_registry.append({"btn": btn, "kind": "manual", "action": null})
 
 func _make_legend_btn(x: float, y: float) -> void:
 	# "Легенда" — re-plays the intro story + legend melody from inside the game.
@@ -349,8 +345,9 @@ func _make_legend_btn(x: float, y: float) -> void:
 	btn.offset_bottom = y + h
 	btn.size = Vector2(w, h)
 	btn.position = Vector2(x, y)
-	btn.pressed.connect(func() -> void:
-		get_tree().change_scene_to_file("res://scenes/ui/intro.tscn"))
+	# §0.11: NO btn.pressed — handled by _input hit-test only.
+	# §0.11 Android tap-zone
+	_action_btn_registry.append({"btn": btn, "kind": "legend", "action": null})
 
 func _make_quest_log_btn(x: float, y: float) -> void:
 	# Q6 (2026-07-07): touch-friendly кнопка для журнала квестов (мобильные).
@@ -369,10 +366,9 @@ func _make_quest_log_btn(x: float, y: float) -> void:
 	btn.offset_bottom = y + h
 	btn.size = Vector2(w, h)
 	btn.position = Vector2(x, y)
-	btn.pressed.connect(func() -> void:
-		# Toggle quest log via the JS bridge (quest_log.gd._process polls this)
-		if OS.has_feature("web"):
-			JavaScriptBridge.eval("if (window.gameToggleQuestLog) window.gameToggleQuestLog();", true))
+	# §0.11: NO btn.pressed — handled by _input hit-test only.
+	# §0.11 Android tap-zone
+	_action_btn_registry.append({"btn": btn, "kind": "quest_log", "action": null})
 
 func _make_stats_btn(x: float, y: float) -> void:
 	# §Polish (2026-07-08): touch-friendly кнопка для экрана статистики.
@@ -391,14 +387,108 @@ func _make_stats_btn(x: float, y: float) -> void:
 	btn.offset_bottom = y + h
 	btn.size = Vector2(w, h)
 	btn.position = Vector2(x, y)
-	btn.pressed.connect(func() -> void:
-		if OS.has_feature("web"):
-			JavaScriptBridge.eval("if (window.gameToggleStats) window.gameToggleStats();", true))
+	# §0.11: NO btn.pressed — handled by _input hit-test only.
+	# §0.11 Android tap-zone
+	_action_btn_registry.append({"btn": btn, "kind": "stats", "action": null})
 
 func _focus_canvas() -> void:
 	# HTML5: ensure the game canvas has keyboard focus so WASD works immediately
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("setTimeout(function(){var c=document.querySelector('canvas');if(c){c.focus();}},150);", true)
+
+# §0.11 Android tap-zones: universal hit-test dispatch.
+# On HTML5 + Android emulator Godot 4.6.3 sometimes fails to deliver Button.pressed
+# for touch events (coordinate transform bug — see STATUS.md L22-31). This _input
+# handler catches every ScreenTouch + MouseButton BEFORE Button's internal _gui_input,
+# and dispatches the action directly via the same code path used by btn.pressed.
+# Debounce 250ms kills double-firing from touch+emulate_mouse.
+func _input(event: InputEvent) -> void:
+	var pos := Vector2(-1, -1)
+	var is_press := false
+	if event is InputEventScreenTouch:
+		pos = event.position
+		is_press = event.pressed
+	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		pos = event.position
+		is_press = true
+	if not is_press or pos.x < 0:
+		return
+	# Debounce — kill double-firing from touch+emulate_mouse
+	var now: float = Time.get_ticks_msec() / 1000.0
+	if now - _last_hud_tap_time < 0.25:
+		return
+	# DEBUG — record tap position + first button rect for Puppeteer diagnostic
+	if OS.has_feature("web"):
+		var dbg: String = "window.gameLastTap={x:%.1f,y:%.1f,btns:[" % [pos.x, pos.y]
+		for i in range(_action_btn_registry.size()):
+			var e: Dictionary = _action_btn_registry[i]
+			var b: Button = e["btn"]
+			if b == null or not is_instance_valid(b):
+				continue
+			var r: Rect2 = b.get_global_rect()
+			if i > 0:
+				dbg += ","
+			dbg += "{k:'%s',r:[%.0f,%.0f,%.0f,%.0f]}" % [String(e.get("kind", "")), r.position.x, r.position.y, r.size.x, r.size.y]
+		dbg += "]};"
+		JavaScriptBridge.eval(dbg, true)
+	# Hit-test every registered action button. First match wins.
+	for entry in _action_btn_registry:
+		var btn: Button = entry["btn"]
+		if btn == null or not is_instance_valid(btn) or not btn.visible:
+			continue
+		if btn.get_global_rect().has_point(pos):
+			_last_hud_tap_time = now
+			if OS.has_feature("web"):
+				JavaScriptBridge.eval("window.gameDispatch='" + String(entry.get("kind","")) + "';", true)
+			_dispatch_btn_entry(entry)
+			get_viewport().set_input_as_handled()
+			return
+
+func _dispatch_btn_entry(entry: Dictionary) -> void:
+	var kind: String = String(entry.get("kind", ""))
+	var action: StringName = entry.get("action", null)
+	match kind:
+		"action":
+			if action != null:
+				_dispatch_action(action)
+		"manual":
+			_toggle_manual()
+		"legend":
+			get_tree().change_scene_to_file("res://scenes/ui/intro.tscn")
+		"quest_log":
+			_toggle_quest_log()
+		"stats":
+			_toggle_stats()
+
+func _dispatch_action(act: StringName) -> void:
+	# §0.11: Build a real InputEventAction and feed it via parse_input_event so
+	# that _input listeners (inventory_ui, dialogue, etc.) get an event with
+	# is_action_pressed() == true. Release after 80ms via await — shorter delays
+	# (call_deferred) were observed to land before the press was processed.
+	var press: InputEventAction = InputEventAction.new()
+	press.action = act
+	press.pressed = true
+	Input.parse_input_event(press)
+	await get_tree().create_timer(0.08).timeout
+	var rel: InputEventAction = InputEventAction.new()
+	rel.action = act
+	rel.pressed = false
+	Input.parse_input_event(rel)
+
+func _toggle_manual() -> void:
+	if _manual:
+		if _manual.is_open():
+			_manual.hide_manual()
+		else:
+			_manual.show_manual()
+
+func _toggle_quest_log() -> void:
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("if (window.gameToggleQuestLog) window.gameToggleQuestLog();", true)
+
+func _toggle_stats() -> void:
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("if (window.gameToggleStats) window.gameToggleStats();", true)
 
 func _on_hp_changed(current: int, maximum: int) -> void:
 	var text: String = I18n.t("common.hp", "HP") + ": " + str(current) + "/" + str(maximum)
