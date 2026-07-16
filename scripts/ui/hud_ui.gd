@@ -236,6 +236,7 @@ func _build_touch_controls() -> void:
 	_make_stats_btn(vw * 0.78, vh * 0.38)
 	_make_manual_btn(vw * 0.86, vh * 0.62)
 	_make_legend_btn(vw * 0.86, vh * 0.50)
+	_make_voice_btn(vw * 0.86, vh * 0.38)  # §7.2: Voice chat PTT button
 	# Persistent controls hint (top-center)
 	var hint: Label = Label.new()
 	hint.text = I18n.t("hud.hint", "WASD / buttons — move | E — take | I — inventory | T — speech")
@@ -459,6 +460,8 @@ func _dispatch_btn_entry(entry: Dictionary) -> void:
 			_toggle_quest_log()
 		"stats":
 			_toggle_stats()
+		"voice":
+			_toggle_voice_ptt()
 
 func _dispatch_action(act: StringName) -> void:
 	# §0.11: Build a real InputEventAction and feed it via parse_input_event so
@@ -489,6 +492,42 @@ func _toggle_quest_log() -> void:
 func _toggle_stats() -> void:
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("if (window.gameToggleStats) window.gameToggleStats();", true)
+
+func _toggle_voice_ptt() -> void:
+	# §7.2: First tap = request mic permission + start talking.
+	# Second tap = stop talking. If mic denied, no-op (button still toggles
+	# so user sees visual state, but no audio flows).
+	if VoiceChat.get_mic_permission() != "granted":
+		VoiceChat.start_microphone()
+		# Permission result arrives async; assume granted optimistically
+		# so user gets immediate feedback. If denied, PTT state has no effect.
+		VoiceChat.set_ptt_active(true)
+	else:
+		VoiceChat.set_ptt_active(not VoiceChat.is_ptt_active())
+
+# §7.2 §TODO#8 Voice chat push-to-talk button.
+# Tap = request mic permission (first time) + toggle PTT on.
+# Hold-style PTT would need button_down/button_up — but on Android those
+# signals are unreliable, so we use toggle semantics (tap once to start
+# talking, tap again to stop).
+func _make_voice_btn(x: float, y: float) -> void:
+	var w: float = DPAD_BTN_SIZE * 1.5
+	var h: float = DPAD_BTN_SIZE
+	var btn: Button = Button.new()
+	btn.text = I18n.t("hud.voice", "Голос") + "\n[V]"
+	btn.focus_mode = Control.FOCUS_NONE
+	btn.modulate = Color(0.65, 0.95, 0.75, 0.95)
+	btn.add_theme_font_size_override("font_size", 14)
+	add_child(btn)
+	btn.offset_left = x
+	btn.offset_top = y
+	btn.offset_right = x + w
+	btn.offset_bottom = y + h
+	btn.size = Vector2(w, h)
+	btn.position = Vector2(x, y)
+	# §0.11: NO btn.pressed — handled by _input hit-test only.
+	# §0.11 Android tap-zone
+	_action_btn_registry.append({"btn": btn, "kind": "voice", "action": null})
 
 func _on_hp_changed(current: int, maximum: int) -> void:
 	var text: String = I18n.t("common.hp", "HP") + ": " + str(current) + "/" + str(maximum)
