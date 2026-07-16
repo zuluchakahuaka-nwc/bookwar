@@ -11,6 +11,11 @@
 //     {"t":"trade_req","to":"Player2"}               trade request
 //     {"t":"trade_accept","from":"Player1"}          accept trade
 //     {"t":"battle_invite","to":"Player2"}           PvP invite
+//     {"t":"voice_offer","to":"Player2","data":SDP}  WebRTC offer (voice)
+//     {"t":"voice_answer","to":"Player2","data":SDP} WebRTC answer (voice)
+//     {"t":"voice_ice","to":"Player2","data":ICE}    ICE candidate exchange
+//     {"t":"voice_bye","to":"Player2"}               close voice peer connection
+//     {"t":"voice_broadcast","voice":true}           announce voice availability
 //     {"t":"ping"}                                   app-level ping (returns pong)
 //   Server -> Client:
 //     {"t":"welcome","id":..,"name":..}
@@ -162,20 +167,48 @@ wss.on('connection', (ws, req) => {
 				broadcast(ws, { t: 'letters', id: sender.id, letters });
 				break;
 			}
-			case 'trade_req':
-			case 'trade_accept':
-			case 'battle_invite': {
-				const key = msg.t === 'trade_accept' ? 'from' : 'to';
-				const target = String(msg[key] || '');
-				for (const [c, p] of players) {
-					if (c === ws) continue;
-					if (p.name === target) {
-						sendTo(c, { t: msg.t, from: sender.name });
-						break;
-					}
+		case 'trade_req':
+		case 'trade_accept':
+		case 'battle_invite': {
+			const key = msg.t === 'trade_accept' ? 'from' : 'to';
+			const target = String(msg[key] || '');
+			for (const [c, p] of players) {
+				if (c === ws) continue;
+				if (p.name === target) {
+					sendTo(c, { t: msg.t, from: sender.name });
+					break;
 				}
-				break;
 			}
+			break;
+		}
+		// §7.2 WebRTC voice signalling — server is a dumb relay between peers.
+		// Each message carries `to` (target player name) + `data` (SDP or ICE).
+		// Server does NOT parse SDP/ICE — it forwards verbatim to the target.
+		case 'voice_offer':
+		case 'voice_answer':
+		case 'voice_ice':
+		case 'voice_bye': {
+			const target = String(msg.to || '');
+			const data = msg.data;  // can be object (SDP) or ICE candidate
+			if (!target) break;
+			let relayed = false;
+			for (const [c, p] of players) {
+				if (c === ws) continue;
+				if (p.name === target) {
+					sendTo(c, { t: msg.t, from: sender.name, data: data });
+					relayed = true;
+					break;
+				}
+			}
+			log(`[voice] ${msg.t} from=${sender.name} to=${target} relayed=${relayed}`);
+			break;
+		}
+		case 'voice_broadcast': {
+			// Optional: announce voice availability to all peers (so others know
+			// this player has voice enabled and can be called).
+			broadcast(ws, { t: 'voice_status', id: sender.id, voice: !!msg.voice });
+			break;
+		}
 			case 'ping':
 				sendTo(ws, { t: 'pong', ts: Date.now() });
 				break;
