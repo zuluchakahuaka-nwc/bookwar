@@ -35,7 +35,25 @@
 
 ---
 
+## 🟢 СЕССИЯ 2026-07-16 — ЗАВЕРШЕНА (3 коммита + push)
+
+### Что сделано
+- ✅ **Безопасный push в GitHub**: проверены секреты, добавлен `*.log` в `.gitignore`, запушены 6+1 коммитов в `origin/master` (`90b32b2..cf7a0e7`)
+- ✅ **Decorative terrain (#4 FIX)**: base-формы декоров увеличены ~1.5-2x, цвета насыщены (flowers 5 petals, neon grass, dark stones w/ top facet, red-cap mushrooms w/ white dots, vivid crystals w/ sparks, glowing runes 4 colours). Vision MCP подтвердила: декоры теперь видны как «large grey stone + yellow flowers + green triangles» (раньше: «almost absent / blends with grass»).
+- ✅ **Локализация lore (#3 FIX)**: italian (`it.json`) добит с 18 до 85 ключей (+34 region names +33 lore). Теперь **все 9 локалей имеют полный lore coverage**. E2E + Vision подтвердили: `Valle Luminosa — l'ultimo baluardo della luce` рендерится в HUD при Italian locale.
+- ✅ regression_smoke: 8/8 passed
+
+### Коммиты (3 в этой сессии)
+- `cf7a0e7` — chore(gitignore): exclude *.log files
+- `89fd0b9` — feat(decor): enlarge + saturate terrain decor polygons (Vision verify)
+- `0dfd50e` — feat(i18n): Italian region names + lore (34+33 keys)
+
+---
+
 ## 🔴 НА ЧЁМ ОСТАНОВИЛИСЬ — следующая сессия с этого места
+
+> **Обновлено 2026-07-16**: #3 (lore) и #4 (decor) — ЗАКРЫТЫ в этой сессии.
+> Список ниже — то что осталось.
 
 ### 1. BUG: `gameTriggerDialogue()` не работает в battle_scene
 - **Где**: `tests/e2e/playthrough/walkthrough_map12.js` — бот не может открыть диалог после боя
@@ -48,42 +66,45 @@
 - Карты 11-33 используют generic пул (dark_wolf/shadow_lurker/forest_creature)
 - **Можно добавить**: по 1-2 named creatures для карт 11-20 и 21-33
 - **Файлы**: `data/monsters.json` (новые entries), `scripts/characters/monster_base.gd::_build_named_creature` (новые case), `scripts/world/monster_spawner.gd::_enemy_pool_for_level`
+- **Объём**: 4-8 часов (23 новых существа с дизайном + AI + тесты)
 
-### 3. Локализация — lore описания только на русском
-- `REGION_LORE` в `constants.gd` — 33 описания на русском
-- Можно вынести в i18n и перевести на en/es/de/fr/pt/ar/zh
-- **Файлы**: `scripts/core/constants.gd::REGION_LORE`, `data/i18n/*.json`
+### 3. ~~Локализация — lore описания только на русском~~ ✅ ЗАКРЫТО (2026-07-16)
+- Все 9 локалей теперь имеют полный lore coverage (34 region + 33 lore keys каждая)
+- Italian добавлен в этой сессии (commit `0dfd50e`)
+- Опционально: перевести progress bar и victory message (они ещё на русском)
 
-### 4. Decorative terrain — Vision плохо видит декоры
-- Декоры 10-15px слишком мелкие на скриншоте
-- **Решение**: увеличить scale до 10-15 (сейчас 5.5-7.5) — пересмотреть `_spawn_terrain_decor`
-- **Файлы**: `scripts/world/world_map.gd::_spawn_terrain_decor`
+### 4. ~~Decorative terrain — Vision плохо видит декоры~~ ✅ ЗАКРЫТО (2026-07-16)
+- Base-формы увеличены, цвета насыщены (commit `89fd0b9`)
+- Vision подтвердила: цветы/камни/травы теперь видны
 
 ### 5. Мультиплеер — нет real-server e2e
 - Сервер запущен локально, но position sync / trade / PvP не тестировались на 2+ клиентах
 - **Что нужно**: 2 puppeteer-браузера одновременно, проверка что игроки видят друг друга
-- **Файлы**: `tests/e2e/playthrough/` (новый тест), `scripts/multiplayer/world_mp_sync.gd`
+- **Файлы**: `tests/e2e/playthrough/multiplayer_2client.test.js` (есть набросок), `scripts/multiplayer/world_mp_sync.gd`
 
-### 6. Android — нет e2e на эмуляторе
-- APK собран (152 МБ), но не запускался на AVD в этой сессии
-- **Что нужно**: `ANDROID_VERSION/scripts/dev/test_android.ps1` — full pipeline
-- **Скрипты есть**: build_apk, run_emulator, install_apk, screenshot, vision
+### 6. Android — нет e2e на эмуляторе + tap-coordinate баг
+- APK собран (152 МБ), но tap mapping на эмуляторе Godot 4.6.3 сломан
+- **Решение (выбрано пользователем 2026-07-16)**: переработать UI под **full-screen tap-zones** (Control nodes вместо button get_global_rect). ~2-3 часа, обходит баг Godot.
+- **Альтернатива**: тестировать на реальном телефоне (USB debug) — taps там работают
+- **Файлы**: `scripts/ui/main_menu.gd` (tap-zones), `scripts/ui/hud_ui.gd` (touch controls), `ANDROID_VERSION/scripts/dev/test_android.ps1`
 
-### 7. Tactical combat §20.3 — не реализован
+### 7. Tactical combat §20.3 — не реализован (полностью)
+- Есть MVP body-equipment slots, но без тактического режима
 - Схема тела-экипировки (шлем/корпус/руки) с слотами под буквы
 - Тумблер: автобой ВКЛ (card-based) / автобой ВЫКЛ (тактический)
-- **Большая задача** — отдельная сессия
+- **Большая задача** — отдельная сессия (4-8 часов)
 - **Файлы**: новый `scripts/combat/tactical_combat.gd` + UI
 
-### 8. Voice chat (WebRTC) — не реализован
+### 8. Voice chat (WebRTC) — не реализован ⚠️ ОТЛОЖЕНО
 - AGENTS.md §7.2 — push-to-talk через WebRTC
-- Требует отдельный сигнальный сервер
-- **Большая задача**
+- Требует отдельный сигнальный сервер + STUN/TURN + WebRTC client API в Godot + push-to-talk UI + тесты на 2+ клиентах с микрофонами
+- **Реальный объём**: 2-4 дня работы (отдельный подпроект)
+- Пользователь явно отложил 2026-07-16
 
 ### 9. Полный regression suite на CI
 - Сейчас 34 теста, запуск вручную через `npx jest --runInBand`
-- Можно настроить GitHub Actions / локальный CI скрипт
-- **Файлы**: `.github/workflows/` (новый) или `scripts/dev/ci.ps1`
+- Есть GitHub Actions workflow (commit `90b32b2`), но не запускается на push
+- **Файлы**: `.github/workflows/` (проверить триггеры)
 
 ### 10. Книга мёртвых / Bestiary
 - Список убитых монстров, найденных букв, пройденных регионов
@@ -124,9 +145,10 @@
 **Коммиты:** `c8a8e5e` → `63883ca` → `dc87e24` → (spells) → (zh)
 
 **Будущие улучшения (опционально):**
-- Локализация UI строк на it (сейчас минимальный набор)
-- Полный lore на всех 9 локалей (сейчас lore только ru + en/es/de/fr/pt/ar/zh ключи есть в i18n)
-- Region names per-locale (сейчас все карты используют русские region names)
+- ~~Локализация UI строк на it~~ ✅ ЗАКРЫТО 2026-07-16 (commit `0dfd50e`)
+- ~~Полный lore на всех 9 локалей~~ ✅ ЗАКРЫТО 2026-07-16 (все 9 локалей имеют 34 region + 33 lore)
+- ~~Region names per-locale~~ ✅ ЗАКРЫТО 2026-07-16 (region names на всех 9 локалей)
+- Опционально: перевести progress bar/victory toast с русского на все локали
 
 ---
 
