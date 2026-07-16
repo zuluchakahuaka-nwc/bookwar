@@ -169,3 +169,99 @@ func get_armor_power() -> int:
 
 func get_slots_snapshot() -> Dictionary:
 	return _slots.duplicate(true)
+
+# §20.3 full: Auto-equip best letters from inventory into slots.
+# Strategy: highest base_power * level available letter per slot's type constraint.
+# Returns the number of slots successfully filled.
+func auto_equip_best() -> int:
+	var letters: Dictionary = InventoryManager.get_all_letters()
+	# Build sorted pools: vowels and consonants, sorted by power desc.
+	var vowels: Array = []      # [{letter, power}]
+	var consonants: Array = []
+	for letter: String in letters.keys():
+		var lvl: int = int(letters[letter])
+		if lvl < 1:
+			continue
+		var letter_dict: Dictionary = AlphabetData.get_letter(letter)
+		var ltype: String = String(letter_dict.get("type", ""))
+		if ltype == "":
+			continue
+		var power: int = AlphabetData.get_base_power(letter) * lvl
+		if ltype == "vowel":
+			vowels.append({"letter": letter, "power": power})
+		elif ltype == "consonant":
+			consonants.append({"letter": letter, "power": power})
+	# Sort descending by power
+	vowels.sort_custom(func(a, b): return int(a.power) > int(b.power))
+	consonants.sort_custom(func(a, b): return int(a.power) > int(b.power))
+	# Clear existing equipment first so we re-pick fresh
+	clear_all()
+	var filled: int = 0
+	# right_hand = best vowel (weapon)
+	if vowels.size() > 0:
+		if equip(SLOT_RIGHT_HAND, String(vowels[0].letter)):
+			filled += 1
+			vowels.remove_at(0)
+	# head = best consonant (helmet)
+	if consonants.size() > 0:
+		if equip(SLOT_HEAD, String(consonants[0].letter)):
+			filled += 1
+			consonants.remove_at(0)
+	# torso = next best consonant (chainmail)
+	if consonants.size() > 0:
+		if equip(SLOT_TORSO, String(consonants[0].letter)):
+			filled += 1
+			consonants.remove_at(0)
+	# left_hand = best remaining (vowel for dual-wield OR consonant for shield).
+	# Prefer another vowel if available (more attack), else shield.
+	if vowels.size() > 0:
+		if equip(SLOT_LEFT_HAND, String(vowels[0].letter)):
+			filled += 1
+	elif consonants.size() > 0:
+		if equip(SLOT_LEFT_HAND, String(consonants[0].letter)):
+			filled += 1
+	return filled
+
+# §20.3 full: cycle a slot through available letters of its type.
+# Used by tactical panel click handlers — click a slot to cycle to next letter.
+# Returns the new letter (or "" if slot is now empty).
+func cycle_slot(slot: String) -> String:
+	if not ALL_SLOTS.has(slot):
+		return ""
+	# Determine allowed type(s) for this slot
+	var allowed_types: Array[String] = []
+	match slot:
+		SLOT_HEAD, SLOT_TORSO:
+			allowed_types = ["consonant"]
+		SLOT_RIGHT_HAND:
+			allowed_types = ["vowel"]
+		SLOT_LEFT_HAND:
+			allowed_types = ["vowel", "consonant"]
+	# Build pool of available letters of allowed type
+	var letters: Dictionary = InventoryManager.get_all_letters()
+	var pool: Array = []
+	for letter: String in letters.keys():
+		var lvl: int = int(letters[letter])
+		if lvl < 1:
+			continue
+		var letter_dict: Dictionary = AlphabetData.get_letter(letter)
+		var ltype: String = String(letter_dict.get("type", ""))
+		if allowed_types.has(ltype):
+			pool.append(letter)
+	if pool.is_empty():
+		return ""
+	pool.sort()  # deterministic alphabetical order
+	# Current letter in this slot
+	var current_idx: int = -1
+	var entry: Variant = _slots[slot]
+	if entry != null:
+		var cur_letter: String = String((entry as Dictionary).get("letter", ""))
+		current_idx = pool.find(cur_letter)
+	# Next index (cycles through pool, then "empty" at end, then back to 0)
+	var next_idx: int = current_idx + 1
+	if next_idx >= pool.size():
+		# Past the end -> unequip
+		unequip(slot)
+		return ""
+	equip(slot, String(pool[next_idx]))
+	return String(pool[next_idx])
