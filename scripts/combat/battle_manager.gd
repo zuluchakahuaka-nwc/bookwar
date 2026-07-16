@@ -131,6 +131,15 @@ func _setup_js_bridge() -> void:
 func _process(delta: float) -> void:
 	if OS.has_feature("web"):
 		_drain_battle_queue()
+		# §TODO#1 fix: if e2e bot set window._godotDialogue during battle,
+		# automatically flee so the buffered flag is consumed by world_map
+		# on the next _process tick (where _force_nearest_dialogue runs).
+		# Without this, dialogue requests are stuck until the player manually
+		# flees — bots that expect "trigger dialogue right after battle" fail.
+		if not _combat_resolved and not _resolving:
+			var dlg: int = int(JavaScriptBridge.eval("(window._godotDialogue === true) ? 1 : 0"))
+			if dlg == 1:
+				_flee_battle()
 	if _timer_active and not _resolving and not _combat_resolved:
 		_turn_timer -= delta
 		_update_timer_label()
