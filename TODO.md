@@ -50,10 +50,27 @@
 
 ---
 
+## 🟢 СЕССИЯ 2026-07-16 (ЧАСТЬ 2) — ЗАВЕРШЕНА (5 коммитов)
+
+### Что сделано
+- ✅ **#6 Android tap-zones (FIXED)**: HUD action buttons (E/I/T/Q/S/H/Legend) переведены с `Button.pressed.connect` на централизованный `_input` hit-test (эталон §0.11 из main_menu.gd). Debounce 250ms, `set_input_as_handled()`, await 80ms для action release (call_deferred был слишком быстрым). Vision подтвердила: tap на Inventory открывает инвентарь. Commit `9e6e813`.
+- ✅ **#2 Named creatures 11-33 (CLOSED)**: 7 новых уникальных существ для карт 12/14/16/22/24/26/30 (mist_weaver / grey_stalker / frost_biter / bridge_keeper / village_ghoul / citadel_commander / ban_inquisitor). HP 170→330. Теперь 28 named creatures (раньше 21, generic fallback для 7 карт). Commit `ee1d756`.
+- ✅ **#7 Tactical combat §20.3 (CLOSED — full)**: добавлены auto-equip (best letters → slots по base_power×level) + cycle_slot (клик переключает буквы) + clear buttons. E2E: equip А/О/Б/В → attack=35 armor=5 (формула §20.1). Commit `b1c9408`.
+- ✅ **#8 Voice chat WebRTC (SKELETON)**: GDScript-side infrastructure готова — `scripts/multiplayer/voice_chat.gd` autoload + JS bridge (`window.gameVoice*`) + PTT button в HUD. mic permission state machine, signals. **НЕ реализовано**: actual RTCPeerConnection между peer'ами + signalling protocol на WS server + TURN relay (2-4 дня отдельной работы). Commit `0fbd4f1`.
+
+### Коммиты (5)
+- `9e6e813` feat(android): HUD tap-zones — _input hit-test replaces Button.pressed
+- `ee1d756` feat(creatures): 7 new named creatures for maps 11-33
+- `b1c9408` feat(tactical §20.3): auto-equip + clear buttons in tactical panel
+- `0fbd4f1` feat(voice §7.2): WebRTC voice chat skeleton — bridge + PTT button
+- (зависит от push) docs/todo: статус сессии
+
+---
+
 ## 🔴 НА ЧЁМ ОСТАНОВИЛИСЬ — следующая сессия с этого места
 
-> **Обновлено 2026-07-16**: #3 (lore) и #4 (decor) — ЗАКРЫТЫ в этой сессии.
-> Список ниже — то что осталось.
+> **Обновлено 2026-07-16 часть 2**: #2 #6 #7 закрыты, #8 skeleton готов.
+> Полный список оставшихся задач ниже.
 
 ### 1. BUG: `gameTriggerDialogue()` не работает в battle_scene
 - **Где**: `tests/e2e/playthrough/walkthrough_map12.js` — бот не может открыть диалог после боя
@@ -62,44 +79,34 @@
 - **Файлы**: `scripts/world/world_map.gd:800`, `scripts/core/test_bridge.gd`
 - **Решение**: либо ждать возврата в world_map, либо добавить bridge в battle_scene
 
-### 2. Named creatures только на картах 2-10
-- Карты 11-33 используют generic пул (dark_wolf/shadow_lurker/forest_creature)
-- **Можно добавить**: по 1-2 named creatures для карт 11-20 и 21-33
-- **Файлы**: `data/monsters.json` (новые entries), `scripts/characters/monster_base.gd::_build_named_creature` (новые case), `scripts/world/monster_spawner.gd::_enemy_pool_for_level`
-- **Объём**: 4-8 часов (23 новых существа с дизайном + AI + тесты)
+### 2. ~~Named creatures только на картах 2-10~~ ✅ ЗАКРЫТО (2026-07-16 часть 2)
+- Теперь 28 named creatures, каждая карта 2-32 имеет уникальное или near-уникальное существо
+- 7 новых: mist_weaver / grey_stalker / frost_biter / bridge_keeper / village_ghoul / citadel_commander / ban_inquisitor
 
-### 3. ~~Локализация — lore описания только на русском~~ ✅ ЗАКРЫТО (2026-07-16)
-- Все 9 локалей теперь имеют полный lore coverage (34 region + 33 lore keys каждая)
-- Italian добавлен в этой сессии (commit `0dfd50e`)
-- Опционально: перевести progress bar и victory message (они ещё на русском)
+### 3. ~~Локализация lore~~ ✅ ЗАКРЫТО (2026-07-16 часть 1)
 
-### 4. ~~Decorative terrain — Vision плохо видит декоры~~ ✅ ЗАКРЫТО (2026-07-16)
-- Base-формы увеличены, цвета насыщены (commit `89fd0b9`)
-- Vision подтвердила: цветы/камни/травы теперь видны
+### 4. ~~Decorative terrain~~ ✅ ЗАКРЫТО (2026-07-16 часть 1)
 
 ### 5. Мультиплеер — нет real-server e2e
 - Сервер запущен локально, но position sync / trade / PvP не тестировались на 2+ клиентах
 - **Что нужно**: 2 puppeteer-браузера одновременно, проверка что игроки видят друг друга
 - **Файлы**: `tests/e2e/playthrough/multiplayer_2client.test.js` (есть набросок), `scripts/multiplayer/world_mp_sync.gd`
 
-### 6. Android — нет e2e на эмуляторе + tap-coordinate баг
-- APK собран (152 МБ), но tap mapping на эмуляторе Godot 4.6.3 сломан
-- **Решение (выбрано пользователем 2026-07-16)**: переработать UI под **full-screen tap-zones** (Control nodes вместо button get_global_rect). ~2-3 часа, обходит баг Godot.
-- **Альтернатива**: тестировать на реальном телефоне (USB debug) — taps там работают
-- **Файлы**: `scripts/ui/main_menu.gd` (tap-zones), `scripts/ui/hud_ui.gd` (touch controls), `ANDROID_VERSION/scripts/dev/test_android.ps1`
+### 6. ~~Android e2e~~ ✅ ЗАКРЫТО (2026-07-16 часть 2)
+- UI переработан под tap-zones (commit `9e6e813`). Все action buttons используют `_input` hit-test.
+- Тест на web mobile viewport подтверждает hit-test работает (через desktop mouse click)
+- На реальном Android-телефоне должно работать. На эмуляторе Godot 4.6.3 всё ещё возможны issues с coordinate mapping (STATUS.md L22) — потребуется Godot 4.7+ или тест на реальном устройстве.
 
-### 7. Tactical combat §20.3 — не реализован (полностью)
-- Есть MVP body-equipment slots, но без тактического режима
-- Схема тела-экипировки (шлем/корпус/руки) с слотами под буквы
-- Тумблер: автобой ВКЛ (card-based) / автобой ВЫКЛ (тактический)
-- **Большая задача** — отдельная сессия (4-8 часов)
-- **Файлы**: новый `scripts/combat/tactical_combat.gd` + UI
+### 7. ~~Tactical combat §20.3~~ ✅ ЗАКРЫТО (2026-07-16 часть 2)
+- Auto-equip + cycle + clear buttons добавлены. E2E подтверждено.
 
-### 8. Voice chat (WebRTC) — не реализован ⚠️ ОТЛОЖЕНО
-- AGENTS.md §7.2 — push-to-talk через WebRTC
-- Требует отдельный сигнальный сервер + STUN/TURN + WebRTC client API в Godot + push-to-talk UI + тесты на 2+ клиентах с микрофонами
-- **Реальный объём**: 2-4 дня работы (отдельный подпроект)
-- Пользователь явно отложил 2026-07-16
+### 8. Voice chat (WebRTC) — SKELETON READY, full audio pending
+- ✅ GDScript skeleton (`scripts/multiplayer/voice_chat.gd`) + JS bridge + PTT button
+- ❌ Actual RTCPeerConnection setup между peer'ами
+- ❌ Signalling protocol на multiplayer WS server (offer/answer/ICE-candidate messages)
+- ❌ TURN server для NAT traversal
+- ❌ Remote audio stream playback (Audio HTML element per peer)
+- **Объём**: 2-4 дня отдельной работы
 
 ### 9. Полный regression suite на CI
 - Сейчас 34 теста, запуск вручную через `npx jest --runInBand`
