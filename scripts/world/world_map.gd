@@ -480,122 +480,179 @@ func _build_one_decor(biome: String, rng: RandomNumberGenerator) -> Node2D:
 # === Конкретные декорации (через Polygon2D) ===
 
 func _build_flower(parent: Node2D, rng: RandomNumberGenerator) -> void:
-	# Стебель
+	# Стебель — утолщён и насыщеннее (видно на траве)
 	var stem: Polygon2D = Polygon2D.new()
-	stem.polygon = PackedVector2Array([Vector2(-1, 6), Vector2(1, 6), Vector2(0, -3)])
-	stem.color = Color(0.25, 0.50, 0.20)
+	stem.polygon = PackedVector2Array([Vector2(-2, 8), Vector2(2, 8), Vector2(0, -4)])
+	stem.color = Color(0.15, 0.40, 0.15)
 	parent.add_child(stem)
-	# Цветок (4 лепестка)
-	var colors: Array[Color] = [Color(0.95, 0.65, 0.30), Color(0.95, 0.40, 0.40), Color(0.85, 0.75, 0.30), Color(0.65, 0.55, 0.95)]
+	# Цветок (5 лепестков — крупнее и контрастнее)
+	var colors: Array[Color] = [
+		Color(0.98, 0.55, 0.20),  # ярко-оранжевый
+		Color(0.95, 0.25, 0.35),  # малиновый
+		Color(0.90, 0.80, 0.20),  # золотистый
+		Color(0.65, 0.45, 0.95),  # фиолетовый
+		Color(0.95, 0.95, 0.95)   # белый
+	]
 	var pc: Color = colors[rng.randi() % colors.size()]
-	for i: int in range(4):
-		var angle: float = i * TAU / 4.0
+	for i: int in range(5):
+		var angle: float = i * TAU / 5.0
 		var petal: Polygon2D = Polygon2D.new()
 		petal.polygon = PackedVector2Array([
-			Vector2(0, -3),
-			Vector2(cos(angle) * 4 - 1, sin(angle) * 4 - 3),
-			Vector2(cos(angle) * 4 + 1, sin(angle) * 4 - 3),
+			Vector2(0, -4),
+			Vector2(cos(angle) * 6 - 2, sin(angle) * 6 - 4),
+			Vector2(cos(angle) * 6 + 2, sin(angle) * 6 - 4),
 		])
 		petal.color = pc
 		parent.add_child(petal)
-	# Серединка
+	# Серединка — крупная, контрастная (жёлтая на цветных лепестках)
 	var center: Polygon2D = Polygon2D.new()
-	center.polygon = PackedVector2Array([Vector2(-1.5, -4), Vector2(1.5, -4), Vector2(1.5, -2), Vector2(-1.5, -2)])
-	center.color = Color(0.95, 0.85, 0.30)
+	center.polygon = PackedVector2Array([Vector2(-2.5, -6), Vector2(2.5, -6), Vector2(2.5, -2), Vector2(-2.5, -2)])
+	center.color = Color(1.0, 0.85, 0.10)
 	parent.add_child(center)
 
 func _build_grass_tuft(parent: Node2D, rng: RandomNumberGenerator) -> void:
-	for i: int in range(3 + rng.randi() % 3):
+	# Утолщённые, высококонтрастные травинки — добавлены жёлто-зелёные для яркости
+	for i: int in range(4 + rng.randi() % 3):
 		var blade: Polygon2D = Polygon2D.new()
-		var x: float = (i - 1.5) * 2.0
+		var x: float = (i - 2.0) * 3.0
 		blade.polygon = PackedVector2Array([
-			Vector2(x - 0.5, 6), Vector2(x + 0.5, 6),
-			Vector2(x + rng.randf_range(-1, 1), -3 - rng.randf_range(0, 2))
+			Vector2(x - 1, 8), Vector2(x + 1, 8),
+			Vector2(x + rng.randf_range(-1, 1), -5 - rng.randf_range(0, 3))
 		])
-		blade.color = Color(0.30 + rng.randf() * 0.15, 0.55 + rng.randf() * 0.15, 0.20)
+		# Сочная неоново-зелёная с жёлтым подмесом, чтобы выделяться на тёмной траве
+		blade.color = Color(0.45 + rng.randf() * 0.20, 0.75 + rng.randf() * 0.15, 0.15)
 		parent.add_child(blade)
 
 func _build_small_stone(parent: Node2D, rng: RandomNumberGenerator) -> void:
 	var stone: Polygon2D = Polygon2D.new()
-	var s: float = 2.5 + rng.randf() * 2.0
+	var s: float = 4.0 + rng.randf() * 3.0  # крупнее и заметнее
 	stone.polygon = PackedVector2Array([
-		Vector2(-s, 2), Vector2(s, 2), Vector2(s * 0.7, -s * 0.5), Vector2(-s * 0.7, -s * 0.5)
+		Vector2(-s, 3), Vector2(s, 3), Vector2(s * 0.7, -s * 0.6), Vector2(-s * 0.7, -s * 0.6)
 	])
-	stone.color = Color(0.40 + rng.randf() * 0.10, 0.40 + rng.randf() * 0.10, 0.42)
+	# Тёмно-серый с холодным синим оттенком — контраст на зелёном фоне
+	stone.color = Color(0.30 + rng.randf() * 0.10, 0.30 + rng.randf() * 0.10, 0.36)
 	parent.add_child(stone)
+	# Светлая верхняя грань — объём
+	var top: Polygon2D = Polygon2D.new()
+	top.polygon = PackedVector2Array([
+		Vector2(-s * 0.7, -s * 0.6), Vector2(s * 0.7, -s * 0.6),
+		Vector2(s * 0.5, -s * 0.9), Vector2(-s * 0.5, -s * 0.9)
+	])
+	top.color = Color(0.55, 0.55, 0.60)
+	parent.add_child(top)
 
 func _build_mushroom(parent: Node2D, rng: RandomNumberGenerator) -> void:
-	# Ножка
+	# Ножка — утолщена
 	var stalk: Polygon2D = Polygon2D.new()
-	stalk.polygon = PackedVector2Array([Vector2(-1.5, 5), Vector2(1.5, 5), Vector2(1.0, -2), Vector2(-1.0, -2)])
-	stalk.color = Color(0.85, 0.78, 0.65)
+	stalk.polygon = PackedVector2Array([Vector2(-2.5, 7), Vector2(2.5, 7), Vector2(1.5, -3), Vector2(-1.5, -3)])
+	stalk.color = Color(0.92, 0.85, 0.70)
 	parent.add_child(stalk)
-	# Шляпка
+	# Шляпка — крупнее и насыщеннее
 	var cap: Polygon2D = Polygon2D.new()
-	cap.polygon = PackedVector2Array([Vector2(-4, -2), Vector2(4, -2), Vector2(3, -5), Vector2(-3, -5)])
-	var is_red: bool = rng.randf() < 0.6
-	cap.color = Color(0.80, 0.20, 0.18) if is_red else Color(0.50, 0.40, 0.30)
+	cap.polygon = PackedVector2Array([Vector2(-6, -3), Vector2(6, -3), Vector2(4.5, -8), Vector2(-4.5, -8)])
+	var is_red: bool = rng.randf() < 0.65
+	cap.color = Color(0.85, 0.15, 0.15) if is_red else Color(0.55, 0.40, 0.25)
 	parent.add_child(cap)
+	# Белые пятна на красной шляпке (классический мухомор)
+	if is_red:
+		for i: int in range(3):
+			var dot: Polygon2D = Polygon2D.new()
+			var dx: float = rng.randf_range(-3.5, 3.5)
+			var dy: float = rng.randf_range(-7, -4)
+			dot.polygon = PackedVector2Array([
+				Vector2(dx - 1, dy), Vector2(dx + 1, dy),
+				Vector2(dx + 1, dy + 1.2), Vector2(dx - 1, dy + 1.2)
+			])
+			dot.color = Color(0.98, 0.96, 0.92)
+			parent.add_child(dot)
 
 func _build_dead_leaf(parent: Node2D, rng: RandomNumberGenerator) -> void:
 	var leaf: Polygon2D = Polygon2D.new()
 	leaf.polygon = PackedVector2Array([
-		Vector2(-3, 2), Vector2(3, 2), Vector2(4, 0), Vector2(3, -2),
-		Vector2(0, -3), Vector2(-3, -2), Vector2(-4, 0)
+		Vector2(-5, 3), Vector2(5, 3), Vector2(6, 0), Vector2(5, -3),
+		Vector2(0, -5), Vector2(-5, -3), Vector2(-6, 0)
 	])
-	leaf.color = Color(0.45 + rng.randf() * 0.20, 0.30, 0.15)
+	# Ярко-оранжевый/коричневый — выделяется на любом фоне
+	leaf.color = Color(0.65 + rng.randf() * 0.20, 0.35, 0.12)
 	parent.add_child(leaf)
 
 func _build_swamp_bubble(parent: Node2D, rng: RandomNumberGenerator) -> void:
-	# Зелёный пузырь (болотный газ)
+	# Зелёный пузырь (болотный газ) — крупнее, ярче
 	var bubble: Polygon2D = Polygon2D.new()
-	var r: float = 1.5 + rng.randf() * 1.5
+	var r: float = 3.0 + rng.randf() * 2.5
 	bubble.polygon = PackedVector2Array([
 		Vector2(-r, 0), Vector2(0, -r), Vector2(r, 0), Vector2(0, r)
 	])
-	bubble.color = Color(0.35, 0.55, 0.30, 0.7)
+	bubble.color = Color(0.40, 0.75, 0.30, 0.85)
 	parent.add_child(bubble)
+	# Блик (глянец)
+	var hl: Polygon2D = Polygon2D.new()
+	hl.polygon = PackedVector2Array([
+		Vector2(-r * 0.5, -r * 0.4), Vector2(0, -r * 0.4),
+		Vector2(0, -r * 0.1), Vector2(-r * 0.5, -r * 0.1)
+	])
+	hl.color = Color(0.85, 0.98, 0.75, 0.9)
+	parent.add_child(hl)
 
 func _build_crystal(parent: Node2D, rng: RandomNumberGenerator) -> void:
-	# Кристалл — гранёный
+	# Кристалл — крупнее, гранёный, яркого насыщенного цвета
 	var crystal: Polygon2D = Polygon2D.new()
-	var h: float = 5.0 + rng.randf() * 4.0
+	var h: float = 8.0 + rng.randf() * 5.0
 	crystal.polygon = PackedVector2Array([
-		Vector2(0, -h), Vector2(2, -2), Vector2(1.5, 3),
-		Vector2(-1.5, 3), Vector2(-2, -2)
+		Vector2(0, -h), Vector2(3.5, -3), Vector2(2.5, 4),
+		Vector2(-2.5, 4), Vector2(-3.5, -3)
 	])
-	var colors: Array[Color] = [Color(0.55, 0.75, 0.95), Color(0.80, 0.55, 0.95), Color(0.55, 0.95, 0.75)]
+	# Очень насыщенные, светящиеся цвета — кристаллы должны сиять
+	var colors: Array[Color] = [
+		Color(0.40, 0.70, 1.00),  # ярко-голубой
+		Color(0.80, 0.40, 1.00),  # фиолетовый
+		Color(0.40, 1.00, 0.70),  # изумруд
+		Color(1.00, 0.50, 0.80)   # розовый
+	]
 	crystal.color = colors[rng.randi() % colors.size()]
 	parent.add_child(crystal)
+	# Внутренний блик — сверкающий край
+	var spark: Polygon2D = Polygon2D.new()
+	spark.polygon = PackedVector2Array([
+		Vector2(-1, -h * 0.6), Vector2(1, -h * 0.6),
+		Vector2(0.5, -h * 0.2), Vector2(-0.5, -h * 0.2)
+	])
+	spark.color = Color(1.0, 1.0, 1.0, 0.7)
+	parent.add_child(spark)
 
 func _build_bone(parent: Node2D, rng: RandomNumberGenerator) -> void:
-	# Кость (череп или берцо)
+	# Кость (берцо) — длиннее, контрастнее (кремовый на тёмном фоне)
 	var bone: Polygon2D = Polygon2D.new()
 	bone.polygon = PackedVector2Array([
-		Vector2(-4, 0), Vector2(4, 0), Vector2(4, 2), Vector2(-4, 2)
+		Vector2(-6, 0), Vector2(6, 0), Vector2(6, 3), Vector2(-6, 3)
 	])
-	bone.color = Color(0.80, 0.78, 0.65)
+	bone.color = Color(0.92, 0.88, 0.72)
 	parent.add_child(bone)
-	# Шарообразные концы
-	for ex: float in [-4.0, 4.0]:
+	# Шарообразные концы — утолщены
+	for ex: float in [-6.0, 6.0]:
 		var cap: Polygon2D = Polygon2D.new()
-		cap.polygon = PackedVector2Array([Vector2(ex-2, -1), Vector2(ex+2, -1), Vector2(ex+2, 3), Vector2(ex-2, 3)])
-		cap.color = Color(0.85, 0.82, 0.70)
+		cap.polygon = PackedVector2Array([Vector2(ex - 3, -2), Vector2(ex + 3, -2), Vector2(ex + 3, 4), Vector2(ex - 3, 4)])
+		cap.color = Color(0.95, 0.92, 0.78)
 		parent.add_child(cap)
 
 func _build_rune(parent: Node2D, rng: RandomNumberGenerator) -> void:
-	# Каменная плитка с руной
+	# Каменная плитка с руной — крупнее
 	var tile: Polygon2D = Polygon2D.new()
-	tile.polygon = PackedVector2Array([Vector2(-4, 2), Vector2(4, 2), Vector2(3, -1), Vector2(-3, -1)])
-	tile.color = Color(0.25, 0.20, 0.30)
+	tile.polygon = PackedVector2Array([Vector2(-6, 3), Vector2(6, 3), Vector2(4.5, -2), Vector2(-4.5, -2)])
+	tile.color = Color(0.18, 0.15, 0.24)
 	parent.add_child(tile)
-	# Руна (горящая)
+	# Руна (горящая, крупная)
 	var rune: Polygon2D = Polygon2D.new()
 	rune.polygon = PackedVector2Array([
-		Vector2(-1, 0), Vector2(1, 0), Vector2(1, -2),
-		Vector2(0, -3), Vector2(-1, -2)
+		Vector2(-1.5, 0), Vector2(1.5, 0), Vector2(1.5, -3),
+		Vector2(0, -4.5), Vector2(-1.5, -3)
 	])
-	var rune_colors: Array[Color] = [Color(0.95, 0.30, 0.30), Color(0.30, 0.85, 0.95), Color(0.95, 0.85, 0.30)]
+	var rune_colors: Array[Color] = [
+		Color(1.0, 0.30, 0.30),  # алый
+		Color(0.30, 0.90, 1.00),  # лазурный
+		Color(1.0, 0.90, 0.30),   # золотой
+		Color(0.50, 1.0, 0.50)    # изумруд
+	]
 	rune.color = rune_colors[rng.randi() % rune_colors.size()]
 	parent.add_child(rune)
 
