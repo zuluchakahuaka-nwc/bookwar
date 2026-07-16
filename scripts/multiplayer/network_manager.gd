@@ -14,6 +14,12 @@ signal letters_received(id: String, letters: Array)
 signal trade_requested(from_name: String)
 signal trade_accepted(from_name: String)
 signal battle_invited(from_name: String)
+# §7.2 WebRTC voice signalling — server relays these between peers.
+signal voice_offer_received(from_name: String, data: Variant)
+signal voice_answer_received(from_name: String, data: Variant)
+signal voice_ice_received(from_name: String, data: Variant)
+signal voice_bye_received(from_name: String)
+signal voice_status_changed(player_id: String, voice_enabled: bool)
 
 var _peer: WebSocketPeer = null
 # Resolved dynamically (see _resolve_ws_url). Direct fallback for native clients.
@@ -139,6 +145,22 @@ func send_trade_accept(from_name: String) -> void:
 func send_battle_invite(target_name: String) -> void:
 	_send({"t": "battle_invite", "to": target_name})
 
+# §7.2 WebRTC voice signalling senders.
+func send_voice_offer(target_name: String, sdp: Dictionary) -> void:
+	_send({"t": "voice_offer", "to": target_name, "data": sdp})
+
+func send_voice_answer(target_name: String, sdp: Dictionary) -> void:
+	_send({"t": "voice_answer", "to": target_name, "data": sdp})
+
+func send_voice_ice(target_name: String, candidate: Dictionary) -> void:
+	_send({"t": "voice_ice", "to": target_name, "data": candidate})
+
+func send_voice_bye(target_name: String) -> void:
+	_send({"t": "voice_bye", "to": target_name})
+
+func send_voice_broadcast(voice_enabled: bool) -> void:
+	_send({"t": "voice_broadcast", "voice": voice_enabled})
+
 func _send(msg: Dictionary) -> void:
 	if not is_connected_to_server():
 		return
@@ -259,3 +281,14 @@ func _handle_message(text: String) -> void:
 			emit_signal("trade_accepted", String(msg.get("from", "")))
 		"battle_invite":
 			emit_signal("battle_invited", String(msg.get("from", "")))
+		# §7.2 WebRTC voice signals relayed from server.
+		"voice_offer":
+			emit_signal("voice_offer_received", String(msg.get("from", "")), msg.get("data", null))
+		"voice_answer":
+			emit_signal("voice_answer_received", String(msg.get("from", "")), msg.get("data", null))
+		"voice_ice":
+			emit_signal("voice_ice_received", String(msg.get("from", "")), msg.get("data", null))
+		"voice_bye":
+			emit_signal("voice_bye_received", String(msg.get("from", "")))
+		"voice_status":
+			emit_signal("voice_status_changed", String(msg.get("id", "")), bool(msg.get("voice", false)))
