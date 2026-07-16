@@ -815,17 +815,34 @@
       "detection_radius": 180,
       "attack_radius": 75,
       "speed": 60,
-      "letters": ["Ж", "К"],
+      "letters": [
+        "Ж",
+        "К"
+      ],
       "punctuation": [],
       "draw_type": "deep_miner",
       "draw": true,
       "drop_table": [
-        {"item": "letter", "chance": 0.85, "count": 1},
-        {"item": "dot", "chance": 0.7, "count": 3}
+        {
+          "item": "letter",
+          "chance": 0.85,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.7,
+          "count": 3
+        }
       ],
       "dialogue_options": [
-        {"text": "Глубоко копал — нашёл буквы. Твои буквы отдай.", "result": "slow"},
-        {"text": "В шахтах темнее, чем в твоём страхе. Уходи.", "result": "slow"}
+        {
+          "text": "Глубоко копал — нашёл буквы. Твои буквы отдай.",
+          "result": "slow"
+        },
+        {
+          "text": "В шахтах темнее, чем в твоём страхе. Уходи.",
+          "result": "slow"
+        }
       ]
     },
     {
@@ -837,17 +854,34 @@
       "detection_radius": 220,
       "attack_radius": 78,
       "speed": 70,
-      "letters": ["М", "С"],
+      "letters": [
+        "М",
+        "С"
+      ],
       "punctuation": [],
       "draw_type": "silence_wraith",
       "draw": true,
       "drop_table": [
-        {"item": "letter", "chance": 0.85, "count": 1},
-        {"item": "dot", "chance": 0.75, "count": 4}
+        {
+          "item": "letter",
+          "chance": 0.85,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.75,
+          "count": 4
+        }
       ],
       "dialogue_options": [
-        {"text": "...", "result": "slow"},
-        {"text": "Слова здесь умирают. Как и ты.", "result": "slow"}
+        {
+          "text": "...",
+          "result": "slow"
+        },
+        {
+          "text": "Слова здесь умирают. Как и ты.",
+          "result": "slow"
+        }
       ]
     },
     {
@@ -859,17 +893,34 @@
       "detection_radius": 200,
       "attack_radius": 80,
       "speed": 75,
-      "letters": ["В", "Р"],
+      "letters": [
+        "В",
+        "Р"
+      ],
       "punctuation": [],
       "draw_type": "river_horror",
       "draw": true,
       "drop_table": [
-        {"item": "letter", "chance": 0.85, "count": 1},
-        {"item": "dot", "chance": 0.7, "count": 4}
+        {
+          "item": "letter",
+          "chance": 0.85,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.7,
+          "count": 4
+        }
       ],
       "dialogue_options": [
-        {"text": "Чёрная вода хранит секреты. Я — один из них.", "result": "slow"},
-        {"text": "Плаваешь? Здесь не выплывешь.", "result": "slow"}
+        {
+          "text": "Чёрная вода хранит секреты. Я — один из них.",
+          "result": "slow"
+        },
+        {
+          "text": "Плаваешь? Здесь не выплывешь.",
+          "result": "slow"
+        }
       ]
     },
     {
@@ -881,17 +932,34 @@
       "detection_radius": 210,
       "attack_radius": 75,
       "speed": 65,
-      "letters": ["З", "Н"],
+      "letters": [
+        "З",
+        "Н"
+      ],
       "punctuation": [],
       "draw_type": "drowned_seer",
       "draw": true,
       "drop_table": [
-        {"item": "letter", "chance": 0.85, "count": 1},
-        {"item": "dot", "chance": 0.75, "count": 4}
+        {
+          "item": "letter",
+          "chance": 0.85,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.75,
+          "count": 4
+        }
       ],
       "dialogue_options": [
-        {"text": "Я видел будущее букв. Ты в нём не выжил.", "result": "slow"},
-        {"text": "Храм затоплен слезами тех, кто потерял речь.", "result": "slow"}
+        {
+          "text": "Я видел будущее букв. Ты в нём не выжил.",
+          "result": "slow"
+        },
+        {
+          "text": "Храм затоплен слезами тех, кто потерял речь.",
+          "result": "slow"
+        }
       ]
     },
     {
@@ -903,17 +971,34 @@
       "detection_radius": 170,
       "attack_radius": 90,
       "speed": 50,
-      "letters": ["П", "Б"],
+      "letters": [
+        "П",
+        "Б"
+      ],
       "punctuation": [],
       "draw_type": "bridge_troll",
       "draw": true,
       "drop_table": [
-        {"item": "letter", "chance": 0.9, "count": 1},
-        {"item": "dot", "chance": 0.8, "count": 5}
+        {
+          "item": "letter",
+          "chance": 0.9,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.8,
+          "count": 5
+        }
       ],
       "dialogue_options": [
-        {"text": "Мост — мой. Буквы — мои. Ты — мой обед.", "result": "slow"},
-        {"text": "Кто не платит буквой, падает в ущелье.", "result": "slow"}
+        {
+          "text": "Мост — мой. Буквы — мои. Ты — мой обед.",
+          "result": "slow"
+        },
+        {
+          "text": "Кто не платит буквой, падает в ущелье.",
+          "result": "slow"
+        }
       ]
     },
     {
@@ -925,17 +1010,34 @@
       "detection_radius": 200,
       "attack_radius": 85,
       "speed": 55,
-      "letters": ["Ц", "Т"],
+      "letters": [
+        "Ц",
+        "Т"
+      ],
       "punctuation": [],
       "draw_type": "citadel_warden",
       "draw": true,
       "drop_table": [
-        {"item": "letter", "chance": 0.9, "count": 1},
-        {"item": "dot", "chance": 0.8, "count": 5}
+        {
+          "item": "letter",
+          "chance": 0.9,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.8,
+          "count": 5
+        }
       ],
       "dialogue_options": [
-        {"text": "Цитадель пала, но я стою. Я — последний страж слов.", "result": "slow"},
-        {"text": "Мой щит выкован из слогов. Не пробьёшь.", "result": "slow"}
+        {
+          "text": "Цитадель пала, но я стою. Я — последний страж слов.",
+          "result": "slow"
+        },
+        {
+          "text": "Мой щит выкован из слогов. Не пробьёшь.",
+          "result": "slow"
+        }
       ]
     },
     {
@@ -947,17 +1049,34 @@
       "detection_radius": 240,
       "attack_radius": 80,
       "speed": 80,
-      "letters": ["Ф", "Ч"],
+      "letters": [
+        "Ф",
+        "Ч"
+      ],
       "punctuation": [],
       "draw_type": "tower_specter",
       "draw": true,
       "drop_table": [
-        {"item": "letter", "chance": 0.9, "count": 1},
-        {"item": "dot", "chance": 0.8, "count": 5}
+        {
+          "item": "letter",
+          "chance": 0.9,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.8,
+          "count": 5
+        }
       ],
       "dialogue_options": [
-        {"text": "Чёрная башня — мой дом. Ты здесь гость нежеланный.", "result": "slow"},
-        {"text": "Слова — пища призраков. Я голоден.", "result": "slow"}
+        {
+          "text": "Чёрная башня — мой дом. Ты здесь гость нежеланный.",
+          "result": "slow"
+        },
+        {
+          "text": "Слова — пища призраков. Я голоден.",
+          "result": "slow"
+        }
       ]
     },
     {
@@ -969,17 +1088,34 @@
       "detection_radius": 220,
       "attack_radius": 88,
       "speed": 65,
-      "letters": ["Ъ", "У"],
+      "letters": [
+        "Ъ",
+        "У"
+      ],
       "punctuation": [],
       "draw_type": "void_thrall",
       "draw": true,
       "drop_table": [
-        {"item": "letter", "chance": 0.95, "count": 1},
-        {"item": "dot", "chance": 0.85, "count": 6}
+        {
+          "item": "letter",
+          "chance": 0.95,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.85,
+          "count": 6
+        }
       ],
       "dialogue_options": [
-        {"text": "Пустота поглотит буквы. И тебя заодно.", "result": "slow"},
-        {"text": "Трон пуст. Король мёртв. Я — его тень.", "result": "slow"}
+        {
+          "text": "Пустота поглотит буквы. И тебя заодно.",
+          "result": "slow"
+        },
+        {
+          "text": "Трон пуст. Король мёртв. Я — его тень.",
+          "result": "slow"
+        }
       ]
     },
     {
@@ -991,17 +1127,34 @@
       "detection_radius": 230,
       "attack_radius": 82,
       "speed": 75,
-      "letters": ["Ш", "З"],
+      "letters": [
+        "Ш",
+        "З"
+      ],
       "punctuation": [],
       "draw_type": "mirror_shade",
       "draw": true,
       "drop_table": [
-        {"item": "letter", "chance": 0.9, "count": 1},
-        {"item": "dot", "chance": 0.8, "count": 5}
+        {
+          "item": "letter",
+          "chance": 0.9,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.8,
+          "count": 5
+        }
       ],
       "dialogue_options": [
-        {"text": "Я — твоё отражение. И я хочу твои буквы.", "result": "slow"},
-        {"text": "Зеркала лгут. Как и твои надежды.", "result": "slow"}
+        {
+          "text": "Я — твоё отражение. И я хочу твои буквы.",
+          "result": "slow"
+        },
+        {
+          "text": "Зеркала лгут. Как и твои надежды.",
+          "result": "slow"
+        }
       ]
     },
     {
@@ -1013,17 +1166,34 @@
       "detection_radius": 240,
       "attack_radius": 85,
       "speed": 60,
-      "letters": ["Щ", "Ы"],
+      "letters": [
+        "Щ",
+        "Ы"
+      ],
       "punctuation": [],
       "draw_type": "baneful_sage",
       "draw": true,
       "drop_table": [
-        {"item": "letter", "chance": 0.95, "count": 1},
-        {"item": "dot", "chance": 0.9, "count": 6}
+        {
+          "item": "letter",
+          "chance": 0.95,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.9,
+          "count": 6
+        }
       ],
       "dialogue_options": [
-        {"text": "Палаты Запрета — последняя остановка слов. Твоя тоже.", "result": "slow"},
-        {"text": "Я знаю все запрещённые буквы. Скоро ты забудешь их все.", "result": "slow"}
+        {
+          "text": "Палаты Запрета — последняя остановка слов. Твоя тоже.",
+          "result": "slow"
+        },
+        {
+          "text": "Я знаю все запрещённые буквы. Скоро ты забудешь их все.",
+          "result": "slow"
+        }
       ]
     },
     {
@@ -1035,17 +1205,34 @@
       "detection_radius": 230,
       "attack_radius": 90,
       "speed": 55,
-      "letters": ["Э", "Ь"],
+      "letters": [
+        "Э",
+        "Ь"
+      ],
       "punctuation": [],
       "draw_type": "curse_knight",
       "draw": true,
       "drop_table": [
-        {"item": "letter", "chance": 1, "count": 1},
-        {"item": "dot", "chance": 0.9, "count": 7}
+        {
+          "item": "letter",
+          "chance": 1,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.9,
+          "count": 7
+        }
       ],
       "dialogue_options": [
-        {"text": "Мои доспехи ржавые от крови букв. Твоей добавлю.", "result": "slow"},
-        {"text": "Проклятье Тёмного Собора — на мне. И на тебе будет.", "result": "slow"}
+        {
+          "text": "Мои доспехи ржавые от крови букв. Твоей добавлю.",
+          "result": "slow"
+        },
+        {
+          "text": "Проклятье Тёмного Собора — на мне. И на тебе будет.",
+          "result": "slow"
+        }
       ]
     },
     {
@@ -1057,17 +1244,313 @@
       "detection_radius": 280,
       "attack_radius": 95,
       "speed": 60,
-      "letters": ["Ю", "Я"],
+      "letters": [
+        "Ю",
+        "Я"
+      ],
       "punctuation": [],
       "draw_type": "alphabet_warden",
       "draw": true,
       "drop_table": [
-        {"item": "letter", "chance": 1, "count": 2},
-        {"item": "dot", "chance": 1, "count": 8}
+        {
+          "item": "letter",
+          "chance": 1,
+          "count": 2
+        },
+        {
+          "item": "dot",
+          "chance": 1,
+          "count": 8
+        }
       ],
       "dialogue_options": [
-        {"text": "Колодец Букв — последний. Я — последний страж. докажи, что достоин.", "result": "slow"},
-        {"text": "33 буквы в моём сердце. Каждая — оружие против тебя.", "result": "slow"}
+        {
+          "text": "Колодец Букв — последний. Я — последний страж. докажи, что достоин.",
+          "result": "slow"
+        },
+        {
+          "text": "33 буквы в моём сердце. Каждая — оружие против тебя.",
+          "result": "slow"
+        }
+      ]
+    },
+    {
+      "id": "mist_weaver",
+      "name": "Туманный Ткач",
+      "symbol": "mw",
+      "hp": 170,
+      "behavior": "aggressive",
+      "detection_radius": 220,
+      "attack_radius": 80,
+      "speed": 55,
+      "letters": [
+        "Т",
+        "М"
+      ],
+      "punctuation": [],
+      "draw_type": "mist_weaver",
+      "draw": true,
+      "drop_table": [
+        {
+          "item": "letter",
+          "chance": 0.85,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.75,
+          "count": 4
+        }
+      ],
+      "dialogue_options": [
+        {
+          "text": "Туман скрывает правду. Я плету твои страхи.",
+          "result": "slow"
+        },
+        {
+          "text": "Каждый вдох — ложь. Уходи, пока дышишь.",
+          "result": "slow"
+        }
+      ]
+    },
+    {
+      "id": "grey_stalker",
+      "name": "Серый Сталкер",
+      "symbol": "gs",
+      "hp": 190,
+      "behavior": "aggressive",
+      "detection_radius": 260,
+      "attack_radius": 85,
+      "speed": 75,
+      "letters": [
+        "С",
+        "Р"
+      ],
+      "punctuation": [],
+      "draw_type": "grey_stalker",
+      "draw": true,
+      "drop_table": [
+        {
+          "item": "letter",
+          "chance": 0.85,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.7,
+          "count": 4
+        }
+      ],
+      "dialogue_options": [
+        {
+          "text": "Я вижу тебя сквозь серость. Беги — догоню.",
+          "result": "slow"
+        },
+        {
+          "text": "Лес молчит, потому что я его голос.",
+          "result": "slow"
+        }
+      ]
+    },
+    {
+      "id": "frost_biter",
+      "name": "Ледяной Кусака",
+      "symbol": "fb",
+      "hp": 210,
+      "behavior": "aggressive",
+      "detection_radius": 200,
+      "attack_radius": 90,
+      "speed": 50,
+      "letters": [
+        "З",
+        "Л"
+      ],
+      "punctuation": [],
+      "draw_type": "frost_biter",
+      "draw": true,
+      "drop_table": [
+        {
+          "item": "letter",
+          "chance": 0.9,
+          "count": 1
+        },
+        {
+          "item": "dot",
+          "chance": 0.8,
+          "count": 5
+        }
+      ],
+      "dialogue_options": [
+        {
+          "text": "Мой укус заморозит даже твоё имя.",
+          "result": "slow"
+        },
+        {
+          "text": "Слова замерзают на твоих губах.",
+          "result": "slow"
+        }
+      ]
+    },
+    {
+      "id": "bridge_keeper",
+      "name": "Страж Моста",
+      "symbol": "bk",
+      "hp": 240,
+      "behavior": "aggressive",
+      "detection_radius": 240,
+      "attack_radius": 95,
+      "speed": 55,
+      "letters": [
+        "Б",
+        "Р",
+        "М"
+      ],
+      "punctuation": [],
+      "draw_type": "bridge_keeper",
+      "draw": true,
+      "drop_table": [
+        {
+          "item": "letter",
+          "chance": 0.95,
+          "count": 2
+        },
+        {
+          "item": "dot",
+          "chance": 0.85,
+          "count": 5
+        }
+      ],
+      "dialogue_options": [
+        {
+          "text": "Через этот мост не проходят дважды.",
+          "result": "slow"
+        },
+        {
+          "text": "Я смотрю двумя лицами — назад и вперёд.",
+          "result": "slow"
+        }
+      ]
+    },
+    {
+      "id": "village_ghoul",
+      "name": "Деревенский Гуль",
+      "symbol": "vg",
+      "hp": 260,
+      "behavior": "aggressive",
+      "detection_radius": 230,
+      "attack_radius": 100,
+      "speed": 65,
+      "letters": [
+        "В",
+        "Г",
+        "Д"
+      ],
+      "punctuation": [],
+      "draw_type": "village_ghoul",
+      "draw": true,
+      "drop_table": [
+        {
+          "item": "letter",
+          "chance": 0.9,
+          "count": 2
+        },
+        {
+          "item": "dot",
+          "chance": 0.8,
+          "count": 6
+        }
+      ],
+      "dialogue_options": [
+        {
+          "text": "Я помню имена всех, кто здесь жил.",
+          "result": "slow"
+        },
+        {
+          "text": "Голод вечен. Буквы — лишь приправа.",
+          "result": "slow"
+        }
+      ]
+    },
+    {
+      "id": "citadel_commander",
+      "name": "Командир Цитадели",
+      "symbol": "cc",
+      "hp": 290,
+      "behavior": "aggressive",
+      "detection_radius": 250,
+      "attack_radius": 100,
+      "speed": 60,
+      "letters": [
+        "К",
+        "Ц",
+        "Т",
+        "Р"
+      ],
+      "punctuation": [],
+      "draw_type": "citadel_commander",
+      "draw": true,
+      "drop_table": [
+        {
+          "item": "letter",
+          "chance": 0.95,
+          "count": 2
+        },
+        {
+          "item": "dot",
+          "chance": 0.85,
+          "count": 6
+        }
+      ],
+      "dialogue_options": [
+        {
+          "text": "Мои солдаты пали, но я держу строй.",
+          "result": "slow"
+        },
+        {
+          "text": "Буквы — враги порядка. Я — порядок.",
+          "result": "slow"
+        }
+      ]
+    },
+    {
+      "id": "ban_inquisitor",
+      "name": "Инквизитор Запрета",
+      "symbol": "bi",
+      "hp": 330,
+      "behavior": "aggressive",
+      "detection_radius": 280,
+      "attack_radius": 105,
+      "speed": 60,
+      "letters": [
+        "З",
+        "П",
+        "Р",
+        "Б"
+      ],
+      "punctuation": [],
+      "draw_type": "ban_inquisitor",
+      "draw": true,
+      "drop_table": [
+        {
+          "item": "letter",
+          "chance": 1,
+          "count": 2
+        },
+        {
+          "item": "dot",
+          "chance": 0.9,
+          "count": 7
+        }
+      ],
+      "dialogue_options": [
+        {
+          "text": "Каждое слово — ересь. Каждый шёпот — приговор.",
+          "result": "slow"
+        },
+        {
+          "text": "Палаты Запрета помнят твоё имя. Я забрал его.",
+          "result": "slow"
+        }
       ]
     }
   ]

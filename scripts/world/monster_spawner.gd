@@ -223,17 +223,23 @@ static func _enemy_pool_for_level(idx: int) -> Array[String]:
 			return ["curse_knight", "dark_wolf", "znak"]
 		32: # Карта 33: Колодец Букв — Alphabet Warden (финал)
 			return ["alphabet_warden", "shadow_lurker", "zvuk"]
-	# In-between even-idx levels (11, 13, 15, 21, 23, 25, 29): use tier-appropriate named
-	if idx == 11 or idx == 13:
-		return ["deep_miner", "shadow_lurker", "dark_wolf"]
-	if idx == 15:
-		return ["river_horror", "shadow_lurker", "dark_wolf"]
-	if idx == 21:
-		return ["drowned_seer", "dark_wolf", "shadow_lurker"]
-	if idx == 23 or idx == 25:
-		return ["citadel_warden", "dark_wolf", "shadow_lurker"]
-	if idx == 29:
-		return ["baneful_sage", "shadow_lurker", "znak"]
+	# §Named creatures 11-33 (2026-07-16): unique creature per level now that
+	# the data + draw cases exist for mist_weaver / grey_stalker / frost_biter /
+	# bridge_keeper / village_ghoul / citadel_commander / ban_inquisitor.
+	if idx == 11:  # Карта 12: Туманная Роща
+		return ["mist_weaver", "shadow_lurker", "dark_wolf"]
+	if idx == 13:  # Карта 14: Серый Лес
+		return ["grey_stalker", "shadow_lurker", "dark_wolf"]
+	if idx == 15:  # Карта 16: Ледяные Щипцы
+		return ["frost_biter", "shadow_lurker", "dark_wolf"]
+	if idx == 21:  # Карта 22: Разрушенный Мост
+		return ["bridge_keeper", "dark_wolf", "shadow_lurker"]
+	if idx == 23:  # Карта 24: Заброшенная Деревня
+		return ["village_ghoul", "dark_wolf", "shadow_lurker"]
+	if idx == 25:  # Карта 26: Старая Цитадель
+		return ["citadel_commander", "dark_wolf", "znak"]
+	if idx == 29:  # Карта 30: Палаты Запрета
+		return ["ban_inquisitor", "shadow_lurker", "zvuk"]
 	if idx <= 15:
 		return ["dark_wolf", "shadow_lurker", "forest_creature"]
 	if idx <= 22:
