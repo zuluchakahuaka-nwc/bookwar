@@ -578,8 +578,39 @@ func _build_tactical_panel() -> void:
 	arm_lbl.position = Vector2(20, y)
 	arm_lbl.size = Vector2(220, 28)
 	_tactical_panel.add_child(arm_lbl)
+	y += 36.0
+	# §20.3 full: Auto-equip button — picks best letters from inventory into slots.
+	var auto_btn := Button.new()
+	auto_btn.name = "AutoEquipBtn"
+	auto_btn.text = "⚡ Авто-экипировка"
+	auto_btn.add_theme_font_size_override("font_size", 14)
+	auto_btn.add_theme_color_override("font_color", Color(0.20, 0.15, 0.05))
+	auto_btn.modulate = Color(0.95, 0.85, 0.40)
+	auto_btn.position = Vector2(20, y)
+	auto_btn.size = Vector2(220, 32)
+	auto_btn.pressed.connect(_on_auto_equip_pressed)
+	_tactical_panel.add_child(auto_btn)
+	y += 38.0
+	# §20.3 full: Clear button — empty all slots.
+	var clear_btn := Button.new()
+	clear_btn.name = "ClearEquipBtn"
+	clear_btn.text = "✕ Очистить слоты"
+	clear_btn.add_theme_font_size_override("font_size", 14)
+	clear_btn.modulate = Color(0.85, 0.50, 0.50)
+	clear_btn.position = Vector2(20, y)
+	clear_btn.size = Vector2(220, 28)
+	clear_btn.pressed.connect(_on_clear_equip_pressed)
+	_tactical_panel.add_child(clear_btn)
 	TacticalCombat.equipment_changed.connect(_refresh_tactical_panel)
 	_refresh_tactical_panel()
+
+func _on_auto_equip_pressed() -> void:
+	var filled: int = TacticalCombat.auto_equip_best()
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.gameTacticalAutoFilled = " + str(filled) + ";", true)
+
+func _on_clear_equip_pressed() -> void:
+	TacticalCombat.clear_all()
 
 func _slot_label(slot: String) -> String:
 	match slot:
