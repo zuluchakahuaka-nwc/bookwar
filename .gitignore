@@ -58,3 +58,7 @@ ANDROID_VERSION/tests/
 ANDROID_VERSION/testandroid_*.zip
 ANDROID_VERSION/builds/*.apk
 ANDROID_VERSION/builds/*.aab
+
+# Local-only (never push to GitHub)
+/AGENTS.md
+/TODO.md
