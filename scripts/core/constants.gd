@@ -329,6 +329,7 @@ const LOCALE_VOWEL_MULTIPLIERS: Dictionary = {
 	"pt": 1.4,   # 5 / 21 — like en
 	"it": 1.4,   # 5 / 16 — short alphabet
 	"ar": 1.8,   # 3 / 25 — extreme defense-heavy (only alif/waw/ya)
+	"hy": 1.4,   # 7 / 31 — like en (5/21), mild compensation
 	"zh": 1.0,   # TBD — depends on Kanxi strategy
 }
 

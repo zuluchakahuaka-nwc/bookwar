@@ -45,7 +45,7 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
     await sleep(600);
     shots.push({ name: 'menu_ru', path: await godot.takeCanvasScreenshot('loc_menu_ru') });
 
-    for (const loc of ['en', 'es', 'de', 'fr', 'pt', 'zh', 'ar']) {
+    for (const loc of ['en', 'es', 'de', 'fr', 'pt', 'zh', 'ar', 'hy']) {
       await page.evaluate((l) => window.gameSetLocale(l), loc);
       await sleep(600);
       const got = await page.evaluate(() => window.gameLocale);

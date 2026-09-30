@@ -20,7 +20,7 @@ const SAVE_KEY: String = "bookwar_locale"
 const I18N_DIR: String = "res://data/i18n/"
 
 # Supported locales (BCP-47-ish codes). Order = menu order.
-const LOCALES: Array = ["ru", "en", "zh", "es", "fr", "de", "pt", "it", "ar"]
+const LOCALES: Array = ["ru", "en", "zh", "es", "fr", "de", "pt", "it", "ar", "hy"]
 
 # Native self-names shown in the language selector (each in its own script).
 const LOCALE_NATIVE_NAMES: Dictionary = {
@@ -33,6 +33,7 @@ const LOCALE_NATIVE_NAMES: Dictionary = {
 	"pt": "Português",
 	"it": "Italiano",
 	"ar": "العربية",
+	"hy": "Հայերեն",
 }
 
 const RTL_LOCALES: Array = ["ar"]
@@ -150,6 +151,13 @@ func apply_theme_font() -> void:
 			var forum: FontFile = _load_font("res://assets/fonts/Forum-Regular.ttf")
 			if forum:
 				fallbacks.append(forum)
+		"hy":
+			var hy: FontFile = _load_font("res://assets/fonts/NotoSansArmenian-Regular.ttf")
+			if hy:
+				fallbacks.append(hy)
+			var forum2: FontFile = _load_font("res://assets/fonts/Forum-Regular.ttf")
+			if forum2:
+				fallbacks.append(forum2)
 		_:
 			var forum: FontFile = _load_font("res://assets/fonts/Forum-Regular.ttf")
 			if forum:
@@ -177,7 +185,8 @@ func _expose_font_coverage(primary: FontFile) -> void:
 		"latin": "BOOKWAR",
 		"cyrillic": "Война за алфавит",
 		"cjk": "字母之战新游戏",
-		"arabic": "حرب الأبجدية"
+		"arabic": "حرب الأبجدية",
+		"armenian": "Այբուբենի պատերազմ"
 	}
 	var report: Dictionary = {}
 	for name: String in samples.keys():
