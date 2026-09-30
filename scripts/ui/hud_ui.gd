@@ -140,9 +140,9 @@ func _process(delta: float) -> void:
 	# Update label
 	var pct: int = int(round(prog * 100.0))
 	if prog >= 0.99:
-		_progress_label.text = "100%  ✓ зачищено"
+		_progress_label.text = "100% • зачищено"
 	elif prog >= 0.50:
-		_progress_label.text = str(pct) + "%  ⟶ портал открыт!"
+		_progress_label.text = str(pct) + "%  » портал открыт!"
 	else:
 		var need: int = 50 - pct
 		_progress_label.text = str(pct) + "%  (до портала " + str(need) + "%)"

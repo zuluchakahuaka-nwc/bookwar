@@ -17,8 +17,8 @@ var _is_input_focused: bool = false
 func _ready() -> void:
 	layer = 50
 	_panel.visible = false
-	_toggle_btn.text = "💬"
-	_send_btn.text = "→"
+	_toggle_btn.text = "»"
+	_send_btn.text = "›"
 	_messages_label.bbcode_enabled = true
 	_messages_label.text = ""
 	if _send_btn:

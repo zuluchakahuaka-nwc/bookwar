@@ -58,7 +58,7 @@ func _ready() -> void:
 	if not GameState.active_quest.is_empty():
 		var qdesc: String = String(GameState.active_quest.get("description", ""))
 		if qdesc != "":
-			GameState.toast_requested.emit("📜 " + qdesc)
+			GameState.toast_requested.emit("» " + qdesc)
 	# Start the background music playlist (loops for the whole game from level 1).
 	Music.start()
 	# Combat flow: monster requests → world transitions to battle scene

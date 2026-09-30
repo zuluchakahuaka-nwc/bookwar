@@ -55,7 +55,7 @@ func _build_ui() -> void:
 	_title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(_title_label)
 	_close_btn = Button.new()
-	_close_btn.text = "✕"
+	_close_btn.text = "×"
 	_close_btn.tooltip_text = I18n.t("stats.hint", "[S] закрыть")
 	_close_btn.custom_minimum_size = Vector2(46, 46)
 	_close_btn.add_theme_font_size_override("font_size", 24)
@@ -149,14 +149,14 @@ func _refresh() -> void:
 	# Подсказка про финал
 	if maps_passed >= maps_total:
 		var fin := Label.new()
-		fin.text = I18n.t("stats.finale", "★ ФИНАЛ ДОСТИГНУТ — алфавит восстановлен!")
+		fin.text = I18n.t("stats.finale", "• ФИНАЛ ДОСТИГНУТ — алфавит восстановлен!")
 		fin.add_theme_font_size_override("font_size", 24)
 		fin.add_theme_color_override("font_color", Color(1.0, 0.85, 0.30, 1))
 		fin.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		_content.add_child(fin)
 	elif letters_collected >= letters_total:
 		var full := Label.new()
-		full.text = I18n.t("stats.full_alphabet", "★ Полный алфавит собран!")
+		full.text = I18n.t("stats.full_alphabet", "• Полный алфавит собран!")
 		full.add_theme_font_size_override("font_size", 22)
 		full.add_theme_color_override("font_color", Color(0.55, 0.95, 0.55))
 		full.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -211,7 +211,7 @@ func _add_bestiary_section(current_level: int) -> void:
 		var is_seen: bool = current_level >= lvl
 		if is_seen:
 			seen_count += 1
-		var mark: String = "✓" if is_seen else "?"
+		var mark: String = "•" if is_seen else "?"
 		var color: Color = Color(0.55, 0.95, 0.55) if is_seen else Color(0.45, 0.42, 0.35)
 		# §I18N: creature names under monster.<draw> keys (same ids as monster_base)
 		var creature: String = I18n.t("monster." + String(entry.get("draw", "")), String(entry.get("name", "")))

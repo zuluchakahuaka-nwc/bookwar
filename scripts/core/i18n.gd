@@ -186,7 +186,8 @@ func _expose_font_coverage(primary: FontFile) -> void:
 		"cyrillic": "Война за алфавит",
 		"cjk": "字母之战新游戏",
 		"arabic": "حرب الأبجدية",
-		"armenian": "Այբուբենի պատերազմ"
+		"armenian": "Այբուբենի պատերազմ",
+		"symbols": "‹ › « » … — • × †"
 	}
 	var report: Dictionary = {}
 	for name: String in samples.keys():

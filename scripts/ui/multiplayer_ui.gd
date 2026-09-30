@@ -151,14 +151,14 @@ func _on_disconnected() -> void:
 
 func _on_player_joined(_pid: String, pname: String, _x: float, _y: float) -> void:
 	_refresh_players_list()
-	_append_chat("", "→ " + pname + " присоединился")
+	_append_chat("", "› " + pname + " присоединился")
 
 func _on_player_left(pid: String) -> void:
 	var pname: String = pid
 	if NetworkManager.get_players().has(pid):
 		pname = String(NetworkManager.get_players()[pid].get("name", pid))
 	_refresh_players_list()
-	_append_chat("", "← " + pname + " покинул игру")
+	_append_chat("", "‹ " + pname + " покинул игру")
 
 func _on_chat_received(_id: String, pname: String, text: String) -> void:
 	_append_chat(pname, text)
@@ -243,14 +243,14 @@ func _send_trade_request() -> void:
 	if target == "":
 		return
 	NetworkManager.send_trade_request(target)
-	_append_chat("", "→ Предложение обмена отправлено: " + target)
+	_append_chat("", "› Предложение обмена отправлено: " + target)
 
 func _send_battle_invite() -> void:
 	var target: String = _get_selected_player_name()
 	if target == "":
 		return
 	NetworkManager.send_battle_invite(target)
-	_append_chat("", "→ Вызов на бой отправлен: " + target)
+	_append_chat("", "› Вызов на бой отправлен: " + target)
 
 func _get_selected_player_name() -> String:
 	if not _player_select or _player_select.get_item_count() == 0:
@@ -273,8 +273,8 @@ func _open_trade_window(partner_name: String) -> void:
 	var my_list: Array = []
 	for letter_char: String in my_letters:
 		my_list.append(letter_char + "(" + str(my_letters[letter_char]) + ")")
-	_append_chat("", "📦 Ваши буквы: " + ", ".join(my_list))
-	_append_chat("", "📦 Партнёр: " + partner_name + " — напишите в чат какие буквы хотите отдать/получить.")
+	_append_chat("", "• Ваши буквы: " + ", ".join(my_list))
+	_append_chat("", "• Партнёр: " + partner_name + " — напишите в чат какие буквы хотите отдать/получить.")
 
 func _process(_delta: float) -> void:
 	if not OS.has_feature("web"):

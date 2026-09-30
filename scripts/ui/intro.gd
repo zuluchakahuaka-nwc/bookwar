@@ -171,7 +171,7 @@ func _build_ui() -> void:
 	# Prev / Next nav buttons at the bottom — large tap targets on either side
 	# of the text so users can flip panels without guessing where to tap.
 	_prev_btn = Button.new()
-	_prev_btn.text = I18n.t("prologue.back", "← Back")
+	_prev_btn.text = I18n.t("prologue.back", "‹ Back")
 	_prev_btn.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 	_prev_btn.offset_left = 24.0
 	_prev_btn.offset_top = -84.0
@@ -182,7 +182,7 @@ func _build_ui() -> void:
 	add_child(_prev_btn)
 
 	_next_btn = Button.new()
-	_next_btn.text = "Вперёд →"
+	_next_btn.text = "Вперёд ›"
 	_next_btn.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	_next_btn.offset_left = -244.0
 	_next_btn.offset_top = -84.0
@@ -222,9 +222,9 @@ func _show_panel(idx: int) -> void:
 		_prev_btn.modulate.a = 0.4 if idx == 0 else 0.95
 	if _next_btn:
 		if idx == _panels.size() - 1:
-			_next_btn.text = I18n.t("prologue.start_game", "Start Game →")
+			_next_btn.text = I18n.t("prologue.start_game", "Start Game ›")
 		else:
-			_next_btn.text = I18n.t("prologue.next", "Next →")
+			_next_btn.text = I18n.t("prologue.next", "Next ›")
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("window.gameIntroIndex = " + str(idx) + ";")
 

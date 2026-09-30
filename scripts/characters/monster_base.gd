@@ -1547,7 +1547,7 @@ func _open_shop_via_npc() -> void:
 	if not _dialogue_data.is_empty():
 		var text: String = String(_dialogue_data[0].get("text", ""))
 		if text != "":
-			GameState.toast_requested.emit("🛒 " + text.substr(0, 80))
+			GameState.toast_requested.emit("» " + text.substr(0, 80))
 
 func _try_hand_in_quest() -> void:
 	if GameState.active_quests.is_empty():

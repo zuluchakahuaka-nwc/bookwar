@@ -17,7 +17,6 @@
   "questtype.buy": "COMPRA",
   "questtype.trade": "SCAMBIA",
   "questtype.talk": "PARLA",
-
   "region.light_valley": "Valle Luminosa",
   "region.two_letter_forest": "Foresta delle Due Lettere",
   "region.dark_oaks": "Querce Oscure",
@@ -52,7 +51,6 @@
   "region.throne_keeper": "Trono del Custode del Divieto",
   "region.well_of_letters": "Pozzo delle Lettere",
   "region.unknown": "Regione sconosciuta",
-
   "lore.light_valley": "Valle Luminosa — l'ultimo baluardo della luce. Qui vivono coloro che ricordano le lettere.",
   "lore.two_letter_forest": "Foresta delle Due Lettere — gli alberi sussurrano due sillabe. Attento: la foresta ascolta.",
   "lore.dark_oaks": "Querce Oscure — foresta antica dove le radici nascondono lettere dimenticate.",

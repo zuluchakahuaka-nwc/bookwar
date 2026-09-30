@@ -603,7 +603,7 @@ func _build_tactical_panel() -> void:
 	# §20.3 full: Clear button — empty all slots.
 	var clear_btn := Button.new()
 	clear_btn.name = "ClearEquipBtn"
-	clear_btn.text = "✕ Очистить слоты"
+	clear_btn.text = "× Очистить слоты"
 	clear_btn.add_theme_font_size_override("font_size", 14)
 	clear_btn.modulate = Color(0.85, 0.50, 0.50)
 	clear_btn.position = Vector2(20, y)
@@ -647,7 +647,7 @@ func _refresh_tactical_panel() -> void:
 		elif c is Label and c.name == "AttackTotal":
 			(c as Label).text = "⚔ Атака: " + str(TacticalCombat.get_attack_power())
 		elif c is Label and c.name == "ArmorTotal":
-			(c as Label).text = "🛡 Броня: " + str(TacticalCombat.get_armor_power())
+			(c as Label).text = "• Броня: " + str(TacticalCombat.get_armor_power())
 
 func _run_auto_battle_turn() -> void:
 	var reason: String = ""

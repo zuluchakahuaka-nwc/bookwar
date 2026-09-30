@@ -180,7 +180,7 @@ func _build_quest_card(q: Dictionary) -> Control:
 		status.add_theme_color_override("font_color", Color(0.6, 0.85, 0.55, 1))
 	else:
 		if can_complete_now:
-			status.text = I18n.t("questlog.can_hand_in", "✓ Можно сдать у NPC")
+			status.text = I18n.t("questlog.can_hand_in", "• Можно сдать у NPC")
 			status.add_theme_color_override("font_color", Color(0.55, 0.95, 0.55, 1))
 		else:
 			status.text = I18n.t("questlog.not_ready", "Условие ещё не выполнено")

@@ -373,7 +373,7 @@ func _apply_damage(target: String, damage: float, letter_char: String, buff_mult
 					# remove_recruit shifts indices, so we operate on the copy then re-sync.
 					GameState.remove_recruit(ally_idx)
 					_ally_deaths_this_combat += 1
-					GameState.recruit_message.emit("💀 " + ally_name + " пал в бою!")
+					GameState.recruit_message.emit("† " + ally_name + " пал в бою!")
 					_log({"event": "ally_killed", "name": ally_name})
 				redirected_to_ally = true
 		if not redirected_to_ally:

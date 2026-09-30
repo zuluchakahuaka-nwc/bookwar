@@ -288,7 +288,7 @@ func start_quest_for_map(map_id: String) -> void:
 		toast_requested.emit("🌿 " + lore)
 	# Toast: показать квесты карты + подсказка про журнал
 	if not active_quests.is_empty():
-		var msg: String = "📜 Квестов на карте: " + str(active_quests.size()) + "  [Q — журнал]"
+		var msg: String = "» Квестов на карте: " + str(active_quests.size()) + "  [Q — журнал]"
 		toast_requested.emit(msg)
 
 func quest_progress_defeat() -> void:
@@ -323,7 +323,7 @@ func notify_letter_picked(letter: String) -> void:
 			continue
 		var have: int = InventoryManager.get_letter_level(letter)
 		var need: int = int(q.get("requirement", {}).get("count", 0))
-		toast_requested.emit("📦 " + str(have) + "/" + str(need) + " букв «" + letter + "»")
+		toast_requested.emit("• " + str(have) + "/" + str(need) + " букв «" + letter + "»")
 
 # Прогресс defeat-квеста по его ID (для QuestData.can_complete)
 func quest_progress_for(quest_id: String) -> int:
@@ -342,7 +342,7 @@ func try_complete_quest(quest: Dictionary) -> bool:
 	active_quests.erase(quest)
 	if active_quest == quest:
 		active_quest = {}
-	toast_requested.emit("★ Квест выполнен: " + String(quest.get("description", "")).substr(0, 40))
+	toast_requested.emit("• Квест выполнен: " + String(quest.get("description", "")).substr(0, 40))
 	_sync_quest_js_bridge()
 	return true
 
@@ -367,7 +367,7 @@ func _quest_complete_legacy() -> void:
 	completed_quests.append(map_id)
 	var msg: String = "Quest complete! Reward: letter " + reward
 	recruit_message.emit(msg)
-	toast_requested.emit("★ Квест выполнен! Получена буква: " + reward)
+	toast_requested.emit("• Квест выполнен! Получена буква: " + reward)
 	active_quest = {}
 	_sync_quest_js_bridge()
 

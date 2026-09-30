@@ -138,5 +138,5 @@ func _do_buy(letter: String) -> void:
 	if not InventoryManager.use_dots(price):
 		return
 	InventoryManager.add_letter(letter)
-	GameState.toast_requested.emit("🛒 Куплена буква «" + letter + "» за " + str(price) + " буквиц")
+		GameState.toast_requested.emit("» Куплена буква «" + letter + "» за " + str(price) + " буквиц")
 	_refresh()
