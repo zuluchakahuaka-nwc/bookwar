@@ -19,6 +19,10 @@ const EXPECTED = {
 (async () => {
   const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-web-security', '--disable-features=ntlm-auth'] });
   const page = await browser.newPage();
+  // Bypass the first-launch language picker (tests pin ru, then switch live)
+  await page.evaluateOnNewDocument(() => {
+    try { localStorage.setItem('bookwar_locale', 'ru'); } catch (e) {}
+  });
   await page.goto('http://localhost:3000', { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('canvas', { timeout: 30000 });
   await sleep(5000);

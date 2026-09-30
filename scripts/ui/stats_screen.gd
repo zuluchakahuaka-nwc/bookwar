@@ -7,6 +7,8 @@ var _panel: Panel
 var _title_label: Label
 var _content: VBoxContainer
 var _hint_label: Label
+var _close_btn: Button
+var _scroll: ScrollContainer
 var _visible: bool = false
 var _last_input_time: float = 0.0
 const DEBOUNCE_SEC: float = 0.25
@@ -40,24 +42,47 @@ func _build_ui() -> void:
 	col.set_anchors_preset(Control.PRESET_FULL_RECT)
 	col.add_theme_constant_override("separation", 12)
 	_panel.add_child(col)
+	# Header row: title + close ✕ (touch/mouse-friendly — S-key stays too)
+	var header := HBoxContainer.new()
+	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	col.add_child(header)
 	_title_label = Label.new()
-	_title_label.text = "СТАТИСТИКА ГЕРОЯ"
+	_title_label.text = I18n.t("stats.title", "СТАТИСТИКА ГЕРОЯ")
 	_title_label.add_theme_font_size_override("font_size", 32)
 	_title_label.add_theme_color_override("font_color", Color(0.95, 0.78, 0.30, 1))
 	_title_label.add_theme_color_override("font_outline_color", Color(0.1, 0.04, 0.02, 1))
 	_title_label.add_theme_constant_override("outline_size", 4)
-	col.add_child(_title_label)
+	_title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(_title_label)
+	_close_btn = Button.new()
+	_close_btn.text = "✕"
+	_close_btn.tooltip_text = I18n.t("stats.hint", "[S] закрыть")
+	_close_btn.custom_minimum_size = Vector2(46, 46)
+	_close_btn.add_theme_font_size_override("font_size", 24)
+	_close_btn.pressed.connect(_on_close_pressed)
+	header.add_child(_close_btn)
+	# FIX: scrollable content — the bestiary (28 rows) + metrics overflow the
+	# panel otherwise and the "[S] закрыть" hint ends up below the fold.
+	_scroll = ScrollContainer.new()
+	_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	col.add_child(_scroll)
 	_content = VBoxContainer.new()
 	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_content.add_theme_constant_override("separation", 8)
-	col.add_child(_content)
+	_scroll.add_child(_content)
 	_hint_label = Label.new()
-	_hint_label.text = "[S] закрыть"
+	_hint_label.text = I18n.t("stats.hint", "[S] закрыть")
 	_hint_label.add_theme_font_size_override("font_size", 18)
 	_hint_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.5, 1))
 	_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	col.add_child(_hint_label)
+
+func _on_close_pressed() -> void:
+	if _visible:
+		_toggle()
 
 func _process(_delta: float) -> void:
 	if OS.has_feature("web"):
@@ -111,27 +136,27 @@ func _refresh() -> void:
 	var letter_power: int = 0
 	for letter_char: String in InventoryManager.get_all_letters():
 		letter_power += AlphabetData.get_base_power(letter_char) * InventoryManager.get_letter_level(letter_char)
-	# Заполняем карточки
-	_add_metric("Карта:", str(current_level) + " / " + str(maps_total) + " — " + current_region, Color(0.85, 0.75, 0.40))
-	_add_metric("Карт пройдено:", str(maps_passed) + " / " + str(maps_total), Color(0.55, 0.95, 0.55) if maps_passed > 0 else Color(0.7, 0.65, 0.5))
-	_add_metric("Букв собрано:", str(letters_collected) + " / " + str(letters_total), Color(0.55, 0.95, 0.55) if letters_collected >= letters_total else Color(0.85, 0.75, 0.40))
-	_add_metric("Квестов выполнено:", str(completed_quests), Color(0.55, 0.95, 0.55) if completed_quests > 0 else Color(0.7, 0.65, 0.5))
-	_add_metric("Союзников (банда):", str(recruit_count), Color(0.7, 0.85, 0.95))
-	_add_metric("Буквиц (валюта):", str(dots), Color(0.95, 0.85, 0.40))
-	_add_metric("Сила букв (Σ power×level):", str(letter_power), Color(0.95, 0.55, 0.40))
+	# Заполняем карточки (§I18N: stats.* keys exist in i18n files)
+	_add_metric(I18n.t("stats.map", "Карта:"), str(current_level) + " / " + str(maps_total) + " — " + current_region, Color(0.85, 0.75, 0.40))
+	_add_metric(I18n.t("stats.maps_passed", "Карт пройдено:"), str(maps_passed) + " / " + str(maps_total), Color(0.55, 0.95, 0.55) if maps_passed > 0 else Color(0.7, 0.65, 0.5))
+	_add_metric(I18n.t("stats.letters_collected", "Букв собрано:"), str(letters_collected) + " / " + str(letters_total), Color(0.55, 0.95, 0.55) if letters_collected >= letters_total else Color(0.85, 0.75, 0.40))
+	_add_metric(I18n.t("stats.quests_done", "Квестов выполнено:"), str(completed_quests), Color(0.55, 0.95, 0.55) if completed_quests > 0 else Color(0.7, 0.65, 0.5))
+	_add_metric(I18n.t("stats.recruits", "Союзников (банда):"), str(recruit_count), Color(0.7, 0.85, 0.95))
+	_add_metric(I18n.t("stats.dots", "Буквиц (валюта):"), str(dots), Color(0.95, 0.85, 0.40))
+	_add_metric(I18n.t("stats.letter_power", "Сила букв (Σ power×level):"), str(letter_power), Color(0.95, 0.55, 0.40))
 	# §TODO#8: Bestiary — список виденных named creatures (по текущему уровню).
 	_add_bestiary_section(current_level)
 	# Подсказка про финал
 	if maps_passed >= maps_total:
 		var fin := Label.new()
-		fin.text = "★ ФИНАЛ ДОСТИГНУТ — алфавит восстановлен!"
+		fin.text = I18n.t("stats.finale", "★ ФИНАЛ ДОСТИГНУТ — алфавит восстановлен!")
 		fin.add_theme_font_size_override("font_size", 24)
 		fin.add_theme_color_override("font_color", Color(1.0, 0.85, 0.30, 1))
 		fin.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		_content.add_child(fin)
 	elif letters_collected >= letters_total:
 		var full := Label.new()
-		full.text = "★ Полный алфавит собран!"
+		full.text = I18n.t("stats.full_alphabet", "★ Полный алфавит собран!")
 		full.add_theme_font_size_override("font_size", 22)
 		full.add_theme_color_override("font_color", Color(0.55, 0.95, 0.55))
 		full.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -173,7 +198,7 @@ const BESTIARY_CREATURES: Array = [
 
 func _add_bestiary_section(current_level: int) -> void:
 	var header := Label.new()
-	header.text = "── БЕСТИАРИЙ ──"
+	header.text = I18n.t("stats.bestiary", "── БЕСТИАРИЙ ──")
 	header.add_theme_font_size_override("font_size", 22)
 	header.add_theme_color_override("font_color", Color(0.85, 0.55, 0.30))
 	header.add_theme_color_override("font_outline_color", Color(0, 0, 0))
@@ -188,7 +213,9 @@ func _add_bestiary_section(current_level: int) -> void:
 			seen_count += 1
 		var mark: String = "✓" if is_seen else "?"
 		var color: Color = Color(0.55, 0.95, 0.55) if is_seen else Color(0.45, 0.42, 0.35)
-		var row_text: String = mark + "  [кар." + str(lvl) + "]  " + String(entry.get("name", ""))
+		# §I18N: creature names under monster.<draw> keys (same ids as monster_base)
+		var creature: String = I18n.t("monster." + String(entry.get("draw", "")), String(entry.get("name", "")))
+		var row_text: String = mark + "  [" + I18n.t("stats.bestiary_lvl", "кар.") + " " + str(lvl) + "]  " + creature
 		var lbl := Label.new()
 		lbl.text = row_text
 		lbl.add_theme_font_size_override("font_size", 16)
@@ -196,7 +223,7 @@ func _add_bestiary_section(current_level: int) -> void:
 		_content.add_child(lbl)
 	# Summary
 	var sum := Label.new()
-	sum.text = "Видено: " + str(seen_count) + " / " + str(BESTIARY_CREATURES.size())
+	sum.text = I18n.t("stats.bestiary_seen", "Видено: %s / %s") % [str(seen_count), str(BESTIARY_CREATURES.size())]
 	sum.add_theme_font_size_override("font_size", 18)
 	sum.add_theme_color_override("font_color", Color(0.95, 0.85, 0.40))
 	sum.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

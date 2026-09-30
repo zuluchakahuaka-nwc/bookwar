@@ -16,6 +16,14 @@ func _ready() -> void:
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("window.gameManualReady = (window.gameManualReady||0)+1; window.gameManualVisible = false;")
 	_build_layout()
+	# §I18N: rebuild on locale change so tabs/content re-localize live
+	if I18n != null:
+		I18n.locale_changed.connect(_on_locale_changed)
+
+func _on_locale_changed(_locale: String) -> void:
+	for child: Node in get_children():
+		child.queue_free()
+	_build_layout()
 
 func _build_layout() -> void:
 	# Full-screen dim background
@@ -48,7 +56,7 @@ func _build_layout() -> void:
 
 	# Title
 	var title: Label = Label.new()
-	title.text = "КАК ИГРАТЬ"
+	title.text = I18n.t("manual.title", "КАК ИГРАТЬ")
 	title.add_theme_font_size_override("font_size", 30)
 	title.add_theme_color_override("font_color", Color(0.95, 0.78, 0.30))
 	title.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
@@ -68,20 +76,21 @@ func _build_layout() -> void:
 	btn_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	vbox.add_child(btn_row)
 	_close_btn = Button.new()
-	_close_btn.text = "Закрыть  [?]"
+	_close_btn.text = I18n.t("manual.close", "Закрыть  [?]")
 	_close_btn.custom_minimum_size = Vector2(220, 44)
 	_close_btn.add_theme_font_size_override("font_size", 18)
 	_close_btn.pressed.connect(hide_manual)
 	btn_row.add_child(_close_btn)
 
 func _populate_tabs() -> void:
-	_add_tab("Управление", _content_controls())
-	_add_tab("Буквы", _content_letters())
-	_add_tab("Бой", _content_combat())
-	_add_tab("Диалог", _content_dialogue())
-	_add_tab("Заклинания", _content_spells())
-	_add_tab("Крафт", _content_crafting())
-	_add_tab("Глоссарий", _content_glossary())
+	# §I18N: tab names + contents localized (manual.* keys)
+	_add_tab(I18n.t("manual.tab_controls", "Управление"), I18n.t("manual.content_controls", _content_controls()))
+	_add_tab(I18n.t("manual.tab_letters", "Буквы"), I18n.t("manual.content_letters", _content_letters()))
+	_add_tab(I18n.t("manual.tab_combat", "Бой"), I18n.t("manual.content_combat", _content_combat()))
+	_add_tab(I18n.t("manual.tab_dialogue", "Диалог"), I18n.t("manual.content_dialogue", _content_dialogue()))
+	_add_tab(I18n.t("manual.tab_spells", "Заклинания"), I18n.t("manual.content_spells", _content_spells()))
+	_add_tab(I18n.t("manual.tab_crafting", "Крафт"), I18n.t("manual.content_crafting", _content_crafting()))
+	_add_tab(I18n.t("manual.tab_glossary", "Глоссарий"), I18n.t("manual.content_glossary", _content_glossary()))
 
 func _add_tab(tab_name: String, text: String) -> void:
 	var scroll: ScrollContainer = ScrollContainer.new()

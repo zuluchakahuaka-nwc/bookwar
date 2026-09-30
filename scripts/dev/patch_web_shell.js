@@ -54,6 +54,23 @@ body { color: #fff; background-color: #120608; overflow: hidden; touch-action: n
 	border-radius: 10px; padding: 16px 20px; max-width: min(80vw, 560px); margin-top: 20px;
 	line-height: 1.45; white-space: pre-line; }
 #bw-hint { color: #8a6a6a; font-size: 13px; margin-top: 26px; }
+/* Language picker: first launch (no saved locale) — choose the game language
+   BEFORE the ~112MB engine download starts. Same dark-gold style as #status. */
+#lang-picker { position: absolute; left: 0; right: 0; top: 0; bottom: 0; z-index: 20;
+	background: radial-gradient(circle at 50% 32%, #3a1018 0%, #170709 72%);
+	display: none; flex-direction: column; justify-content: center; align-items: center;
+	text-align: center; padding: 24px; box-sizing: border-box; }
+#lang-picker.visible { display: flex; }
+#lp-title { font-size: clamp(34px, 7vw, 64px); font-weight: 800; letter-spacing: 6px;
+	color: #e8c46a; text-shadow: 0 0 22px rgba(232,196,106,.45); margin: 0; }
+#lp-sub { color: #c98a9a; letter-spacing: 3px; margin: 8px 0 26px; font-size: clamp(12px, 2.2vw, 18px); }
+#lp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 230px));
+	gap: 10px 12px; justify-content: center; width: min(92vw, 560px); }
+.lp-btn { background: rgba(58, 18, 24, 0.85); border: 1px solid #5a3030; border-radius: 12px;
+	color: #e8c46a; font-size: clamp(15px, 2.6vw, 20px); padding: 13px 10px; cursor: pointer;
+	font-family: inherit; letter-spacing: 1px; transition: background .15s, border-color .15s, transform .1s; }
+.lp-btn:hover { background: rgba(90, 30, 38, 0.95); border-color: #b8860b; transform: translateY(-1px); }
+.lp-btn .code { display: block; font-size: 11px; color: #8a6a6a; margin-top: 4px; letter-spacing: 2px; }
 /* Rotation overlay: shown in portrait only — bookwar is a landscape game.
    Implemented in pure CSS so it works even before JS / canvas boots. */
 #rotate-overlay { display: none; position: fixed; inset: 0; z-index: 100;
@@ -100,6 +117,11 @@ body { color: #fff; background-color: #120608; overflow: hidden; touch-action: n
 		<div id="bw-pct">ЗАГРУЗКА…</div>
 		<div id="status-notice"></div>
 		<div id="bw-hint">Игра весит ~112 МБ. Подождите окончания загрузки.</div>
+	</div>
+	<div id="lang-picker">
+		<h1 id="lp-title">BOOKWAR</h1>
+		<div id="lp-sub">Выберите язык · Choose your language</div>
+		<div id="lp-grid"></div>
 	</div>
 	<script>
 // URL locale override: ?locale=hy (or any supported code) forces the game
@@ -395,6 +417,39 @@ const GODOT_CONFIG = ${GODOT_CONFIG};
 const GODOT_THREADS_ENABLED = ${THREADS};
 const engine = new Engine(GODOT_CONFIG);
 
+// === First-launch language picker ===
+// If the player has no saved locale (and no ?locale= URL override), show the
+// language grid BEFORE starting the ~112MB engine download. The chosen code
+// is stored in localStorage 'bookwar_locale' which i18n.gd reads on boot.
+(function(){
+	var saved = null;
+	try { saved = localStorage.getItem('bookwar_locale'); } catch(e) {}
+	var hasUrlLocale = /[?&]locale=/.test(location.search);
+	if (saved || hasUrlLocale) { boot(); return; }
+	var LANGS = [["ru","Русский"],["en","English"],["zh","中文"],["es","Español"],
+		["fr","Français"],["de","Deutsch"],["pt","Português"],["it","Italiano"],
+		["ar","العربية"],["hy","Հայերեն"]];
+	var grid = document.getElementById('lp-grid');
+	if (!grid) { boot(); return; }
+	for (var i = 0; i < LANGS.length; i++) {
+		(function(pair){
+			var b = document.createElement('button');
+			b.className = 'lp-btn';
+			b.innerHTML = pair[1] + '<span class="code">' + pair[0].toUpperCase() + '</span>';
+			b.addEventListener('click', function(){
+				try { localStorage.setItem('bookwar_locale', pair[0]); } catch(e) {}
+				var p = document.getElementById('lang-picker');
+				if (p) p.classList.remove('visible');
+				boot();
+			});
+			grid.appendChild(b);
+		})(LANGS[i]);
+	}
+	var picker = document.getElementById('lang-picker');
+	if (picker) picker.classList.add('visible');
+})();
+
+function boot() {
 (function () {
 	const statusOverlay = document.getElementById('status');
 	const statusProgress = document.getElementById('status-progress');
@@ -469,6 +524,7 @@ const engine = new Engine(GODOT_CONFIG);
 		}
 	}, 5000);
 }());
+}
 		</script>
 	</body>
 </html>

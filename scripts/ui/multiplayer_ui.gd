@@ -40,11 +40,12 @@ func _ready() -> void:
 	NetworkManager.trade_accepted.connect(_on_trade_accepted)
 	NetworkManager.battle_invited.connect(_on_battle_invited)
 	# Default name from previously chosen hero if any
-	var default_name: String = "Герой"
+	# §I18N: localized hero name (heroes.json is ru-canonical)
+	var default_name: String = I18n.t("mp.default_hero_name", "Герой")
 	if GameState.selected_hero.has("name"):
-		default_name = String(GameState.selected_hero["name"])
+		default_name = I18n.t(String(GameState.selected_hero.get("id", "")) + ".name", String(GameState.selected_hero["name"]))
 	_name_edit.text = default_name
-	_set_status("Не подключено")
+	_set_status(I18n.t("mp.not_connected", "Не подключено"))
 	_refresh_players_list()
 	if OS.has_feature("web"):
 		# Expose tap-target rects for tests + show actual gameViewportSize

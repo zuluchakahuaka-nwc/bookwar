@@ -623,10 +623,10 @@ func _on_clear_equip_pressed() -> void:
 
 func _slot_label(slot: String) -> String:
 	match slot:
-		TacticalCombat.SLOT_HEAD:       return "Голова (шлем, согласная):"
-		TacticalCombat.SLOT_TORSO:      return "Корпус (кольчуга, согласная):"
-		TacticalCombat.SLOT_RIGHT_HAND: return "Правая рука (оружие, гласная):"
-		TacticalCombat.SLOT_LEFT_HAND:  return "Левая рука (щит/оружие):"
+		TacticalCombat.SLOT_HEAD:       return I18n.t("tactical.slot_head", "Голова (шлем, согласная):")
+		TacticalCombat.SLOT_TORSO:      return I18n.t("tactical.slot_torso", "Корпус (кольчуга, согласная):")
+		TacticalCombat.SLOT_RIGHT_HAND: return I18n.t("tactical.slot_right", "Правая рука (оружие, гласная):")
+		TacticalCombat.SLOT_LEFT_HAND:  return I18n.t("tactical.slot_left", "Левая рука (щит/оружие):")
 	return slot
 
 func _refresh_tactical_panel() -> void:

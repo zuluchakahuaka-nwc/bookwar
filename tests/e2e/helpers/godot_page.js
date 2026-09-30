@@ -61,8 +61,13 @@ async function loadGame() {
   // Mark the intro as "seen" so the first-launch auto-legend doesn't fire and
   // steal the menu — tests need the menu visible. Tests that exercise the intro
   // itself can clear this explicitly.
+  // Also pin the locale: the shell now shows a first-launch language picker
+  // when no 'bookwar_locale' is saved — tests must bypass it (ru default).
   await page.evaluateOnNewDocument(() => {
-    try { localStorage.setItem('bookwar_intro_seen', '1'); } catch (e) {}
+    try {
+      localStorage.setItem('bookwar_intro_seen', '1');
+      if (!localStorage.getItem('bookwar_locale')) localStorage.setItem('bookwar_locale', 'ru');
+    } catch (e) {}
   });
   // NOTE: do NOT use waitUntil:'networkidle0' — the multiplayer chat poller
   // hits /api/chat/poll every 500ms (404 with no server), so the network is

@@ -63,7 +63,14 @@ func _generate_for_map(map_id: String, chain_idx: int, count: int) -> Array:
 	var pool: Array = BookwarConst.get_map_letters_resolved(map_id)
 	if pool.is_empty():
 		pool = BookwarConst.get_map_letters_resolved(BookwarConst.MAP_LIGHT_VALLEY)
-	var npc_names: Array = ["Странник", "Мудрец", "Старейшина", "Отшельник", "Хранитель"]
+	# §I18N: NPC role names localized (npc.* keys)
+	var npc_names: Array = [
+		I18n.t("npc.wanderer", "Странник"),
+		I18n.t("npc.sage", "Мудрец"),
+		I18n.t("npc.elder", "Старейшина"),
+		I18n.t("npc.hermit", "Отшельник"),
+		I18n.t("npc.keeper", "Хранитель"),
+	]
 	for i: int in range(count):
 		var qtype: String = QUEST_TYPES_CYCLE[i % QUEST_TYPES_CYCLE.size()]
 		var quest_id: String = map_id + "_auto_" + str(i)
@@ -79,25 +86,25 @@ func _generate_for_map(map_id: String, chain_idx: int, count: int) -> Array:
 		}
 		match qtype:
 			"defeat":
-				q["description"] = "Одолей " + str(3 + (chain_idx / 3)) + " врагов в регионе «" + region_name + "»."
+				q["description"] = I18n.t_fmt("quest.auto_defeat", [str(3 + (chain_idx / 3)), region_name], "Одолей %s врагов в регионе «%s».")
 				q["requirement"] = {"count": 3 + (chain_idx / 3)}
 				q["reward"] = {"type": "letter", "letter": reward_letter, "count": 1}
 			"collect":
-				q["description"] = "Принеси " + str(2 + (i % 3)) + " букв «" + give_letter + "» — дам тебе «" + reward_letter + "»."
+				q["description"] = I18n.t_fmt("quest.auto_collect", [str(2 + (i % 3)), give_letter, reward_letter], "Принеси %s букв «%s» — дам тебе «%s».")
 				q["requirement"] = {"letter": give_letter, "count": 2 + (i % 3)}
 				q["reward"] = {"type": "letter", "letter": reward_letter, "count": 1}
 			"buy":
 				var cost: int = 10 + chain_idx * 2
-				q["description"] = "Купи букву «" + reward_letter + "» за " + str(cost) + " буквиц."
+				q["description"] = I18n.t_fmt("quest.auto_buy", [reward_letter, str(cost)], "Купи букву «%s» за %s буквиц.")
 				q["cost"] = {"resource": "dots", "amount": cost}
 				q["reward"] = {"type": "letter", "letter": reward_letter, "count": 1}
 			"trade":
-				q["description"] = "Обменяй «" + give_letter + "» на «" + reward_letter + "»."
+				q["description"] = I18n.t_fmt("quest.auto_trade", [give_letter, reward_letter], "Обменяй «%s» на «%s».")
 				q["give"] = {"letter": give_letter}
 				q["receive"] = {"letter": reward_letter}
 				q["reward"] = {"type": "letter", "letter": reward_letter, "count": 1}
 			"talk":
-				q["description"] = "Поговори с " + npc + " в регионе «" + region_name + "»."
+				q["description"] = I18n.t_fmt("quest.auto_talk", [npc, region_name], "Поговори с %s в регионе «%s».")
 				q["requirement"] = {"target_npc": npc}
 				q["reward"] = {"type": "dots", "amount": 5 + chain_idx}
 		result.append(q)

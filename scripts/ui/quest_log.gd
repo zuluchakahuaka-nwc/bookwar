@@ -67,7 +67,7 @@ func _build_ui() -> void:
 	_scroll.add_child(_content)
 
 	_hint_label = Label.new()
-	_hint_label.text = "[Q] закрыть"
+	_hint_label.text = I18n.t("questlog.hint", "[Q] закрыть")
 	_hint_label.add_theme_font_size_override("font_size", 18)
 	_hint_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.5, 1))
 	_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -105,11 +105,11 @@ func _refresh() -> void:
 	var active: Array = GameState.active_quests
 	var completed_count: int = GameState.completed_quest_ids.size()
 	# Заголовок с прогрессом
-	_title_label.text = "ЖУРНАЛ КВЕСТОВ — " + BookwarConst.get_map_name(GameState.current_map_id)
-	_title_label.text += "  (выполнено всего: " + str(completed_count) + ")"
+	_title_label.text = I18n.t("questlog.title", "ЖУРНАЛ КВЕСТОВ") + " — " + BookwarConst.get_map_name(GameState.current_map_id)
+	_title_label.text += "  (" + I18n.t("questlog.completed_total", "выполнено всего") + ": " + str(completed_count) + ")"
 	if active.is_empty():
 		var empty := Label.new()
-		empty.text = "Нет активных квестов на этой карте."
+		empty.text = I18n.t("questlog.empty", "Нет активных квестов на этой карте.")
 		empty.add_theme_font_size_override("font_size", 22)
 		empty.add_theme_color_override("font_color", Color(0.7, 0.65, 0.5, 1))
 		_content.add_child(empty)
@@ -148,8 +148,8 @@ func _build_quest_card(q: Dictionary) -> Control:
 	var type_label := Label.new()
 	var qtype: String = String(q.get("type", ""))
 	var npc: String = String(q.get("npc_name", ""))
-	# Тип квеста текстом — эмодзи в Godot default шрифте не рендерятся в HTML5
-	type_label.text = "[" + qtype.to_upper() + "]  " + npc
+	# §I18N: localized quest-type label (questtype.* keys)
+	type_label.text = "[" + I18n.t("questtype." + qtype, qtype.to_upper()) + "]  " + npc
 	type_label.add_theme_font_size_override("font_size", 20)
 	type_label.add_theme_color_override("font_color", Color(0.85, 0.65, 0.30, 1))
 	col.add_child(type_label)
@@ -169,21 +169,21 @@ func _build_quest_card(q: Dictionary) -> Control:
 		var qid: String = String(q.get("id", ""))
 		var prog: int = int(GameState.quest_defeat_progress.get(qid, 0))
 		var target: int = int(q.get("requirement", {}).get("count", 0))
-		status.text = "Прогресс: " + str(prog) + " / " + str(target)
+		status.text = I18n.t("questlog.progress", "Прогресс:") + " " + str(prog) + " / " + str(target)
 		status.add_theme_color_override("font_color", Color(0.6, 0.85, 0.55, 1))
 	elif qtype == "collect":
 		# Q6: для collect показываем сколько букв уже есть
 		var letter: String = String(q.get("requirement", {}).get("letter", ""))
 		var have: int = InventoryManager.get_letter_level(letter)
 		var need: int = int(q.get("requirement", {}).get("count", 0))
-		status.text = "Прогресс: " + str(have) + " / " + str(need) + " букв «" + letter + "»"
+		status.text = I18n.t_fmt("questlog.collect_progress", [str(have), str(need), letter], "Прогресс: %s / %s букв «%s»")
 		status.add_theme_color_override("font_color", Color(0.6, 0.85, 0.55, 1))
 	else:
 		if can_complete_now:
-			status.text = "✓ Можно сдать у NPC"
+			status.text = I18n.t("questlog.can_hand_in", "✓ Можно сдать у NPC")
 			status.add_theme_color_override("font_color", Color(0.55, 0.95, 0.55, 1))
 		else:
-			status.text = "Условие ещё не выполнено"
+			status.text = I18n.t("questlog.not_ready", "Условие ещё не выполнено")
 			status.add_theme_color_override("font_color", Color(0.7, 0.55, 0.45, 1))
 	col.add_child(status)
 
@@ -192,11 +192,11 @@ func _build_quest_card(q: Dictionary) -> Control:
 	var r: Dictionary = q.get("reward", {})
 	match String(r.get("type", "")):
 		"letter":
-			reward.text = "Награда: буква «" + String(r.get("letter", "")) + "»"
+			reward.text = I18n.t("questlog.reward", "Награда:") + " " + I18n.t("questlog.reward_letter", "буква") + " «" + String(r.get("letter", "")) + "»"
 		"dots":
-			reward.text = "Награда: " + str(int(r.get("amount", 0))) + " буквиц"
+			reward.text = I18n.t("questlog.reward", "Награда:") + " " + str(int(r.get("amount", 0))) + " " + I18n.t("questlog.reward_dots", "буквиц")
 		_:
-			reward.text = "Награда: ?"
+			reward.text = I18n.t("questlog.reward", "Награда:") + " ?"
 	reward.add_theme_font_size_override("font_size", 16)
 	reward.add_theme_color_override("font_color", Color(0.78, 0.75, 0.60, 1))
 	col.add_child(reward)

@@ -92,7 +92,8 @@ func _build_grid() -> void:
 	_hero_cells.clear()
 	for i: int in range(_heroes.size()):
 		var hero: Dictionary = _heroes[i]
-		var name_str: String = String(hero.get("name", "???"))
+		# §I18N: localized hero name (heroes.json stores ru-canonical values)
+		var name_str: String = _hero_l(hero, "name")
 		var app: Dictionary = _gen_appearance(i, String(hero.get("archetype", "balanced")), hero.get("color", [0.5, 0.5, 0.5]))
 		# Cell container
 		var cell: Panel = Panel.new()
@@ -181,14 +182,14 @@ func _select_hero(index: int) -> void:
 	_selected_index = index
 	var hero: Dictionary = _heroes[index]
 	if _detail_name:
-		_detail_name.text = String(hero.get("name", "???"))
+		_detail_name.text = _hero_l(hero, "name")
 	if _detail_title:
-		_detail_title.text = String(hero.get("title", ""))
+		_detail_title.text = _hero_l(hero, "title")
 	if _detail_desc:
-		_detail_desc.text = String(hero.get("description", ""))
+		_detail_desc.text = _hero_l(hero, "desc")
 	if _detail_letters:
 		var letters: Array = hero.get("starting_letters", [])
-		_detail_letters.text = "Буквы: " + ", ".join(letters)
+		_detail_letters.text = I18n.t("charselect.letters", "Буквы: ") + ", ".join(letters)
 	if _detail_hp:
 		var hp_bonus: int = int(hero.get("hp_bonus", 0))
 		var hp_text: String = "HP: " + str(BookwarConst.PLAYER_MAX_HP + hp_bonus)
@@ -214,7 +215,22 @@ func _select_hero(index: int) -> void:
 		sty.set_content_margin_all(3)
 		cell.add_theme_stylebox_override("panel", sty)
 	if OS.has_feature("web"):
-		JavaScriptBridge.eval("window.gameSelectedHeroIndex = " + str(index) + "; window.gameSelectedHeroName = " + JSON.stringify(String(hero.get("name", ""))) + ";")
+		JavaScriptBridge.eval("window.gameSelectedHeroIndex = " + str(index) + "; window.gameSelectedHeroName = " + JSON.stringify(_hero_l(hero, "name")) + ";")
+
+# §I18N: localized hero field — heroes.json keeps ru-canonical values;
+# translations live under "hero_<id>.<field>" keys (name/title/desc).
+func _hero_l(hero: Dictionary, field: String) -> String:
+	var id: String = String(hero.get("id", ""))
+	var raw_key: String = ""
+	match field:
+		"name": raw_key = "name"
+		"title": raw_key = "title"
+		"desc": raw_key = "description"
+		_: raw_key = field
+	var raw: String = String(hero.get(raw_key, ""))
+	if id == "":
+		return raw
+	return I18n.t(id + "." + field, raw)
 
 func _on_start() -> void:
 	if _selected_index < 0 or _selected_index >= _heroes.size():

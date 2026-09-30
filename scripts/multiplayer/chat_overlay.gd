@@ -30,7 +30,7 @@ func _ready() -> void:
 	set_process(true)
 
 func _on_connected(id: String, pname: String) -> void:
-	_add_system_line("Подключено как [color=green]%s[/color]" % pname)
+	_add_system_line(I18n.t("mp.chat_connected", "Подключено как [color=green]%s[/color]") % pname)
 
 func _on_chat_received(id: String, pname: String, text: String) -> void:
 	_add_chat_line(pname, text)
