@@ -228,9 +228,11 @@ func _on_start() -> void:
 	GameState.reset()
 	GameState.selected_hero = hero
 	# Apply hero starting letters to inventory (once)
+	# §I18N §2.0: heroes.json stores ru-canonical chars — resolve into the
+	# current locale's alphabet (identity for ru).
 	var letters: Array = hero.get("starting_letters", [])
 	for l: String in letters:
-		InventoryManager.add_letter(l)
+		InventoryManager.add_letter(BookwarConst.resolve_letter(l))
 	# Apply HP bonus
 	var hp_bonus: int = int(hero.get("hp_bonus", 0))
 	GameState.player_max_hp = BookwarConst.PLAYER_MAX_HP + hp_bonus

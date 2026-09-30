@@ -14,6 +14,13 @@ const QUEST_TYPES_CYCLE: Array[String] = ["defeat", "collect", "buy", "trade", "
 
 func _ready() -> void:
 	_load_manual_quests()
+	# §I18N §2.0: quest pools depend on the current locale's alphabet —
+	# invalidate the generated cache when the player switches language.
+	if I18n != null:
+		I18n.locale_changed.connect(_on_locale_changed)
+
+func _on_locale_changed(_locale: String) -> void:
+	_generated_cache.clear()
 
 func _load_manual_quests() -> void:
 	var file: FileAccess = FileAccess.open("res://data/quests.json", FileAccess.READ)
@@ -51,9 +58,11 @@ func get_quests_for_map(map_id: String) -> Array:
 func _generate_for_map(map_id: String, chain_idx: int, count: int) -> Array:
 	var result: Array = []
 	var region_name: String = BookwarConst.get_map_name(map_id)
-	var pool: Array = BookwarConst.MAP_LETTERS.get(map_id, [])
+	# §I18N §2.0: pool in the CURRENT locale's letters; empty deep-map pools
+	# fall back to the Light Valley starter pool of the same locale.
+	var pool: Array = BookwarConst.get_map_letters_resolved(map_id)
 	if pool.is_empty():
-		pool = ["А", "О", "М"]  # fallback
+		pool = BookwarConst.get_map_letters_resolved(BookwarConst.MAP_LIGHT_VALLEY)
 	var npc_names: Array = ["Странник", "Мудрец", "Старейшина", "Отшельник", "Хранитель"]
 	for i: int in range(count):
 		var qtype: String = QUEST_TYPES_CYCLE[i % QUEST_TYPES_CYCLE.size()]

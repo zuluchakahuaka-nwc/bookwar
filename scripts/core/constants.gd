@@ -139,6 +139,49 @@ const MAP_LETTERS: Dictionary = {
 	MAP_WELL_OF_LETTERS: ["Я","Ю","Э","Ь","Ы","Ъ","Щ","Ш","А","О"],
 }
 
+# §I18N §2.0: Russian alphabet positions — canonical index for MAP_LETTERS
+# pools (ru chars are the design language of the map progression).
+const RU_LETTER_POSITIONS: Dictionary = {
+	"А": 1, "Б": 2, "В": 3, "Г": 4, "Д": 5, "Е": 6, "Ё": 7, "Ж": 8, "З": 9,
+	"И": 10, "Й": 11, "К": 12, "Л": 13, "М": 14, "Н": 15, "О": 16, "П": 17,
+	"Р": 18, "С": 19, "Т": 20, "У": 21, "Ф": 22, "Х": 23, "Ц": 24, "Ч": 25,
+	"Ш": 26, "Щ": 27, "Ъ": 28, "Ы": 29, "Ь": 30, "Э": 31, "Ю": 32, "Я": 33
+}
+
+# §I18N §2.0: resolve a map's ru-canonical letter pool into the CURRENT
+# locale's alphabet — same position slot, that locale's glyph (А,М,О -> Ա,Ծ,Հ
+# for hy). For ru this is the identity mapping (zero behaviour change).
+# Positions beyond a short alphabet are skipped; alphabets LONGER than the
+# map chain (hy=39, zh=214) get their tail positions (34..N) appended to the
+# final Well-of-Letters pool so every letter stays obtainable.
+# §I18N §2.0: resolve a single ru-canonical letter char (e.g. a hero's
+# starting_letters entry) into the current locale's alphabet at the same
+# position. Identity for ru; unknown chars pass through unchanged.
+func resolve_letter(letter_char: String) -> String:
+	var pos: int = int(RU_LETTER_POSITIONS.get(letter_char, 0))
+	if pos == 0:
+		return letter_char
+	var snapshot: Array = AlphabetData.get_alphabet_snapshot()
+	if snapshot.is_empty() or pos > snapshot.size():
+		return letter_char
+	return String(snapshot[pos - 1].get("char", ""))
+
+func get_map_letters_resolved(map_id: String) -> Array:
+	var snapshot: Array = AlphabetData.get_alphabet_snapshot()
+	if snapshot.is_empty():
+		return (MAP_LETTERS.get(map_id, []) as Array).duplicate()
+	var result: Array = []
+	for ru_char: Variant in MAP_LETTERS.get(map_id, []):
+		var pos: int = int(RU_LETTER_POSITIONS.get(String(ru_char), 0))
+		if pos >= 1 and pos <= snapshot.size():
+			result.append(String(snapshot[pos - 1].get("char", "")))
+	if map_id == MAP_WELL_OF_LETTERS and snapshot.size() > MAP_CHAIN.size():
+		for i: int in range(MAP_CHAIN.size(), snapshot.size()):
+			var extra: String = String(snapshot[i].get("char", ""))
+			if not result.has(extra):
+				result.append(extra)
+	return result
+
 # --- Enemy count per map (escalating) ---
 const MAP_ENEMY_COUNT: Dictionary = {
 	MAP_LIGHT_VALLEY: 8, MAP_TWO_LETTER_FOREST: 12, MAP_DARK_OAKS: 16,

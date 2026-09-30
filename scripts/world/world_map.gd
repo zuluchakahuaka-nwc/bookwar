@@ -685,14 +685,14 @@ func _spawn_generic_items(rng: RandomNumberGenerator) -> void:
 	# so there is no drop-off when the generic spawner takes over at level 4:
 	#   lv4 ~97, lv15 ~174 (midpoint of 40..300), lv33 ~300 (max).
 	var dot_count: int = 90 + maxi(0, chain_idx - 2) * 7
-	# Source letter pool for this map. Some deep-game maps (catacombs/mines/etc.)
-	# intentionally have an empty pool in MAP_LETTERS — fall back to the full
-	# Russian alphabet so the spawn loop never divides by zero and the player
-	# still gets *some* letter drops on every level (see LVL-1 audit, 2026-07-07).
-	var fallback_letters: Array = ["А", "О", "М", "Б", "Я", "Е", "К", "Т", "Р", "Д"]
-	var letters: Array = BookwarConst.MAP_LETTERS.get(map_id, fallback_letters)
-	if letters == null or letters.is_empty():
-		letters = fallback_letters
+	# Source letter pool for this map, resolved into the current locale's
+	# alphabet (§I18N §2.0). Some deep-game maps (catacombs/mines/etc.)
+	# intentionally have an empty pool — fall back to the head of the current
+	# alphabet so the spawn loop never divides by zero and the player still
+	# gets *some* letter drops on every level (see LVL-1 audit, 2026-07-07).
+	var letters: Array = BookwarConst.get_map_letters_resolved(map_id)
+	if letters.is_empty():
+		letters = _alphabet_head(10)
 	var letter_count: int = 3 + chain_idx
 	var idx: int = 0
 	var spawn_max_x: float = BookwarConst.get_map_bound_max_x(map_id)
@@ -725,9 +725,11 @@ func _spawn_light_valley_items(rng: RandomNumberGenerator) -> void:
 		_spawn_item(items, "dot", "", _clamp_pos(Vector2(px, py)), rng, _item_key(idx))
 		idx += 1
 	# Spawn the three starting letters per AGENTS.md §4.5: А, О, М (big, weapons/armor)
-	_spawn_letter(items, "А", _clamp_pos(p + Vector2(20.0, 20.0)), _item_key(idx)); idx += 1
-	_spawn_letter(items, "О", _clamp_pos(p + Vector2(-400.0, 200.0)), _item_key(idx)); idx += 1
-	_spawn_letter(items, "М", _clamp_pos(p + Vector2(300.0, 250.0)), _item_key(idx)); idx += 1
+	# §I18N §2.0: resolve positions {1,14,16} into the current locale's alphabet.
+	var valley_letters: Array = BookwarConst.get_map_letters_resolved(BookwarConst.MAP_LIGHT_VALLEY)
+	var valley_offsets: Array = [Vector2(20.0, 20.0), Vector2(-400.0, 200.0), Vector2(300.0, 250.0)]
+	for i: int in range(mini(valley_letters.size(), valley_offsets.size())):
+		_spawn_letter(items, String(valley_letters[i]), _clamp_pos(p + valley_offsets[i]), _item_key(idx)); idx += 1
 
 func _spawn_forest_items(rng: RandomNumberGenerator) -> void:
 	var items: Node2D = $Items
@@ -742,11 +744,11 @@ func _spawn_forest_items(rng: RandomNumberGenerator) -> void:
 		_spawn_item(items, "dot", "", _clamp_pos(Vector2(px, py)), rng, _item_key(idx))
 		idx += 1
 	# Letters available in forest: Е, К, Т, Р, Д (5 letters — escalation per §18.2 map 2)
-	_spawn_letter(items, "Е", _clamp_pos(p + Vector2(150.0, -200.0)), _item_key(idx)); idx += 1
-	_spawn_letter(items, "К", _clamp_pos(p + Vector2(-300.0, 100.0)), _item_key(idx)); idx += 1
-	_spawn_letter(items, "Т", _clamp_pos(p + Vector2(400.0, 200.0)), _item_key(idx)); idx += 1
-	_spawn_letter(items, "Р", _clamp_pos(p + Vector2(-450.0, -250.0)), _item_key(idx)); idx += 1
-	_spawn_letter(items, "Д", _clamp_pos(p + Vector2(500.0, -100.0)), _item_key(idx)); idx += 1
+	# §I18N §2.0: positions {6,12,20,18,5} resolved into the current locale.
+	var forest_letters: Array = BookwarConst.get_map_letters_resolved(BookwarConst.MAP_TWO_LETTER_FOREST)
+	var forest_offsets: Array = [Vector2(150.0, -200.0), Vector2(-300.0, 100.0), Vector2(400.0, 200.0), Vector2(-450.0, -250.0), Vector2(500.0, -100.0)]
+	for i: int in range(mini(forest_letters.size(), forest_offsets.size())):
+		_spawn_letter(items, String(forest_letters[i]), _clamp_pos(p + forest_offsets[i]), _item_key(idx)); idx += 1
 
 func _spawn_dark_oaks_items(rng: RandomNumberGenerator) -> void:
 	var items: Node2D = $Items
@@ -761,12 +763,11 @@ func _spawn_dark_oaks_items(rng: RandomNumberGenerator) -> void:
 		_spawn_item(items, "dot", "", _clamp_pos(Vector2(px, py)), rng, _item_key(idx))
 		idx += 1
 	# Letters available in dark oaks: В, Г, Ж, Л, П, Н (6 letters per §18.2 map 3)
-	_spawn_letter(items, "В", _clamp_pos(p + Vector2(200.0, -150.0)), _item_key(idx)); idx += 1
-	_spawn_letter(items, "Г", _clamp_pos(p + Vector2(-350.0, 200.0)), _item_key(idx)); idx += 1
-	_spawn_letter(items, "Ж", _clamp_pos(p + Vector2(400.0, 250.0)), _item_key(idx)); idx += 1
-	_spawn_letter(items, "Л", _clamp_pos(p + Vector2(-500.0, -200.0)), _item_key(idx)); idx += 1
-	_spawn_letter(items, "П", _clamp_pos(p + Vector2(550.0, -100.0)), _item_key(idx)); idx += 1
-	_spawn_letter(items, "Н", _clamp_pos(p + Vector2(-200.0, 300.0)), _item_key(idx)); idx += 1
+	# §I18N §2.0: positions {3,4,8,13,17,15} resolved into the current locale.
+	var oaks_letters: Array = BookwarConst.get_map_letters_resolved(BookwarConst.MAP_DARK_OAKS)
+	var oaks_offsets: Array = [Vector2(200.0, -150.0), Vector2(-350.0, 200.0), Vector2(400.0, 250.0), Vector2(-500.0, -200.0), Vector2(550.0, -100.0), Vector2(-200.0, 300.0)]
+	for i: int in range(mini(oaks_letters.size(), oaks_offsets.size())):
+		_spawn_letter(items, String(oaks_letters[i]), _clamp_pos(p + oaks_offsets[i]), _item_key(idx)); idx += 1
 
 const CURRENCY_COLORS: Array[Color] = [
 	Color(1.0, 0.80, 0.30), Color(0.90, 0.60, 0.90), Color(0.55, 0.90, 0.70),
@@ -775,6 +776,27 @@ const CURRENCY_COLORS: Array[Color] = [
 const CURRENCY_LETTERS: Array[String] = [
 	"А","Б","В","Г","Д","Е","Ж","З","И","К","Л","М","Н","О","П","Р","С","Т","У","Ф","Х","Ц","Я","Ю","Э","Ы","Й"
 ]
+
+# §I18N §2.0: currency pickup glyphs (cosmetic) — first letters of the CURRENT
+# locale's alphabet; ru keeps the original hand-picked list.
+func _currency_pool() -> Array:
+	var snapshot: Array = AlphabetData.get_alphabet_snapshot()
+	if snapshot.is_empty():
+		return CURRENCY_LETTERS
+	var chars: Array = []
+	for i: int in range(mini(snapshot.size(), CURRENCY_LETTERS.size())):
+		chars.append(String(snapshot[i].get("char", "")))
+	return chars
+
+# §I18N §2.0: first n letters of the current locale's alphabet (ru fallback).
+func _alphabet_head(n: int) -> Array:
+	var snapshot: Array = AlphabetData.get_alphabet_snapshot()
+	if snapshot.is_empty():
+		return CURRENCY_LETTERS.slice(0, maxi(1, n))
+	var chars: Array = []
+	for i: int in range(mini(snapshot.size(), maxi(1, n))):
+		chars.append(String(snapshot[i].get("char", "")))
+	return chars
 
 func _clamp_pos(pos: Vector2) -> Vector2:
 	# Q5: bounds динамические — зависят от текущей карты
@@ -796,7 +818,8 @@ func _spawn_item(parent: Node2D, item_type: String, item_id: String, pos: Vector
 	var glow: Node = item.get_node_or_null("GlowBg")
 	if item_type == "dot":
 		# Currency pickup (Буквицы): a SMALL random letter of a random color, tilted at a random angle
-		var ch: String = CURRENCY_LETTERS[rng.randi() % CURRENCY_LETTERS.size()]
+		var currency_pool: Array = _currency_pool()
+		var ch: String = String(currency_pool[rng.randi() % currency_pool.size()])
 		var col: Color = CURRENCY_COLORS[rng.randi() % CURRENCY_COLORS.size()]
 		item.rotation = deg_to_rad(rng.randf_range(1.0, 180.0))
 		if label:
@@ -850,14 +873,18 @@ func _push_monster_states() -> void:
 	# Also expose the current count of uncollected map items (for persistence tests)
 	var item_count: int = 0
 	var item_positions: Array = []
+	var letter_chars: Array = []
 	var items_node: Node = get_node_or_null("Items")
 	if items_node:
 		item_count = items_node.get_child_count()
 		for item: Node in items_node.get_children():
 			if item is Area2D:
-				item_positions.append({"x": (item as Area2D).global_position.x, "y": (item as Area2D).global_position.y})
+				item_positions.append({"x": (item as Area2D).global_position.x, "y": (item as Area2D).global_position.y, "t": String((item as Area2D).get("item_type"))})
+				# §I18N: spawned letter glyphs for locale-awareness tests
+				if String((item as Area2D).get("item_type")) == "letter":
+					letter_chars.append(String((item as Area2D).get("item_id")))
 	if OS.has_feature("web"):
-		JavaScriptBridge.eval("window.gameMonsterStates = " + JSON.stringify(snapshots) + "; window.gameItemCount = " + str(item_count) + "; window.gameTotalMonsters = " + str(_total_monsters) + "; window.gameTotalItems = " + str(_total_items) + "; window.gameItemPositions = " + JSON.stringify(item_positions) + ";")
+		JavaScriptBridge.eval("window.gameMonsterStates = " + JSON.stringify(snapshots) + "; window.gameItemCount = " + str(item_count) + "; window.gameTotalMonsters = " + str(_total_monsters) + "; window.gameTotalItems = " + str(_total_items) + "; window.gameItemPositions = " + JSON.stringify(item_positions) + "; window.gameMapLetterChars = " + JSON.stringify(letter_chars) + ";")
 
 # §16 — Кузнец Слов: открыть инвентарь + вкладку крафта.
 func _open_inventory_and_craft() -> void:
