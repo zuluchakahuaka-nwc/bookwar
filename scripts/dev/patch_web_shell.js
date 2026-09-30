@@ -102,6 +102,16 @@ body { color: #fff; background-color: #120608; overflow: hidden; touch-action: n
 		<div id="bw-hint">Игра весит ~112 МБ. Подождите окончания загрузки.</div>
 	</div>
 	<script>
+// URL locale override: ?locale=hy (or any supported code) forces the game
+// language BEFORE the engine boots — i18n.gd reads localStorage
+// 'bookwar_locale' on startup. Lets links like /?locale=hy open the game
+// in Armenian directly.
+(function(){
+	try {
+		var m = location.search.match(/[?&]locale=([a-z]{2,3})(?:&|$)/i);
+		if (m) localStorage.setItem('bookwar_locale', m[1].toLowerCase());
+	} catch(e) {}
+})();
 // Ensure the canvas keeps keyboard/touch focus — Godot HTML5 loses it after
 // reloads and on some mobile browsers, which breaks InputEvent delivery.
 // Also unlock the Web Audio context on first user gesture (HTML5 browsers
