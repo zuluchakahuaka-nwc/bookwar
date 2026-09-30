@@ -20,10 +20,18 @@ describe('User Test: Game Startup', () => {
     const clicked = await godot.clickButton('Новая игра');
     expect(clicked).toBe(true);
     await godot.waitFrames(30);
+    // New Game always plays the legend intro first — skip it like a player
+    // who has already seen the story (gameSkipIntro bridge).
+    try {
+      await godot.waitForCondition(async () => {
+        return await godot.evaluateInPage(() => typeof window.gameSkipIntro === 'function');
+      }, 10000);
+      await godot.evaluateInPage(() => { if (typeof window.gameSkipIntro === 'function') window.gameSkipIntro(); });
+    } catch (e) { /* intro may have been skipped already */ }
     // Character select screen appears — confirm default hero
     await godot.waitForCondition(async () => {
       return await godot.evaluateInPage(() => !!(window.gameCharSelectLoaded));
-    }, 10000);
+    }, 15000);
     await godot.evaluateInPage(() => {
       if (typeof window.gameConfirmHero === 'function') window.gameConfirmHero();
     });
@@ -39,8 +47,11 @@ describe('User Test: Game Startup', () => {
   });
 
   test('HUD shows initial HP', async () => {
-    await godot.waitMs(1000);
-    await godot.waitFrames(30);
+    // HUD bridge is periodic — wait until the HP line actually appears.
+    await godot.waitForCondition(async () => {
+      const hp = await gameActions.getHPFromHUD();
+      return typeof hp === 'string' && hp.length > 0;
+    }, 10000, 500);
     const hp = await gameActions.getHPFromHUD();
     expect(hp).toContain('100');
   });
