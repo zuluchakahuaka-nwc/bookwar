@@ -24,10 +24,16 @@ describe('Recruit hint: monster tells where the letter is', () => {
     await gameActions.testStartDialogue();
     await godot.waitFrames(20);
 
-    // End the dialogue (advance/close) to trigger recruitment + hint
-    await godot.evaluateInPage(() => {
-      if (typeof window.gameAdvanceDialogue === 'function') window.gameAdvanceDialogue();
-    });
+    // Dialogues are multi-line: advance until the dialogue actually closes —
+    // the recruit message (with the letter hint) is emitted at close.
+    for (let i = 0; i < 10; i++) {
+      const active = await gameActions.isDialogueActive();
+      if (!active) break;
+      await godot.evaluateInPage(() => {
+        if (typeof window.gameAdvanceDialogue === 'function') window.gameAdvanceDialogue();
+      });
+      await godot.waitMs(250);
+    }
     await godot.waitMs(1000);
 
     // The recruit message (with hint) should now be set

@@ -13,11 +13,12 @@ describe('Recruit cost = exactly 3 буквицы', () => {
   afterAll(async () => { await godot.closeBrowser(); });
 
   test('one recruit consumes exactly 3 буквицы regardless of dialogue length', async () => {
-    // Give exactly 6 буквицы
+    // Starter буквицы are auto-picked at spawn — measure RELATIVE cost.
+    const base = await bukvitsy();
     await gameActions.testAddDots(6);
     await godot.waitFrames(10);
     const before = await bukvitsy();
-    expect(before).toBe(6);
+    expect(before).toBe(base + 6);
 
     // Force recruit + run through ALL dialogue lines of a "?" (multi-line)
     await godot.evaluateInPage(() => { if (typeof window.gameForceRecruit === 'function') window.gameForceRecruit(true); });

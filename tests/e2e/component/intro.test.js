@@ -28,8 +28,20 @@ describe('L1: Intro legend slideshow', () => {
     expect(idx).toBe(0);
     await godot.takeScreenshot('l1_intro_scene1');
 
-    // Advance through panels 1..6 via JS bridge (avoids pressKey's canvas click double-advance)
-    for (let i = 0; i < 6; i++) {
+    // The intro opens on a TITLE CARD: the first advance dismisses it without
+    // moving the panel index (intro.gd _advance -> _dismiss_title_card).
+    await godot.evaluateInPage(() => {
+      if (typeof window.gameAdvanceIntro === 'function') window.gameAdvanceIntro();
+    });
+    await godot.waitMs(500);
+    introActive = await godot.evaluateInPage(() => !!window.gameIntroActive);
+    expect(introActive).toBe(true);
+    idx = await godot.evaluateInPage(() => window.gameIntroIndex || 0);
+    expect(idx).toBe(0);
+
+    // Advance through panels 1..7 via JS bridge (avoids pressKey's canvas click
+    // double-advance). The prologue has 8 panels (prologue.panel_0..7).
+    for (let i = 0; i < 7; i++) {
       await godot.evaluateInPage(() => {
         if (typeof window.gameAdvanceIntro === 'function') window.gameAdvanceIntro();
       });
@@ -37,7 +49,7 @@ describe('L1: Intro legend slideshow', () => {
       idx = await godot.evaluateInPage(() => window.gameIntroIndex || 0);
       expect(idx).toBe(i + 1);
     }
-    await godot.takeScreenshot('l1_intro_scene7');
+    await godot.takeScreenshot('l1_intro_scene8');
 
     // Final advance → transition to world
     await godot.evaluateInPage(() => {
