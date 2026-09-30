@@ -1,0 +1,12 @@
+{
+  "spells": [
+    {"word": "ՀՐԱ",  "letters": ["Հ","Ր","Ա"],       "type": "attack", "multiplier": 2.0, "effect": "double_damage", "description": "Ուժեղացված հարձակում՝ կրկնակի վնաս։", "unlock_cost": 147},
+    {"word": "ԶԻՆ",  "letters": ["Զ","Ի","Ն"],       "type": "attack_pierce", "multiplier": 1.8, "effect": "ignore_shield", "description": "Նետում է թշնամու վահանի միջով։", "unlock_cost": 117},
+    {"word": "ԹՈՒՐ", "letters": ["Թ","Ո","Ւ","Ր"],   "type": "attack", "multiplier": 1.7, "effect": "ranged_no_retaliate", "description": "Հեռվից հարված՝ թշնամին պատասխան չի տալիս։", "unlock_cost": 297},
+    {"word": "ԲՈՒԺ", "letters": ["Բ","Ո","Ւ","Ժ"],   "type": "heal", "multiplier": 1.0, "effect": "heal_40", "description": "Վերականգնում է 40 HP։", "unlock_cost": 210},
+    {"word": "ՓԱԽ",  "letters": ["Փ","Ա","Խ"],       "type": "evade", "multiplier": 1.0, "effect": "evade_next", "description": "Խուսափում է հաջորդ հարձակումից։", "unlock_cost": 147},
+    {"word": "ԱՅՐ",  "letters": ["Ա","Յ","Ր"],       "type": "dot", "multiplier": 1.5, "effect": "burn_3_turns", "description": "Հրկիզում է թշնամուն 3 հերթ շարունակ։", "unlock_cost": 162},
+    {"word": "ԶՈՐ",  "letters": ["Զ","Ո","Ր"],      "type": "buff", "multiplier": 2.0, "effect": "buff_next_turn", "description": "Երդում՝ հաջորդ հերթը կրկնակի ուժով։", "unlock_cost": 186},
+    {"word": "ՌԱԶՄ", "letters": ["Ռ","Ա","Զ","Մ"],   "type": "attack_mass", "multiplier": 2.2, "effect": "triple_strike", "description": "Եռակի հարված՝ հսկայական վնաս։", "unlock_cost": 165}
+  ]
+}
