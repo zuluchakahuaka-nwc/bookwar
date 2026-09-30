@@ -16,9 +16,16 @@ describe('Character Select — Hero Avatars', () => {
 
   test('01 char select loads with 50 heroes', async () => {
     await godot.clickButton('Новая игра');
+    // New Game always plays the legend intro first — skip it.
+    try {
+      await godot.waitForCondition(async () => {
+        return await godot.evaluateInPage(() => typeof window.gameSkipIntro === 'function');
+      }, 10000);
+      await godot.evaluateInPage(() => { if (typeof window.gameSkipIntro === 'function') window.gameSkipIntro(); });
+    } catch (e) { /* intro may be already skipped */ }
     await godot.waitForCondition(async () => {
       return await godot.evaluateInPage(() => !!(window.gameCharSelectLoaded));
-    }, 10000);
+    }, 15000);
     await godot.waitMs(1000);
     const count = await godot.evaluateInPage(() => window.gameHeroCount || 0);
     console.log('Hero count:', count);

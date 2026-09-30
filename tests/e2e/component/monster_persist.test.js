@@ -47,12 +47,14 @@ describe('Monster state persists across battle', () => {
     await godot.takeScreenshot('persist_recruited_before_battle');
 
     // Now fight a battle and return to world (scene reloads)
-    await gameActions.testAddLetter('А');
+    // §20: Я is the strongest letter (base 33 × level ≥ 30 HP foe) — А no longer one-shots.
+    await gameActions.testAddLetter('Я');
     await gameActions.startTestCombat('StateResetFoe', 30, ['Я']);
     await gameActions.waitForCombat(10000);
     await godot.waitMs(500);
-    await gameActions.selectBattleCard('А');
+    await gameActions.selectBattleCard('Я');
     await gameActions.confirmBattleTurnExplicit();
+    await godot.waitMs(1500);
     await gameActions.waitForWorld(15000);
     await godot.waitMs(2500);
 

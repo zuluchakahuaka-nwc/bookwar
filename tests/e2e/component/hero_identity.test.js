@@ -1,11 +1,18 @@
 const godot = require('../helpers/godot_page');
 const gameActions = require('../helpers/game_actions');
 
-async function openCharSelect() {
+  async function openCharSelect() {
   await godot.clickButton('Новая игра');
+  // New Game always plays the legend intro first — skip it to reach char select.
+  try {
+    await godot.waitForCondition(async () => {
+      return await godot.evaluateInPage(() => typeof window.gameSkipIntro === 'function');
+    }, 10000);
+    await godot.evaluateInPage(() => { if (typeof window.gameSkipIntro === 'function') window.gameSkipIntro(); });
+  } catch (e) { /* intro may be already skipped */ }
   await godot.waitForCondition(async () => {
     return await godot.evaluateInPage(() => !!(window.gameCharSelectLoaded));
-  }, 10000);
+  }, 15000);
   await godot.waitFrames(10);
 }
 
