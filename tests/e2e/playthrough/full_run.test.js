@@ -42,15 +42,39 @@ describe('Full Playthrough: Light Valley', () => {
   test('Step 4: Player collects dots from the ground (dots increase)', async () => {
     const before = await gameActions.getInventoryContents();
     const dotsBefore = before.dots + (before.punctuation['...'] || 0) * 3;
-    for (let i = 0; i < 5; i++) {
-      await gameActions.movePlayer('right', 200);
-      await gameActions.movePlayer('down', 150);
-      await gameActions.movePlayer('up', 150);
+    // Deterministic: walk to the nearest uncollected dot (blind zigzags are flaky).
+    const target = await godot.getPage().evaluate(() => {
+      const p = window.gamePlayerPos;
+      if (!p) return null;
+      const dots = (window.gameItemPositions || []).filter(i => (i.t || '') !== 'letter');
+      if (!dots.length) return null;
+      const withD = dots.map(i => ({ ...i, d: Math.hypot(i.x - p.x, i.y - p.y) }));
+      withD.sort((a, b) => a.d - b.d);
+      return { x: withD[0].x, y: withD[0].y };
+    });
+    expect(target).not.toBeNull();
+    // The item-positions bridge lags behind auto-pickup — try up to 3 nearest
+    // dots, re-reading positions each time, until the count grows.
+    let collected = false;
+    for (let attempt = 0; attempt < 3 && !collected; attempt++) {
+      const t = await godot.getPage().evaluate(() => {
+        const p = window.gamePlayerPos;
+        if (!p) return null;
+        const dots = (window.gameItemPositions || []).filter(i => (i.t || '') !== 'letter');
+        if (!dots.length) return null;
+        const withD = dots.map(i => ({ ...i, d: Math.hypot(i.x - p.x, i.y - p.y) }));
+        withD.sort((a, b) => a.d - b.d);
+        return { x: withD[0].x, y: withD[0].y };
+      });
+      if (!t) break;
+      await gameActions.movePlayerTo(t.x, t.y);
+      await gameActions.interact();
+      await godot.waitFrames(10);
+      const after = await gameActions.getInventoryContents();
+      const dotsNow = after.dots + (after.punctuation['...'] || 0) * 3;
+      if (dotsNow > dotsBefore) collected = true;
     }
-    await godot.waitFrames(10);
-    const after = await gameActions.getInventoryContents();
-    const dotsAfter = after.dots + (after.punctuation['...'] || 0) * 3;
-    expect(dotsAfter).toBeGreaterThan(dotsBefore);
+    expect(collected).toBe(true);
   });
 
   test('Step 5: Three dots combine into ellipsis (...)', async () => {
@@ -77,7 +101,9 @@ describe('Full Playthrough: Light Valley', () => {
   test('Step 7: Player acquires a hidden letter (inventory gains a letter)', async () => {
     const before = await gameActions.getInventoryContents();
     const lettersBefore = Object.keys(before.letters || {}).length;
-    await gameActions.testAddLetter('О'); // new letter type (А is the starter)
+    // Я is guaranteed NEW: heroes start with А,О,М (Словомир) + valley drops
+    // А,М,О — adding О would only raise its level, not the type count.
+    await gameActions.testAddLetter('Я'); // new letter type
     await godot.waitFrames(10);
     const after = await gameActions.getInventoryContents();
     const lettersAfter = Object.keys(after.letters || {}).length;
