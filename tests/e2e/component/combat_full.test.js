@@ -1,6 +1,19 @@
 const godot = require('../helpers/godot_page');
 const gameActions = require('../helpers/game_actions');
 
+// §20 inversion: base_power = position (А=1 ... Я=33). Assert dynamically via
+// gameAlphabet/gameInventory instead of the old hardcoded 33/32 values.
+// Vowel enemies (['А']) attack instead of shielding, so player damage lands on HP.
+async function basePowerOf(letter) {
+  return await godot.getPage().evaluate((l) => {
+    const e = (window.gameAlphabet || []).find(a => a.char === l);
+    return e ? e.base_power : 0;
+  }, letter);
+}
+async function levelOf(letter) {
+  return await godot.getPage().evaluate((l) => (window.gameInventory || {}).letters?.[l] || 0, letter);
+}
+
 describe('Component Test: Full Combat Scenarios', () => {
   jest.setTimeout(120000);
 
@@ -30,7 +43,11 @@ describe('Component Test: Full Combat Scenarios', () => {
 
   test('C1: vowel attack reduces enemy HP', async () => {
     await gameActions.testAddLetter('А');
-    await gameActions.startTestCombat('TestVowel', 100, ['Я']);
+    const base = await basePowerOf('А');
+    const lvl = await levelOf('А');
+    expect(base).toBeGreaterThan(0);
+    expect(lvl).toBeGreaterThan(0);
+    await gameActions.startTestCombat('TestVowel', 100, ['А']);
     await gameActions.waitForCombat();
     await godot.waitMs(500);
 
@@ -40,11 +57,12 @@ describe('Component Test: Full Combat Scenarios', () => {
     await gameActions.resetCombatLog();
     await gameActions.selectBattleCard('А');
     await gameActions.confirmBattleTurnExplicit();
+    await godot.waitMs(1500);
 
     const log = await gameActions.getCombatLogAll();
     const dmg = log.find((e) => e.event === 'damage' && e.target === 'enemy');
     expect(dmg).toBeDefined();
-    expect(dmg.damage).toBeGreaterThanOrEqual(33);
+    expect(dmg.damage).toBeGreaterThanOrEqual(base * lvl); // §20: base=position
 
     const stateAfter = await gameActions.getCombatState();
     expect(stateAfter.enemy_hp).toBeLessThan(enemyHpBefore);
@@ -55,21 +73,30 @@ describe('Component Test: Full Combat Scenarios', () => {
 
   test('C2: consonant creates shield for player', async () => {
     await gameActions.testAddLetter('Б');
-    await gameActions.startTestCombat('TestShield', 200, ['Я']);
+    const base = await basePowerOf('Б');
+    const lvl = await levelOf('Б');
+    expect(base).toBeGreaterThan(0);
+    expect(lvl).toBeGreaterThan(0);
+    await gameActions.startTestCombat('TestShield', 200, ['А']);
     await gameActions.waitForCombat();
     await godot.waitMs(500);
 
     await gameActions.resetCombatLog();
     await gameActions.selectBattleCard('Б');
     await gameActions.confirmBattleTurnExplicit();
+    await godot.waitMs(1500);
 
     const log = await gameActions.getCombatLogAll();
     const shield = log.find((e) => e.event === 'shield' && e.side === 'player');
     expect(shield).toBeDefined();
-    expect(shield.amount).toBeGreaterThanOrEqual(32);
+    expect(shield.amount).toBeGreaterThanOrEqual(base * lvl); // §20: base=position
 
+    // NOTE: state.player_shield is read AFTER the full round resolves — the
+    // enemy vowel (acting after Б) may have chewed part of the shield already,
+    // so only assert it stayed non-negative here (the shield.amount log entry
+    // above is the authoritative check).
     const state = await gameActions.getCombatState();
-    expect(state.player_shield).toBeGreaterThanOrEqual(32);
+    expect(state.player_shield).toBeGreaterThanOrEqual(0);
 
     await gameActions.fleeBattle();
     await gameActions.waitForWorld();
@@ -101,7 +128,8 @@ describe('Component Test: Full Combat Scenarios', () => {
   });
 
   test('C4: victory — kill enemy and get loot', async () => {
-    await gameActions.testAddLetter('А');
+    // §20: Я is the strongest letter (base 33) — use it to one-shot a 30 HP foe
+    await gameActions.testAddLetter('Я');
     await gameActions.startTestCombat('WeakFoe', 30, ['О']);
     await gameActions.waitForCombat();
     await godot.waitMs(500);
@@ -112,10 +140,10 @@ describe('Component Test: Full Combat Scenarios', () => {
     );
 
     await gameActions.resetCombatLog();
-    await gameActions.selectBattleCard('А');
+    await gameActions.selectBattleCard('Я');
     await gameActions.confirmBattleTurnExplicit();
 
-    // А level 1 = 33 damage, enemy has 30 HP → dead
+    // Я base 33 × level 1 = 33 damage, enemy has 30 HP → dead
     await godot.waitMs(3000);
     await gameActions.waitForWorld();
 
@@ -169,7 +197,7 @@ describe('Component Test: Full Combat Scenarios', () => {
   test('C7: multiple rounds — enemy takes damage over 2 turns', async () => {
     await gameActions.testAddLetter('О');
     await gameActions.testAddLetter('А'); // second vowel (each letter once per battle now)
-    await gameActions.startTestCombat('TankyFoe', 200, ['Я']);
+    await gameActions.startTestCombat('TankyFoe', 200, ['А']);
     await gameActions.waitForCombat();
     await godot.waitMs(500);
 
@@ -177,6 +205,7 @@ describe('Component Test: Full Combat Scenarios', () => {
     await gameActions.resetCombatLog();
     await gameActions.selectBattleCard('О');
     await gameActions.confirmBattleTurnExplicit();
+    await godot.waitMs(1500);
 
     const stateAfterR1 = await gameActions.getCombatState();
     const hpAfterR1 = stateAfterR1.enemy_hp;
@@ -187,6 +216,7 @@ describe('Component Test: Full Combat Scenarios', () => {
     await gameActions.resetCombatLog();
     await gameActions.selectBattleCard('А');
     await gameActions.confirmBattleTurnExplicit();
+    await godot.waitMs(1500);
 
     const stateAfterR2 = await gameActions.getCombatState();
     const hpAfterR2 = stateAfterR2.enemy_hp;

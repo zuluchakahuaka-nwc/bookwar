@@ -311,7 +311,26 @@ func _apply_damage(target: String, damage: float, letter_char: String, buff_mult
 			shield_absorbed = min(_enemy_shield, remaining)
 			_enemy_shield -= shield_absorbed
 			remaining -= shield_absorbed
-		_enemy_hp = max(0, _enemy_hp - int(round(remaining)))
+		var enemy_hp_loss: int = int(round(remaining))
+		_enemy_hp = max(0, _enemy_hp - enemy_hp_loss)
+		damage_dealt.emit(target, damage, letter_char)
+		# LOG FIX (was missing): mirror the player/ally branches — the enemy-damage
+		# branch absorbed the shield and deducted HP but never emitted the
+		# `damage` combat-log action, so UI/tests saw no player attacks land.
+		var enemy_action: Dictionary = {
+			"event": "damage",
+			"target": "enemy",
+			"letter": letter_char,
+			"damage": damage,
+			"shield_absorbed": shield_absorbed,
+			"hp_loss": enemy_hp_loss,
+			"buff_mult": buff_mult,
+			"target_hp": _enemy_hp,
+			"target_shield": _enemy_shield
+		}
+		action_resolved.emit(enemy_action)
+		_combat_log.append(enemy_action)
+		_log(enemy_action)
 	else:
 		# Player is about to take damage. If the player has recruited allies (gang),
 		# there's a chance the enemy blow lands on a random ally instead — they
